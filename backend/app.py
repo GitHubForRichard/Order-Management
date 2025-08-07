@@ -6,13 +6,14 @@ from datetime import datetime
 
 import uuid
 import json
-import os
+
+from constants import DB_HOST, DB_NAME, DB_PASSWORD, DB_PORT, DB_USER
 
 app = Flask(__name__)
 CORS(app)
 
 # or your DB
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:supersecure@localhost:5432/postgres'
+app.config['SQLALCHEMY_DATABASE_URI'] = f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
 
 db.init_app(app)
 migrate = Migrate(app, db)
