@@ -39,41 +39,45 @@ def create_order():
         if field not in data:
             return jsonify({'error': f'Missing required field: {field}'}), 400
 
-    # Create new order
-    new_order = {
-        'id': str(uuid.uuid4()),
-        'first_name': data['first_name'],
-        'last_name': data['last_name'],
-        'phone_number': data['phone_number'],
-        'model_number': data['model_number'],
-        'issues': data.get('issues', ''),
-        'case': data.get('case', ''),
-        'email': data['email'],
-        'sales_order': data.get('sales_order', ''),
-        'date': data.get('date', datetime.utcnow().strftime('%Y-%m-%d')),
-        'address': data.get('address', ''),
-        'street': data.get('street', ''),
-        'city': data.get('city', ''),
-        'zip_code': data.get('zip_code', ''),
-        'state': data.get('state', ''),
-        'country': data.get('country', ''),
-        'assign': data.get('assign', ''),
-        'status': data.get('status', 'Pending'),
-        'serial': data.get('serial', ''),
-        'solution': data.get('solution', ''),
-        'action': data.get('action', ''),
-        'file_name': data.get('file_name', ''),
-        'tracking': data.get('tracking', ''),
-        'return_status': data.get('return_status', ''),
-        'created_at': datetime.utcnow().isoformat() + 'Z'
-    }
+    try:
+        # Create a new Order instance
+        new_order = Order(
+            id=str(uuid.uuid4()),
+            first_name=data['first_name'],
+            last_name=data['last_name'],
+            phone_number=data['phone_number'],
+            model_number=data['model_number'],
+            issues=data.get('issues'),
+            case=data.get('case'),
+            email=data['email'],
+            sales_order=data.get('sales_order'),
+            date=datetime.strptime(
+                data.get('date'), '%Y-%m-%d') if data.get('date') else None,
+            address=data.get('address'),
+            street=data.get('street'),
+            city=data.get('city'),
+            zip_code=data.get('zip_code'),
+            state=data.get('state'),
+            country=data.get('country'),
+            assign=data.get('assign'),
+            status=data.get('status', 'Pending'),
+            serial=data.get('serial'),
+            solution=data.get('solution'),
+            action=data.get('action'),
+            tracking=data.get('tracking'),
+            return_status=data.get('return_status'),
+            created_at=datetime.utcnow()
+        )
 
-    orders.append(new_order)
-    # Save to file
-    with open(DATA_FILE, 'w') as f:
-        json.dump(orders, f, indent=2)
+        # Add to session and commit
+        db.session.add(new_order)
+        db.session.commit()
 
-    return jsonify({'order': new_order}), 201
+        return jsonify({'order': new_order.to_dict()}), 201
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
 
 
 @app.route('/api/orders/<order_id>', methods=['GET'])

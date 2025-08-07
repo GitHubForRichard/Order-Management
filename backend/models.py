@@ -10,7 +10,7 @@ class Order(db.Model):
     id = db.Column(db.String(36), primary_key=True)  # UUID string
     first_name = db.Column(db.String(100), nullable=False)
     last_name = db.Column(db.String(100), nullable=False)
-    primary_number = db.Column(db.String(20), nullable=False)
+    phone_number = db.Column(db.String(20), nullable=False)
     model_number = db.Column(db.String(50), nullable=False)
     issues = db.Column(db.Text, nullable=True)
     case = db.Column(db.String(50), nullable=True)
@@ -41,7 +41,7 @@ class Order(db.Model):
             'id': self.id,
             'first_name': self.first_name,
             'last_name': self.last_name,
-            'primary_number': self.primary_number,
+            'phone_number': self.phone_number,
             'model_number': self.model_number,
             'issues': self.issues,
             'case': self.case,

@@ -24,7 +24,7 @@ def upgrade():
                         length=100), nullable=False),
                     sa.Column('last_name', sa.String(
                         length=100), nullable=False),
-                    sa.Column('primary_number', sa.String(
+                    sa.Column('phone_number', sa.String(
                         length=20), nullable=False),
                     sa.Column('model_number', sa.String(
                         length=50), nullable=False),
