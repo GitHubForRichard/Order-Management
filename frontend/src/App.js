@@ -5,9 +5,12 @@ import "./App.css";
 function App() {
   const [orders, setOrders] = useState([]);
   const toProperCase = (str) => {
-  return str
-    .replace(/_/g, " ")
-    .replace(/\w\S*/g, (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase());
+    return str
+      .replace(/_/g, " ")
+      .replace(
+        /\w\S*/g,
+        (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()
+      );
   };
   const [loggedInUser, setLoggedInUser] = useState("Xiaoyin Zhang"); // Replace with your actual logic
   const initialOrder = {
@@ -37,92 +40,104 @@ function App() {
   };
 
   const countryCodes = [
-  { code: "+1", name: "USA/Canada" },
-  { code: "+44", name: "UK" },
-  { code: "+61", name: "Australia" },
-  { code: "+81", name: "Japan" },
-  { code: "+49", name: "Germany" },
-  { code: "+91", name: "India" },
-  { code: "+33", name: "France" },
-  { code: "+86", name: "China" },
-  { code: "+82", name: "South Korea" },
-  { code: "+34", name: "Spain" },
-  // Add more as needed
+    { code: "+1", name: "USA/Canada" },
+    { code: "+44", name: "UK" },
+    { code: "+61", name: "Australia" },
+    { code: "+81", name: "Japan" },
+    { code: "+49", name: "Germany" },
+    { code: "+91", name: "India" },
+    { code: "+33", name: "France" },
+    { code: "+86", name: "China" },
+    { code: "+82", name: "South Korea" },
+    { code: "+34", name: "Spain" },
+    // Add more as needed
   ];
 
   const countries = ["USA", "Canada", "UK", "Australia"];
   const usStates = [
-  { name: "Alabama", abbreviation: "AL" },
-  { name: "Alaska", abbreviation: "AK" },
-  { name: "Arizona", abbreviation: "AZ" },
-  { name: "Arkansas", abbreviation: "AR" },
-  { name: "California", abbreviation: "CA" },
-  { name: "Colorado", abbreviation: "CO" },
-  { name: "Connecticut", abbreviation: "CT" },
-  { name: "Delaware", abbreviation: "DE" },
-  { name: "Florida", abbreviation: "FL" },
-  { name: "Georgia", abbreviation: "GA" },
-  { name: "Hawaii", abbreviation: "HI" },
-  { name: "Idaho", abbreviation: "ID" },
-  { name: "Illinois", abbreviation: "IL" },
-  { name: "Indiana", abbreviation: "IN" },
-  { name: "Iowa", abbreviation: "IA" },
-  { name: "Kansas", abbreviation: "KS" },
-  { name: "Kentucky", abbreviation: "KY" },
-  { name: "Louisiana", abbreviation: "LA" },
-  { name: "Maine", abbreviation: "ME" },
-  { name: "Maryland", abbreviation: "MD" },
-  { name: "Massachusetts", abbreviation: "MA" },
-  { name: "Michigan", abbreviation: "MI" },
-  { name: "Minnesota", abbreviation: "MN" },
-  { name: "Mississippi", abbreviation: "MS" },
-  { name: "Missouri", abbreviation: "MO" },
-  { name: "Montana", abbreviation: "MT" },
-  { name: "Nebraska", abbreviation: "NE" },
-  { name: "Nevada", abbreviation: "NV" },
-  { name: "New Hampshire", abbreviation: "NH" },
-  { name: "New Jersey", abbreviation: "NJ" },
-  { name: "New Mexico", abbreviation: "NM" },
-  { name: "New York", abbreviation: "NY" },
-  { name: "North Carolina", abbreviation: "NC" },
-  { name: "North Dakota", abbreviation: "ND" },
-  { name: "Ohio", abbreviation: "OH" },
-  { name: "Oklahoma", abbreviation: "OK" },
-  { name: "Oregon", abbreviation: "OR" },
-  { name: "Pennsylvania", abbreviation: "PA" },
-  { name: "Rhode Island", abbreviation: "RI" },
-  { name: "South Carolina", abbreviation: "SC" },
-  { name: "South Dakota", abbreviation: "SD" },
-  { name: "Tennessee", abbreviation: "TN" },
-  { name: "Texas", abbreviation: "TX" },
-  { name: "Utah", abbreviation: "UT" },
-  { name: "Vermont", abbreviation: "VT" },
-  { name: "Virginia", abbreviation: "VA" },
-  { name: "Washington", abbreviation: "WA" },
-  { name: "West Virginia", abbreviation: "WV" },
-  { name: "Wisconsin", abbreviation: "WI" },
-  { name: "Wyoming", abbreviation: "WY" }
+    { name: "Alabama", abbreviation: "AL" },
+    { name: "Alaska", abbreviation: "AK" },
+    { name: "Arizona", abbreviation: "AZ" },
+    { name: "Arkansas", abbreviation: "AR" },
+    { name: "California", abbreviation: "CA" },
+    { name: "Colorado", abbreviation: "CO" },
+    { name: "Connecticut", abbreviation: "CT" },
+    { name: "Delaware", abbreviation: "DE" },
+    { name: "Florida", abbreviation: "FL" },
+    { name: "Georgia", abbreviation: "GA" },
+    { name: "Hawaii", abbreviation: "HI" },
+    { name: "Idaho", abbreviation: "ID" },
+    { name: "Illinois", abbreviation: "IL" },
+    { name: "Indiana", abbreviation: "IN" },
+    { name: "Iowa", abbreviation: "IA" },
+    { name: "Kansas", abbreviation: "KS" },
+    { name: "Kentucky", abbreviation: "KY" },
+    { name: "Louisiana", abbreviation: "LA" },
+    { name: "Maine", abbreviation: "ME" },
+    { name: "Maryland", abbreviation: "MD" },
+    { name: "Massachusetts", abbreviation: "MA" },
+    { name: "Michigan", abbreviation: "MI" },
+    { name: "Minnesota", abbreviation: "MN" },
+    { name: "Mississippi", abbreviation: "MS" },
+    { name: "Missouri", abbreviation: "MO" },
+    { name: "Montana", abbreviation: "MT" },
+    { name: "Nebraska", abbreviation: "NE" },
+    { name: "Nevada", abbreviation: "NV" },
+    { name: "New Hampshire", abbreviation: "NH" },
+    { name: "New Jersey", abbreviation: "NJ" },
+    { name: "New Mexico", abbreviation: "NM" },
+    { name: "New York", abbreviation: "NY" },
+    { name: "North Carolina", abbreviation: "NC" },
+    { name: "North Dakota", abbreviation: "ND" },
+    { name: "Ohio", abbreviation: "OH" },
+    { name: "Oklahoma", abbreviation: "OK" },
+    { name: "Oregon", abbreviation: "OR" },
+    { name: "Pennsylvania", abbreviation: "PA" },
+    { name: "Rhode Island", abbreviation: "RI" },
+    { name: "South Carolina", abbreviation: "SC" },
+    { name: "South Dakota", abbreviation: "SD" },
+    { name: "Tennessee", abbreviation: "TN" },
+    { name: "Texas", abbreviation: "TX" },
+    { name: "Utah", abbreviation: "UT" },
+    { name: "Vermont", abbreviation: "VT" },
+    { name: "Virginia", abbreviation: "VA" },
+    { name: "Washington", abbreviation: "WA" },
+    { name: "West Virginia", abbreviation: "WV" },
+    { name: "Wisconsin", abbreviation: "WI" },
+    { name: "Wyoming", abbreviation: "WY" },
   ];
   const canadaProvinces = [
-  { name: "Alberta", abbreviation: "AB" },
-  { name: "British Columbia", abbreviation: "BC" },
-  { name: "Manitoba", abbreviation: "MB" },
-  { name: "New Brunswick", abbreviation: "NB" },
-  { name: "Newfoundland and Labrador", abbreviation: "NL" },
-  { name: "Nova Scotia", abbreviation: "NS" },
-  { name: "Ontario", abbreviation: "ON" },
-  { name: "Prince Edward Island", abbreviation: "PE" },
-  { name: "Quebec", abbreviation: "QC" },
-  { name: "Saskatchewan", abbreviation: "SK" },
-  { name: "Northwest Territories", abbreviation: "NT" },
-  { name: "Nunavut", abbreviation: "NU" },
-  { name: "Yukon", abbreviation: "YT" }
+    { name: "Alberta", abbreviation: "AB" },
+    { name: "British Columbia", abbreviation: "BC" },
+    { name: "Manitoba", abbreviation: "MB" },
+    { name: "New Brunswick", abbreviation: "NB" },
+    { name: "Newfoundland and Labrador", abbreviation: "NL" },
+    { name: "Nova Scotia", abbreviation: "NS" },
+    { name: "Ontario", abbreviation: "ON" },
+    { name: "Prince Edward Island", abbreviation: "PE" },
+    { name: "Quebec", abbreviation: "QC" },
+    { name: "Saskatchewan", abbreviation: "SK" },
+    { name: "Northwest Territories", abbreviation: "NT" },
+    { name: "Nunavut", abbreviation: "NU" },
+    { name: "Yukon", abbreviation: "YT" },
   ];
   const requiredFields = [
-  "first_name", "last_name", "phone_number", "email", 
-  "street", "city", "zip_code", "country", "state", 
-  "sales_order", "date", "assign", "status", 
-  "model_number", "serial", "issues"
+    "first_name",
+    "last_name",
+    "phone_number",
+    "email",
+    "street",
+    "city",
+    "zip_code",
+    "country",
+    "state",
+    "sales_order",
+    "date",
+    "assign",
+    "status",
+    "model_number",
+    "serial",
+    "issues",
   ];
   const [productDetail, setProductDetail] = useState(null);
 
@@ -141,46 +156,44 @@ function App() {
       });
   };
   const [newOrder, setNewOrder] = useState(initialOrder);
-  const modelNumberList = [
-  "ABC123",
-  "XYZ789",
-  "DEF456",
-  "GHI012",
-  "JKL345"
-  ];
+  const modelNumberList = ["ABC123", "XYZ789", "DEF456", "GHI012", "JKL345"];
   const [searchName, setSearchName] = useState("");
 
   useEffect(() => {
-  axios
-    .get("http://localhost:5001/api/orders")
-    .then((response) => {
-      const fetchedOrders = response.data.orders;
-      setOrders(fetchedOrders);
+    axios
+      .get("http://localhost:5001/api/orders")
+      .then((response) => {
+        const fetchedOrders = response.data.orders;
+        setOrders(fetchedOrders);
 
-      // Find highest case number
-      const caseNumbers = fetchedOrders
-        .map((order) => parseInt(order.case?.replace(/[^\d]/g, ""), 10))
-        .filter((num) => !isNaN(num));
-        
-      const maxCase = caseNumbers.length > 0 ? Math.max(...caseNumbers) : 0;
+        // Find highest case number
+        const caseNumbers = fetchedOrders
+          .map((order) => parseInt(order.case?.replace(/[^\d]/g, ""), 10))
+          .filter((num) => !isNaN(num));
 
-      // Set new order with next case number
-      setNewOrder((prev) => ({
-        ...prev,
-        case: `CASE-${String(maxCase + 1).padStart(3, "0")}`,
-      }));
-    })
-    .catch((error) =>
-      console.error("There was an error loading the orders!", error)
-    );
-}, []);
+        const maxCase = caseNumbers.length > 0 ? Math.max(...caseNumbers) : 0;
+
+        // Set new order with next case number
+        setNewOrder((prev) => ({
+          ...prev,
+          case: `CASE-${String(maxCase + 1).padStart(3, "0")}`,
+        }));
+      })
+      .catch((error) =>
+        console.error("There was an error loading the orders!", error)
+      );
+  }, []);
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const missingFields = requiredFields.filter(field => !newOrder[field]);
+    const missingFields = requiredFields.filter((field) => !newOrder[field]);
     if (missingFields.length > 0) {
-    alert(`Please fill out all required fields: ${missingFields.map(toProperCase).join(", ")}`);
-    return;
+      alert(
+        `Please fill out all required fields: ${missingFields
+          .map(toProperCase)
+          .join(", ")}`
+      );
+      return;
     }
     axios
       .post("http://localhost:5001/api/orders", newOrder)
@@ -202,11 +215,16 @@ function App() {
       {fields.map((field) => (
         <div
           key={field}
-          className={`form-group ${["street", "email"].includes(field) ? "medium-wide" : ""}`}
+          className={`form-group ${
+            ["street", "email"].includes(field) ? "medium-wide" : ""
+          }`}
         >
-
-          <label>{toProperCase(field)}{" "}
-          {requiredFields.includes(field) && <span className="required-asterisk">*</span>}</label>
+          <label>
+            {toProperCase(field)}{" "}
+            {requiredFields.includes(field) && (
+              <span className="required-asterisk">*</span>
+            )}
+          </label>
           {/* Custom field types */}
           {field === "date" ? (
             <input
@@ -233,9 +251,9 @@ function App() {
               </select>
               <input
                 type="tel"
-                value={newOrder.phone}
+                value={newOrder.phone_number}
                 onChange={(e) =>
-                  setNewOrder({ ...newOrder, phone: e.target.value })
+                  setNewOrder({ ...newOrder, phone_number: e.target.value })
                 }
                 placeholder="Phone number"
                 className="phone-input"
@@ -320,48 +338,48 @@ function App() {
               <option value="Alexandra Geronimo">Alexandra Geronimo</option>
             </select>
           ) : ["issues", "solution", "action"].includes(field) ? (
-                <textarea
-                  className="textarea-scroll"
-                  value={newOrder[field]}
-                  onChange={(e) =>
-                    setNewOrder({ ...newOrder, [field]: e.target.value })
-                  }
-                />
-              ) : field === "case Number" ? (
-                <input
-                  type="text"
-                  value={newOrder["case Number"]}
-                  readOnly
-                  style={{ backgroundColor: "#eee", cursor: "not-allowed" }}
-                />
-              ) : field === "model_number" ? (
-                <select
-                  value={newOrder[field]}
-                  onChange={(e) =>
-                    setNewOrder({ ...newOrder, [field]: e.target.value })
-                  }
-                >
-                  <option value="">Select a model</option>
-                  {modelNumberList.map((model) => (
-                    <option key={model} value={model}>
-                      {model}
-                    </option>
-                  ))}
-                </select>
-              ) : (
-                <input
-                  type="text"
-                  value={newOrder[field]}
-                  onChange={(e) =>
-                    setNewOrder({ ...newOrder, [field]: e.target.value })
-                  }
-                />
-              )}
+            <textarea
+              className="textarea-scroll"
+              value={newOrder[field]}
+              onChange={(e) =>
+                setNewOrder({ ...newOrder, [field]: e.target.value })
+              }
+            />
+          ) : field === "case Number" ? (
+            <input
+              type="text"
+              value={newOrder["case Number"]}
+              readOnly
+              style={{ backgroundColor: "#eee", cursor: "not-allowed" }}
+            />
+          ) : field === "model_number" ? (
+            <select
+              value={newOrder[field]}
+              onChange={(e) =>
+                setNewOrder({ ...newOrder, [field]: e.target.value })
+              }
+            >
+              <option value="">Select a model</option>
+              {modelNumberList.map((model) => (
+                <option key={model} value={model}>
+                  {model}
+                </option>
+              ))}
+            </select>
+          ) : (
+            <input
+              type="text"
+              value={newOrder[field]}
+              onChange={(e) =>
+                setNewOrder({ ...newOrder, [field]: e.target.value })
+              }
+            />
+          )}
         </div>
       ))}
     </div>
   );
-  const [fileType, setFileType] = useState('');
+  const [fileType, setFileType] = useState("");
   const [selectedFiles, setSelectedFiles] = useState([]);
 
   const handleFileChange = (e) => {
@@ -396,7 +414,13 @@ function App() {
               {/* Customer Info */}
               <div className="form-section-card half-width">
                 <h3 className="section-title">Customer Info</h3>
-                {renderRow(["first_name", "last_name", "mid", "phone_number", "email"])}
+                {renderRow([
+                  "first_name",
+                  "last_name",
+                  "mid",
+                  "phone_number",
+                  "email",
+                ])}
                 <h3 className="section-title">Address Info</h3>
                 {renderRow(["street", "city", "zip_code", "country", "state"])}
               </div>
@@ -404,7 +428,13 @@ function App() {
               {/* Order Info */}
               <div className="form-section-card half-width">
                 <h3 className="section-title">Order Info</h3>
-                {renderRow(["sales_order", "date", "assign", "status", "case Number"])}
+                {renderRow([
+                  "sales_order",
+                  "date",
+                  "assign",
+                  "status",
+                  "case Number",
+                ])}
                 <h3 className="section-title">Extra Info</h3>
                 {renderRow(["file_name", "tracking", "return_status"])}
               </div>
@@ -435,7 +465,9 @@ function App() {
                 <tbody>
                   {filteredOrders
                     .filter((order) =>
-                      order.customer_name.toLowerCase().includes(searchName.toLowerCase())
+                      order.customer_name
+                        .toLowerCase()
+                        .includes(searchName.toLowerCase())
                     )
                     .map((order, idx) => (
                       <tr key={idx}>
@@ -452,16 +484,21 @@ function App() {
                       </tr>
                     ))}
                 </tbody>
-
               </table>
             </div>
           </div>
-        
+
           {/* Right Column - Case Detail */}
           <div className="form-right sticky-right">
             <div className="form-section-card">
               <h3 className="section-title">Case Detail</h3>
-              {renderRow(["model_number", "serial", "issues", "solution", "action"])}
+              {renderRow([
+                "model_number",
+                "serial",
+                "issues",
+                "solution",
+                "action",
+              ])}
             </div>
 
             {/* Product detail */}
@@ -513,7 +550,10 @@ function App() {
               </div>
 
               {/* File Input & Buttons */}
-              <div className="form-row" style={{ alignItems: "center", gap: "1rem", marginTop: "10px" }}>
+              <div
+                className="form-row"
+                style={{ alignItems: "center", gap: "1rem", marginTop: "10px" }}
+              >
                 <input
                   type="file"
                   multiple
@@ -522,7 +562,11 @@ function App() {
                   className="form-input"
                 />
 
-                <button type="button" onClick={handleUpload} style={{ height: "36px" }}>
+                <button
+                  type="button"
+                  onClick={handleUpload}
+                  style={{ height: "36px" }}
+                >
                   Upload
                 </button>
               </div>
@@ -531,7 +575,9 @@ function App() {
               <div style={{ marginTop: "10px" }}>
                 {selectedFiles.length > 0 && (
                   <div>
-                    <h4 style={{ fontSize: "14px", marginBottom: "8px" }}>Selected Files:</h4>
+                    <h4 style={{ fontSize: "14px", marginBottom: "8px" }}>
+                      Selected Files:
+                    </h4>
                     <ul style={{ listStyle: "none", padding: 0 }}>
                       {selectedFiles.map((file, index) => (
                         <li key={index} style={{ marginBottom: "6px" }}>
@@ -539,10 +585,20 @@ function App() {
                             <img
                               src={URL.createObjectURL(file)}
                               alt={file.name}
-                              style={{ width: "60px", height: "60px", objectFit: "cover", borderRadius: "6px", marginRight: "10px" }}
+                              style={{
+                                width: "60px",
+                                height: "60px",
+                                objectFit: "cover",
+                                borderRadius: "6px",
+                                marginRight: "10px",
+                              }}
                             />
                           ) : (
-                            <span style={{ fontSize: "13px", marginRight: "10px" }}>{file.name}</span>
+                            <span
+                              style={{ fontSize: "13px", marginRight: "10px" }}
+                            >
+                              {file.name}
+                            </span>
                           )}
                           <button
                             type="button"
@@ -554,7 +610,7 @@ function App() {
                               color: "white",
                               border: "none",
                               borderRadius: "4px",
-                              cursor: "pointer"
+                              cursor: "pointer",
                             }}
                           >
                             Remove
