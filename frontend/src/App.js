@@ -4,6 +4,7 @@ import "./App.css";
 
 function App() {
   const [orders, setOrders] = useState([]);
+  console.log("orders", orders);
   const toProperCase = (str) => {
     return str
       .replace(/_/g, " ")
@@ -207,7 +208,9 @@ function App() {
   };
 
   const filteredOrders = orders.filter((order) =>
-    order.customer_name.toLowerCase().includes(searchName.toLowerCase())
+    [order.last_name.toLowerCase(), order.first_name.toLowerCase()].includes(
+      searchName.toLowerCase()
+    )
   );
 
   const renderRow = (fields) => (
@@ -465,13 +468,16 @@ function App() {
                 <tbody>
                   {filteredOrders
                     .filter((order) =>
-                      order.customer_name
-                        .toLowerCase()
-                        .includes(searchName.toLowerCase())
+                      [
+                        order.last_name.toLowerCase(),
+                        order.first_name.toLowerCase(),
+                      ].includes(searchName.toLowerCase())
                     )
                     .map((order, idx) => (
                       <tr key={idx}>
-                        <td>{order.customer_name}</td>
+                        <td>
+                          {order.first_name} {order.last_name}
+                        </td>
                         <td>{order.case_number}</td>
                         <td>{order.sales_order}</td>
                         <td>{order.issues}</td>

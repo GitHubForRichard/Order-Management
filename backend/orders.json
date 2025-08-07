@@ -1,7 +1,8 @@
 [
   {
     "id": "a3d6a98c-67d7-4139-8ea5-7fc0faa145f7",
-    "customer_name": "test",
+    "first_name": "test",
+    "last_name": "",
     "primary_number": "test",
     "model_number": "test",
     "issues": "test",
@@ -18,7 +19,8 @@
   },
   {
     "id": "b1f7c42e-8a9d-4c5b-9f2e-3d8a6e1b7c9f",
-    "customer_name": "John Doe",
+    "first_name": "John",
+    "last_name": "Doe",
     "primary_number": "+1-555-0123",
     "model_number": "LAP-001",
     "issues": "Screen flickering intermittently",
@@ -44,7 +46,8 @@
   },
   {
     "id": "c2e8d53f-9b0e-5d6c-0a3f-4e9b7f2e8d5c",
-    "customer_name": "Jane Smith",
+    "first_name": "Jane",
+    "last_name": "Smith",
     "primary_number": "+1-555-0456",
     "model_number": "MOU-002",
     "issues": "Left click button not responding",
@@ -61,7 +64,8 @@
   },
   {
     "id": "d3f9e64g-0c1f-6e7d-1b4g-5f0c8g3f9e6d",
-    "customer_name": "Bob Johnson",
+    "first_name": "Bob",
+    "last_name": "Johnson",
     "primary_number": "+1-555-0789",
     "model_number": "KEY-003",
     "issues": "Multiple keys sticking and unresponsive",
@@ -78,7 +82,8 @@
   },
   {
     "id": "e4g0f75h-1d2g-7f8e-2c5h-6g1d9h4g0f7e",
-    "customer_name": "Alice Brown",
+    "first_name": "Alice",
+    "last_name": "Brown",
     "primary_number": "+1-555-0321",
     "model_number": "TAB-004",
     "issues": "Battery not holding charge",
@@ -95,7 +100,8 @@
   },
   {
     "id": "f5h1g86i-2e3h-8g9f-3d6i-7h2e0i5h1g8f",
-    "customer_name": "Charlie Wilson",
+    "first_name": "Charlie",
+    "last_name": "Wilson",
     "primary_number": "+1-555-0654",
     "model_number": "PHN-005",
     "issues": "Speaker crackling during calls",
@@ -112,7 +118,8 @@
   },
   {
     "id": "4be4cb07-c60f-4986-8b72-f6e1a8efa4f7",
-    "customer_name": "aaa",
+    "first_name": "aaa",
+    "last_name": "",
     "primary_number": "aaa",
     "model_number": "a",
     "issues": "aa",
@@ -138,7 +145,8 @@
   },
   {
     "id": "0dbcea10-0c71-4307-bd85-d370cb4e6226",
-    "customer_name": "dsfasf",
+    "first_name": "dsfasf",
+    "last_name": "",
     "primary_number": "sadfsdaf",
     "model_number": "sdfsadf",
     "issues": "",
@@ -161,5 +169,32 @@
     "tracking": "",
     "return_status": "",
     "created_at": "2025-08-02T00:30:06.080767Z"
+  },
+  {
+    "id": "55527727-c33a-4319-9cd7-ba36dea1121e",
+    "first_name": "etaert",
+    "last_name": "dfgdsfg",
+    "phone_number": "4159881899",
+    "model_number": "JKL345",
+    "issues": "sdfgsdfg",
+    "case": "CASE-006",
+    "email": "sdfgsdfg",
+    "sales_order": "sdfgsdfg",
+    "date": "2025-08-08",
+    "address": "",
+    "street": "sdfgsd",
+    "city": "fgsdfgdsf",
+    "zip_code": "gsdfgsdfgdfgs",
+    "state": "AZ",
+    "country": "USA",
+    "assign": "Michael Liu",
+    "status": "Pending",
+    "serial": "sdfgsdfg",
+    "solution": "",
+    "action": "",
+    "file_name": "",
+    "tracking": "",
+    "return_status": "",
+    "created_at": "2025-08-07T20:52:22.173281Z"
   }
 ]
