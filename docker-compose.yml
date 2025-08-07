@@ -1,0 +1,48 @@
+version: "3.8"
+
+services:
+  postgres:
+    image: postgres:15
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: supersecure
+      POSTGRES_DB: postgres
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  backend:
+    build: ./backend
+    command: >
+      sh -c "flask db upgrade &&
+             flask run --host=0.0.0.0 --port=5000"
+    depends_on:
+      - postgres
+    environment:
+      FLASK_APP: app.py
+      FLASK_DEBUG: 1 # Instead of FLASK_ENV (deprecated in Flask 2.3+)
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: supersecure
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: postgres
+    ports:
+      - "5001:5000"
+    volumes:
+      - ./backend:/app
+      - ./backend/migrations:/app/migrations
+
+  frontend:
+    build: ./frontend
+    depends_on:
+      - backend
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app # mount source for live reload
+      - /app/node_modules # avoid overwriting node_modules with empty volume
+
+volumes:
+  pgdata:
