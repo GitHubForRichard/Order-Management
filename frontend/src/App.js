@@ -164,7 +164,7 @@ function App() {
     axios
       .get("http://localhost:5001/api/orders")
       .then((response) => {
-        const fetchedOrders = response.data.orders;
+        const fetchedOrders = response.data;
         setOrders(fetchedOrders);
 
         // Find highest case number
@@ -199,7 +199,7 @@ function App() {
     axios
       .post("http://localhost:5001/api/orders", newOrder)
       .then((response) => {
-        setOrders([...orders, response.data.order]);
+        setOrders([...orders, response.data]);
         setNewOrder(initialOrder);
       })
       .catch((error) =>
@@ -207,11 +207,14 @@ function App() {
       );
   };
 
-  const filteredOrders = orders.filter((order) =>
-    [order.last_name.toLowerCase(), order.first_name.toLowerCase()].includes(
-      searchName.toLowerCase()
-    )
-  );
+  const filteredOrders = searchName
+    ? orders.filter((order) =>
+        [
+          order.last_name.toLowerCase(),
+          order.first_name.toLowerCase(),
+        ].includes(searchName.toLowerCase())
+      )
+    : orders;
 
   const renderRow = (fields) => (
     <div className="form-row">
@@ -466,29 +469,22 @@ function App() {
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredOrders
-                    .filter((order) =>
-                      [
-                        order.last_name.toLowerCase(),
-                        order.first_name.toLowerCase(),
-                      ].includes(searchName.toLowerCase())
-                    )
-                    .map((order, idx) => (
-                      <tr key={idx}>
-                        <td>
-                          {order.first_name} {order.last_name}
-                        </td>
-                        <td>{order.case_number}</td>
-                        <td>{order.sales_order}</td>
-                        <td>{order.issues}</td>
-                        <td>{order.action}</td>
-                        <td>{order.status}</td>
-                        <td>{order.recorded_by}</td>
-                        <td>{order.assign}</td>
-                        <td>{order.created_date}</td>
-                        <td>{order.last_update_date}</td>
-                      </tr>
-                    ))}
+                  {filteredOrders.map((order, idx) => (
+                    <tr key={idx}>
+                      <td>
+                        {order.first_name} {order.last_name}
+                      </td>
+                      <td>{order.case_number}</td>
+                      <td>{order.sales_order}</td>
+                      <td>{order.issues}</td>
+                      <td>{order.action}</td>
+                      <td>{order.status}</td>
+                      <td>{order.recorded_by}</td>
+                      <td>{order.assign}</td>
+                      <td>{order.created_date}</td>
+                      <td>{order.last_update_date}</td>
+                    </tr>
+                  ))}
                 </tbody>
               </table>
             </div>
