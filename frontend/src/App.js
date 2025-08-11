@@ -988,8 +988,24 @@ function App() {
                           <td>{order.status}</td>
                           <td>{order.recorded_by}</td>
                           <td>{order.assign}</td>
-                          <td>{order.created_date}</td>
-                          <td>{order.last_update_date}</td>
+                          <td>
+                            {new Date(order.created_at).toLocaleDateString()}{" "}
+                            {new Date(order.created_at).toLocaleTimeString()}
+                          </td>
+                          <td>
+                            {order.updated_at ? (
+                              <>
+                                {new Date(
+                                  order.updated_at
+                                ).toLocaleDateString()}{" "}
+                                {new Date(
+                                  order.updated_at
+                                ).toLocaleTimeString()}
+                              </>
+                            ) : (
+                              ""
+                            )}
+                          </td>
                         </tr>
                       ))}
                   </tbody>

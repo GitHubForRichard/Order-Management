@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from flask_sqlalchemy import SQLAlchemy
 
 db = SQLAlchemy()
@@ -31,7 +31,8 @@ class Order(db.Model):
     tracking = db.Column(db.String(100), nullable=True)
     return_status = db.Column(db.String(50), nullable=True)
     created_at = db.Column(db.DateTime, nullable=False,
-                           default=datetime.utcnow)
+                           default=datetime.now(timezone.utc))
+    updated_at = db.Column(db.DateTime, nullable=True)
 
     def __repr__(self):
         return f'<Order {self.id}>'
@@ -62,4 +63,5 @@ class Order(db.Model):
             'tracking': self.tracking,
             'return_status': self.return_status,
             'created_at': self.created_at.isoformat() if self.created_at else None,
+            'updated_at': self.updated_at.isoformat() if self.updated_at else None
         }
