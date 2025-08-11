@@ -283,17 +283,10 @@ function App() {
     };
 
     axios
-      .put(
-        `http://localhost:5001/api/orders/${newOrder.case_number}`,
-        orderToUpdate
-      )
+      .put(`http://localhost:5001/api/orders/${newOrder.id}`, orderToUpdate)
+      .then(() => axios.get("http://localhost:5001/api/orders"))
       .then((response) => {
-        const updatedOrders = orders.map((order) =>
-          order.case_number === newOrder.case_number
-            ? response.data.order
-            : order
-        );
-        setOrders(updatedOrders);
+        setOrders(response.data);
         setNewOrder(initialOrder);
       })
       .catch((error) =>
@@ -977,7 +970,7 @@ function App() {
                       .map((order, idx) => (
                         <tr
                           key={idx}
-                          onClick={() => handleCaseSelect(order)}
+                          onDoubleClick={() => handleCaseSelect(order)}
                           style={{ cursor: "pointer" }}
                         >
                           <td>
@@ -1083,7 +1076,6 @@ function App() {
                     </button>
                     <button
                       onClick={handleUpdate}
-                      disabled={!newOrder.case_number}
                       className={`btn-small ${
                         newOrder.case_number ? "btn-update" : "btn-disabled"
                       }`}
