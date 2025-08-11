@@ -4,6 +4,7 @@ import "./App.css";
 
 function App() {
   const [orders, setOrders] = useState([]);
+  const [customers, setCustomers] = useState([]);
   const toProperCase = (str) => {
     return str
       .replace(/_/g, " ")
@@ -42,9 +43,11 @@ function App() {
     file_name: "",
     tracking: "",
     return_status: "",
+    phone_code: "+1",
   };
   const [newOrder, setNewOrder] = useState(initialOrder);
   const [orderHistory, setOrderHistory] = useState([]);
+  const [existingCustomer, setExistingCustomer] = useState(null);
   const countryCodes = [
     { code: "+1", name: "USA/Canada" },
     { code: "+44", name: "UK" },
@@ -219,6 +222,19 @@ function App() {
       );
   }, [newOrder.customer_name]);
 
+  // useEffect to get customers
+  useEffect(() => {
+    axios
+      .get("http://localhost:5001/api/customers")
+      .then((response) => {
+        const fetchedCustomers = response.data;
+        setCustomers(fetchedCustomers);
+      })
+      .catch((error) =>
+        console.error("There was an error loading the customers!", error)
+      );
+  }, []);
+
   // New useEffect for ShipStation tracking info
   useEffect(() => {
     if (newOrder.customer_name && newOrder.customer_name.trim() !== "") {
@@ -265,26 +281,8 @@ function App() {
   const handleUpdate = (e) => {
     e.preventDefault();
 
-    const fullPhone = `${newOrder.phoneCode || "+1"}${
-      newOrder.phone_number || ""
-    }`;
-    const customerName = `${newOrder.first_name} ${
-      newOrder.mid ? newOrder.mid + " " : ""
-    }${newOrder.last_name}`.trim();
-    const fullAddress =
-      `${newOrder.street}, ${newOrder.city}, ${newOrder.state}, ${newOrder.country} ${newOrder.zip_code}`
-        .replace(/\s+,/g, "")
-        .trim();
-    const orderToUpdate = {
-      ...newOrder,
-      phone_number: fullPhone,
-      customer_name: customerName,
-      fullAddress: fullAddress,
-      last_updated: new Date().toISOString(),
-    };
-
     axios
-      .put(`http://localhost:5001/api/orders/${newOrder.id}`, orderToUpdate)
+      .put(`http://localhost:5001/api/orders/${newOrder.id}`, newOrder)
       .then(() => axios.get("http://localhost:5001/api/orders"))
       .then((response) => {
         setOrders(response.data);
@@ -299,12 +297,7 @@ function App() {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    const fullPhone = `${newOrder.phoneCode || "+1"}${
-      newOrder.phone_number || ""
-    }`;
-    const customerName = `${newOrder.first_name} ${
-      newOrder.mid ? newOrder.mid + " " : ""
-    }${newOrder.last_name}`.trim();
+    console.log("newOrder", newOrder);
 
     const missingFields = requiredFields.filter((field) => !newOrder[field]);
     if (missingFields.length > 0) {
@@ -316,18 +309,8 @@ function App() {
       return;
     }
 
-    const generatedCaseNumber = `CASE-${Date.now()}`; // Simple unique case number
-    const orderToSubmit = {
-      ...newOrder,
-      phone_number: fullPhone,
-      customer_name: customerName,
-      case_number: generatedCaseNumber,
-      created_date: new Date().toISOString(),
-      last_updated: new Date().toISOString(),
-    };
-
     axios
-      .post("http://localhost:5001/api/orders", orderToSubmit)
+      .post("http://localhost:5001/api/orders", newOrder)
       .then((response) => {
         setOrders((prev) => [...prev, response.data.order]);
         setNewOrder(initialOrder);
@@ -377,9 +360,9 @@ function App() {
           ) : field === "phone_number" ? (
             <div className="phone-wrapper">
               <select
-                value={newOrder.phoneCode || "+1"}
+                value={newOrder.phone_code}
                 onChange={(e) => {
-                  setNewOrder({ ...newOrder, phoneCode: e.target.value });
+                  setNewOrder({ ...newOrder, phone_code: e.target.value });
                   setIsEdited(true); // 🔥 Track that something changed
                 }}
                 className="area-code"
@@ -640,41 +623,37 @@ function App() {
                         </tr>
                       </thead>
                       <tbody>
-                        {filteredOrders
-                          .filter((order) =>
-                            [order.first_name, order.last_name]
+                        {customers
+                          .filter((customer) =>
+                            [customer.first_name, customer.last_name]
                               .join(" ")
                               .includes(searchName.toLowerCase())
                           )
-                          .map((order, idx) => (
+                          .map((customer, idx) => (
                             <tr
                               key={idx}
-                              onDoubleClick={() => handleCaseSelect(order)}
-                              className={`cursor-pointer hover:bg-gray-100 ${
-                                selectedCase === order.case_number
-                                  ? "bg-yellow-100 font-semibold"
-                                  : ""
-                              }`}
+                              onDoubleClick={() => handleCaseSelect(customer)}
                             >
                               <td>
-                                {order.first_name} {order.last_name}
+                                {customer.first_name} {customer.last_name}
                               </td>
-                              <td>{order.phone_number}</td>
-                              <td>{order.email}</td>
+                              <td>{customer.phone_number}</td>
+                              <td>{customer.email}</td>
                               <td>
-                                {order.street}, {order.city}, {order.state},
-                                {order.country} {order.zip_code}
+                                {customer.street}, {customer.city},{" "}
+                                {customer.state},{customer.country}{" "}
+                                {customer.zip_code}
                               </td>
-                              <td>{order.loggedInUser}</td>
+                              <td>{customer.loggedInUser}</td>
                               <td>
                                 {new Date(
-                                  order.created_at
+                                  customer.created_at
                                 ).toLocaleDateString()}{" "}
                                 {new Date(
-                                  order.created_at
+                                  customer.created_at
                                 ).toLocaleTimeString()}
                               </td>
-                              <td>{order.last_updated}</td>
+                              <td>{customer.last_updated}</td>
                             </tr>
                           ))}
                       </tbody>

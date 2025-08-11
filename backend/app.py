@@ -1,4 +1,4 @@
-from models import db, Order
+from models import Customer, db, Order
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from flask_migrate import Migrate
@@ -44,10 +44,11 @@ def create_order():
             id=str(uuid.uuid4()),
             first_name=data['first_name'],
             last_name=data['last_name'],
+            phone_code=data['phone_code'],
             phone_number=data['phone_number'],
             model_number=data['model_number'],
             issues=data.get('issues'),
-            case_number=data.get('case_number'),
+            case_number=f"CASE-{int(datetime.now().timestamp() * 1000)}",
             email=data['email'],
             sales_order=data.get('sales_order'),
             date=datetime.strptime(
@@ -112,6 +113,13 @@ def update_order(order_id):
     except Exception as e:
         db.session.rollback()
         return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/customers', methods=['GET'])
+def get_customers():
+    """Get all customers"""
+    customers = Customer.query.all()
+    return jsonify([customer.to_dict() for customer in customers])
 
 
 @app.route('/api/health', methods=['GET'])
