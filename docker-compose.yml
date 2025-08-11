@@ -34,15 +34,15 @@ services:
       - ./backend:/app
       - ./backend/migrations:/app/migrations
 
-  frontend:
-    build: ./frontend
-    depends_on:
-      - backend
-    ports:
-      - "3000:3000"
-    volumes:
-      - ./frontend:/app # mount source for live reload
-      - /app/node_modules # avoid overwriting node_modules with empty volume
-
+  # TODO: Need to fix hot-reload when changes locally
+  # frontend:
+  #   build: ./frontend
+  #   depends_on:
+  #     - backend
+  #   ports:
+  #     - "3000:3000"
+  #   volumes:
+  #     - ./frontend:/app # mount source for live reload
+  #     - /app/node_modules # avoid overwriting node_modules with empty volume
 volumes:
   pgdata:

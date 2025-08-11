@@ -638,8 +638,8 @@ function App() {
                       <tbody>
                         {filteredOrders
                           .filter((order) =>
-                            order.customer_name
-                              .toLowerCase()
+                            [order.first_name, order.last_name]
+                              .join(" ")
                               .includes(searchName.toLowerCase())
                           )
                           .map((order, idx) => (
@@ -953,7 +953,8 @@ function App() {
                   <tbody>
                     {filteredOrders
                       .filter((order) =>
-                        order.customer_name
+                        [order.first_name, order.last_name]
+                          .join(" ")
                           .toLowerCase()
                           .includes(searchName.toLowerCase())
                       )
@@ -967,7 +968,9 @@ function App() {
                               : ""
                           }`}
                         >
-                          <td>{order.customer_name}</td>
+                          <td>
+                            {order.first_name} {order.last_name}
+                          </td>
                           <td>{order.case_number}</td>
                           <td>{order.sales_order}</td>
                           <td>{order.issues}</td>
