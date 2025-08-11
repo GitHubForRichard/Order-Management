@@ -180,7 +180,7 @@ function App() {
     axios
       .get("http://localhost:5001/api/orders")
       .then((response) => {
-        const fetchedOrders = response.data.orders;
+        const fetchedOrders = response.data;
         setOrders(fetchedOrders);
 
         // Find highest case number
@@ -264,7 +264,9 @@ function App() {
   const handleUpdate = (e) => {
     e.preventDefault();
 
-    const fullPhone = `${newOrder.phoneCode || "+1"}${newOrder.phone || ""}`;
+    const fullPhone = `${newOrder.phoneCode || "+1"}${
+      newOrder.phone_number || ""
+    }`;
     const customerName = `${newOrder.first_name} ${
       newOrder.mid ? newOrder.mid + " " : ""
     }${newOrder.last_name}`.trim();
@@ -303,7 +305,9 @@ function App() {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    const fullPhone = `${newOrder.phoneCode || "+1"}${newOrder.phone || ""}`;
+    const fullPhone = `${newOrder.phoneCode || "+1"}${
+      newOrder.phone_number || ""
+    }`;
     const customerName = `${newOrder.first_name} ${
       newOrder.mid ? newOrder.mid + " " : ""
     }${newOrder.last_name}`.trim();
@@ -344,7 +348,8 @@ function App() {
   const filteredOrders = orders.filter((order) => {
     const searchLower = searchName.toLowerCase();
     return (
-      order.customer_name.toLowerCase().includes(searchLower) ||
+      order.first_name.toLowerCase().includes(searchLower) ||
+      order.last_name.toLowerCase().includes(searchLower) ||
       order.case_number?.toLowerCase().includes(searchLower) ||
       order.sales_order?.toLowerCase().includes(searchLower)
     );
@@ -393,9 +398,9 @@ function App() {
               </select>
               <input
                 type="tel"
-                value={newOrder.phone}
+                value={newOrder.phone_number}
                 onChange={(e) => {
-                  setNewOrder({ ...newOrder, phone: e.target.value });
+                  setNewOrder({ ...newOrder, phone_number: e.target.value });
                   setIsEdited(true); // 🔥 Track that something changed
                 }}
                 placeholder="Phone number"
@@ -637,8 +642,8 @@ function App() {
                       <tbody>
                         {filteredOrders
                           .filter((order) =>
-                            order.customer_name
-                              .toLowerCase()
+                            [order.first_name, order.last_name]
+                              .join(" ")
                               .includes(searchName.toLowerCase())
                           )
                           .map((order, idx) => (
@@ -651,12 +656,24 @@ function App() {
                                   : ""
                               }`}
                             >
-                              <td>{order.customer_name}</td>
-                              <td>{order.fullPhone}</td>
+                              <td>
+                                {order.first_name} {order.last_name}
+                              </td>
+                              <td>{order.phone_number}</td>
                               <td>{order.email}</td>
-                              <td>{order.fullAddress}</td>
+                              <td>
+                                {order.street}, {order.city}, {order.state},
+                                {order.country} {order.zip_code}
+                              </td>
                               <td>{order.loggedInUser}</td>
-                              <td>{order.created_date}</td>
+                              <td>
+                                {new Date(
+                                  order.created_at
+                                ).toLocaleDateString()}{" "}
+                                {new Date(
+                                  order.created_at
+                                ).toLocaleTimeString()}
+                              </td>
                               <td>{order.last_updated}</td>
                             </tr>
                           ))}
@@ -952,7 +969,8 @@ function App() {
                   <tbody>
                     {filteredOrders
                       .filter((order) =>
-                        order.customer_name
+                        [order.first_name, order.last_name]
+                          .join(" ")
                           .toLowerCase()
                           .includes(searchName.toLowerCase())
                       )
@@ -962,7 +980,9 @@ function App() {
                           onClick={() => handleCaseSelect(order)}
                           style={{ cursor: "pointer" }}
                         >
-                          <td>{order.customer_name}</td>
+                          <td>
+                            {order.first_name} {order.last_name}
+                          </td>
                           <td>{order.case_number}</td>
                           <td>{order.sales_order}</td>
                           <td>{order.issues}</td>

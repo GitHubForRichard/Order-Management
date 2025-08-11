@@ -1,28 +1,30 @@
+from models import db, Order
 from flask import Flask, request, jsonify
 from flask_cors import CORS
+from flask_migrate import Migrate
 from datetime import datetime
+
 import uuid
 import json
-import os
+
+from constants import DB_HOST, DB_NAME, DB_PASSWORD, DB_PORT, DB_USER
 
 app = Flask(__name__)
 CORS(app)
 
-# In-memory storage for orders (in production, use a database)
-DATA_FILE = 'orders.json'
+# or your DB
+app.config['SQLALCHEMY_DATABASE_URI'] = f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
 
-# Load orders from file
-if os.path.exists(DATA_FILE):
-    with open(DATA_FILE, 'r') as f:
-        orders = json.load(f)
-else:
-    orders = []
+db.init_app(app)
+migrate = Migrate(app, db)
 
 
 @app.route('/api/orders', methods=['GET'])
 def get_orders():
     """Get all orders"""
-    return jsonify({'orders': orders})
+    orders = Order.query.all()
+    print('orders', orders)
+    return jsonify([order.to_dict() for order in orders])
 
 
 @app.route('/api/orders', methods=['POST'])
@@ -31,8 +33,8 @@ def create_order():
     data = request.get_json()
 
     # Validate required fields
-    required_fields = ['customer_name',
-                       'primary_number', 'model_number', 'email']
+    required_fields = ['first_name', 'last_name',
+                       'phone_number', 'model_number', 'email']
     for field in required_fields:
         if field not in data:
             return jsonify({'error': f'Missing required field: {field}'}), 400
@@ -101,7 +103,7 @@ def update_order(order_id):
     data = request.get_json()
 
     # Update fields
-    updatable_fields = ['customer_name', 'primary_number', 'model_number', 'issues', 'case', 'email', 'sales_order', 'date', 'address', 'street',
+    updatable_fields = ['customer_name', 'phone_number', 'model_number', 'issues', 'case', 'email', 'sales_order', 'date', 'address', 'street',
                         'city', 'zip_code', 'state', 'country', 'assign', 'status', 'serial', 'solution', 'action', 'file_name', 'tracking', 'return_status']
     for field in updatable_fields:
         if field in data:
