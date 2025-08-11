@@ -11,46 +11,13 @@ function App() {
   };
   const [loggedInUser, setLoggedInUser] = useState("Xiaoyin Zhang"); // Replace with your actual logic
   
-  const [caseList, setCaseList] = useState([]);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [selectedCase, setSelectedCase] = useState(null);
   const [isEdited, setIsEdited] = useState(false);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [filterStatus, setFilterStatus] = useState("");
-  const [filterAssigned, setFilterAssigned] = useState("");
-  const [dateFrom, setDateFrom] = useState("");
-  const [dateTo, setDateTo] = useState("");
-  const filteredData = filteredOrders.filter((order) => {
-    // Search term matching customer_name, case_number, sales_order (case insensitive)
-    const searchLower = searchTerm.toLowerCase();
-    const matchesSearch =
-      order.customer_name.toLowerCase().includes(searchLower) ||
-      order.case_number.toLowerCase().includes(searchLower) ||
-      order.sales_order.toLowerCase().includes(searchLower);
 
-    // Status filter (exact match or empty to allow all)
-    const matchesStatus = filterStatus ? order.status === filterStatus : true;
-
-    // Assigned To filter (exact match or empty)
-    const matchesAssigned = filterAssigned ? order.assign === filterAssigned : true;
-
-    // Date range filter (check created_date within range)
-    // Assuming order.created_date is string "YYYY-MM-DD"
-    let matchesDate = true;
-    if (dateFrom) {
-      matchesDate = matchesDate && order.created_date >= dateFrom;
-    }
-    if (dateTo) {
-      matchesDate = matchesDate && order.created_date <= dateTo;
-    }
-
-    return matchesSearch && matchesStatus && matchesAssigned && matchesDate;
-  });
+  
 
   // Extract unique status and assigned for dropdowns
-  const uniqueStatus = Array.from(new Set(filteredOrders.map((o) => o.status))).filter(Boolean);
-  const uniqueAssigned = Array.from(new Set(filteredOrders.map((o) => o.assign))).filter(Boolean);
+
   const initialOrder = {
     first_name: "",
     last_name: "",
@@ -76,7 +43,6 @@ function App() {
     return_status: "",
   };
   const [newOrder, setNewOrder] = useState(initialOrder);
-  const fullPhone = `${newOrder.phoneCode}${newOrder.phone}`;
   const [orderHistory, setOrderHistory] = useState([]);
   const countryCodes = [
   { code: "+1", name: "USA/Canada" },
@@ -339,9 +305,15 @@ function App() {
       });
   };
   const [currentPage, setCurrentPage] = useState("new");
-  const filteredOrders = orders.filter((order) =>
-    order.customer_name.toLowerCase().includes(searchName.toLowerCase())
-  );
+  const filteredOrders = orders
+  .filter((order) => {
+    const searchLower = searchName.toLowerCase();
+    return (
+      order.customer_name.toLowerCase().includes(searchLower) ||
+      order.case_number?.toLowerCase().includes(searchLower) ||
+      order.sales_order?.toLowerCase().includes(searchLower)
+    );
+  })
 
   const renderRow = (fields) => (
     <div className="form-row">
@@ -847,71 +819,13 @@ function App() {
 
               {/* Search bar */}
               <div className="form-section-card search-bar">
-                {/* Search and filters */}
-                <div style={{ display: "flex", gap: "10px", flexWrap: "wrap", marginBottom: "15px" }}>
-                  <input
-                    type="text"
-                    className="form-input search-input"
-                    placeholder="Search by customer name, case number, sales order"
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    style={{ flex: "1 1 300px" }}
-                  />
-                  <select
-                    value={filterStatus}
-                    onChange={(e) => setFilterStatus(e.target.value)}
-                    className="form-input"
-                    style={{ minWidth: "140px" }}
-                  >
-                    <option value="">All Status</option>
-                    {uniqueStatus.map((status) => (
-                      <option key={status} value={status}>
-                        {status}
-                      </option>
-                    ))}
-                  </select>
-                  <select
-                    value={filterAssigned}
-                    onChange={(e) => setFilterAssigned(e.target.value)}
-                    className="form-input"
-                    style={{ minWidth: "140px" }}
-                  >
-                    <option value="">All Assigned To</option>
-                    {uniqueAssigned.map((assign) => (
-                      <option key={assign} value={assign}>
-                        {assign}
-                      </option>
-                    ))}
-                  </select>
-                  <div style={{ display: "flex", gap: "5px", alignItems: "center" }}>
-                    <label htmlFor="dateFrom" style={{ fontSize: "13px", fontWeight: "500", color: "#555" }}>
-                      Date From:
-                    </label>
-                    <input
-                      id="dateFrom"
-                      type="date"
-                      value={dateFrom}
-                      onChange={(e) => setDateFrom(e.target.value)}
-                      className="form-input"
-                      style={{ minWidth: "140px" }}
-                    />
-                  </div>
-                  <div style={{ display: "flex", gap: "5px", alignItems: "center" }}>
-                    <label htmlFor="dateTo" style={{ fontSize: "13px", fontWeight: "500", color: "#555" }}>
-                      Date To:
-                    </label>
-                    <input
-                      id="dateTo"
-                      type="date"
-                      value={dateTo}
-                      onChange={(e) => setDateTo(e.target.value)}
-                      className="form-input"
-                      style={{ minWidth: "140px" }}
-                    />
-                  </div>
-                </div>
-
-                {/* Result table */}
+                <input
+                  type="text"
+                  className="form-input search-input"
+                  placeholder="Search by customer name"
+                  value={searchName}
+                  onChange={(e) => setSearchName(e.target.value)}
+                />
                 <table>
                   <thead>
                     <tr>
@@ -928,8 +842,11 @@ function App() {
                     </tr>
                   </thead>
                   <tbody>
-                    {filteredData.length > 0 ? (
-                      filteredData.map((order, idx) => (
+                    {filteredOrders
+                      .filter((order) =>
+                        order.customer_name.toLowerCase().includes(searchName.toLowerCase())
+                      )
+                      .map((order, idx) => (
                         <tr
                           key={idx}
                           onDoubleClick={() => handleCaseSelect(order)}
@@ -947,16 +864,11 @@ function App() {
                           <td>{order.assign}</td>
                           <td>{order.created_date}</td>
                           <td>{order.last_update_date}</td>
+
                         </tr>
-                      ))
-                    ) : (
-                      <tr>
-                        <td colSpan={10} style={{ textAlign: "center", color: "#999" }}>
-                          No matching records found.
-                        </td>
-                      </tr>
-                    )}
+                      ))}
                   </tbody>
+
                 </table>
               </div>
 
