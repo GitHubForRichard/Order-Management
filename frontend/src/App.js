@@ -184,7 +184,9 @@ function App() {
 
         // Find highest case number
         const caseNumbers = fetchedOrders
-          .map((order) => parseInt(order.case?.replace(/[^\d]/g, ""), 10))
+          .map((order) =>
+            parseInt(order.case_number?.replace(/[^\d]/g, ""), 10)
+          )
           .filter((num) => !isNaN(num));
         const maxCase = caseNumbers.length > 0 ? Math.max(...caseNumbers) : 0;
 

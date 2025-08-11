@@ -13,7 +13,7 @@ class Order(db.Model):
     phone_number = db.Column(db.String(20), nullable=False)
     model_number = db.Column(db.String(50), nullable=False)
     issues = db.Column(db.Text, nullable=True)
-    case = db.Column(db.String(50), nullable=True)
+    case_number = db.Column(db.String(50), nullable=True)
     email = db.Column(db.String(100), nullable=False)
     sales_order = db.Column(db.String(50), nullable=True)
     date = db.Column(db.Date, nullable=True)
@@ -45,7 +45,7 @@ class Order(db.Model):
             'phone_number': self.phone_number,
             'model_number': self.model_number,
             'issues': self.issues,
-            'case': self.case,
+            'case_number': self.case_number,
             'email': self.email,
             'sales_order': self.sales_order,
             'date': self.date.isoformat() if self.date else None,

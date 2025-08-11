@@ -47,7 +47,7 @@ def create_order():
             phone_number=data['phone_number'],
             model_number=data['model_number'],
             issues=data.get('issues'),
-            case=data.get('case_number'),
+            case_number=data.get('case_number'),
             email=data['email'],
             sales_order=data.get('sales_order'),
             date=datetime.strptime(
