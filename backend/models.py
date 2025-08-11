@@ -11,6 +11,7 @@ class Order(db.Model):
     customer_id = db.Column(db.String(36), db.ForeignKey(
         'customers.id'), nullable=False)
     issues = db.Column(db.Text, nullable=True)
+    model_number = db.Column(db.String(50), nullable=False)
     case_number = db.Column(db.String(50), nullable=True)
     sales_order = db.Column(db.String(50), nullable=True)
     date = db.Column(db.Date, nullable=True)

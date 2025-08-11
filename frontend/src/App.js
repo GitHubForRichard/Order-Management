@@ -47,7 +47,7 @@ function App() {
   };
   const [newOrder, setNewOrder] = useState(initialOrder);
   const [orderHistory, setOrderHistory] = useState([]);
-  const [existingCustomer, setExistingCustomer] = useState(null);
+  const [selectedCustomer, setSelectedCustomer] = useState(null);
   const countryCodes = [
     { code: "+1", name: "USA/Canada" },
     { code: "+44", name: "UK" },
@@ -193,11 +193,6 @@ function App() {
           .filter((num) => !isNaN(num));
         const maxCase = caseNumbers.length > 0 ? Math.max(...caseNumbers) : 0;
 
-        setNewOrder((prev) => ({
-          ...prev,
-          case_number: `CASE-${String(maxCase + 1).padStart(3, "0")}`,
-        }));
-
         // Filter order history (case-insensitive + partial)
         if (newOrder.customer_name && newOrder.customer_name.trim() !== "") {
           const filteredHistory = fetchedOrders.filter(
@@ -264,6 +259,22 @@ function App() {
     }
   }, [newOrder.customer_name]);
 
+  const handleCustomerRowSelect = (row) => {
+    setSelectedCustomer(row);
+    setNewOrder((prev) => ({
+      ...prev,
+      first_name: row.first_name,
+      last_name: row.last_name,
+      email: row.email,
+      phone_number: row.phone_number,
+      street: row.street,
+      city: row.city,
+      state: row.state,
+      zip_code: row.zip_code,
+      country: row.country,
+    }));
+  };
+
   const handleCaseSelect = (caseData) => {
     if (isEdited) {
       const confirmSwitch = window.confirm(
@@ -294,39 +305,55 @@ function App() {
   };
 
   // Set new case to the database
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    console.log("newOrder", newOrder);
+    try {
+      const missingFields = requiredFields.filter((field) => !newOrder[field]);
+      if (missingFields.length > 0) {
+        alert(
+          `Please fill out all required fields: ${missingFields
+            .map(toProperCase)
+            .join(", ")}`
+        );
+        return;
+      }
 
-    const missingFields = requiredFields.filter((field) => !newOrder[field]);
-    if (missingFields.length > 0) {
-      alert(
-        `Please fill out all required fields: ${missingFields
-          .map(toProperCase)
-          .join(", ")}`
+      let customerId = null;
+      console.log("selectedCustomer", selectedCustomer);
+      if (!selectedCustomer) {
+        const postCustomerResponse = await axios.post(
+          "http://localhost:5001/api/customers",
+          newOrder
+        );
+        setCustomers((prev) => [...prev, postCustomerResponse.data.customer]);
+        customerId = postCustomerResponse.data.customer.id;
+      } else {
+        customerId = selectedCustomer.id;
+      }
+
+      const orderPostResponse = await axios.post(
+        "http://localhost:5001/api/orders",
+        { ...newOrder, customer_id: customerId }
       );
-      return;
-    }
 
-    axios
-      .post("http://localhost:5001/api/orders", newOrder)
-      .then((response) => {
-        setOrders((prev) => [...prev, response.data.order]);
-        setNewOrder(initialOrder);
-        setSelectedCase(null); // Clear selection
-        setIsEdited(false); // Reset edit tracking
-      })
-      .catch((error) => {
-        console.error("There was an error creating the order!", error);
-      });
+      const ordersGetResponse = await axios.get(
+        "http://localhost:5001/api/orders"
+      );
+      setOrders(ordersGetResponse.data);
+      setNewOrder(initialOrder);
+      setSelectedCase(null); // Clear selection
+      setIsEdited(false); // Reset edit tracking
+    } catch (error) {
+      console.error("There was an error creating the order!", error);
+    }
   };
   const [currentPage, setCurrentPage] = useState("new");
   const filteredOrders = orders.filter((order) => {
     const searchLower = searchName.toLowerCase();
     return (
-      order.first_name.toLowerCase().includes(searchLower) ||
-      order.last_name.toLowerCase().includes(searchLower) ||
+      order.customer.first_name.toLowerCase().includes(searchLower) ||
+      order.customer.last_name.toLowerCase().includes(searchLower) ||
       order.case_number?.toLowerCase().includes(searchLower) ||
       order.sales_order?.toLowerCase().includes(searchLower)
     );
@@ -566,6 +593,24 @@ function App() {
               <div className="form-row">
                 {/* Customer/address Info */}
                 <div className="form-section-card half-width">
+                  <h2>
+                    {selectedCustomer ? (
+                      <>
+                        {selectedCustomer.first_name}{" "}
+                        {selectedCustomer.last_name}
+                        <button
+                          onClick={() => {
+                            setNewOrder(initialOrder);
+                            setSelectedCustomer(null);
+                          }}
+                        >
+                          New Customer
+                        </button>
+                      </>
+                    ) : (
+                      "New Customer"
+                    )}
+                  </h2>
                   <h3 className="section-title">Customer Info</h3>
                   {renderRow([
                     "first_name",
@@ -632,7 +677,9 @@ function App() {
                           .map((customer, idx) => (
                             <tr
                               key={idx}
-                              onDoubleClick={() => handleCaseSelect(customer)}
+                              onDoubleClick={() =>
+                                handleCustomerRowSelect(customer)
+                              }
                             >
                               <td>
                                 {customer.first_name} {customer.last_name}
@@ -948,7 +995,7 @@ function App() {
                   <tbody>
                     {filteredOrders
                       .filter((order) =>
-                        [order.first_name, order.last_name]
+                        [order.customer.first_name, order.customer.last_name]
                           .join(" ")
                           .toLowerCase()
                           .includes(searchName.toLowerCase())
@@ -960,7 +1007,8 @@ function App() {
                           style={{ cursor: "pointer" }}
                         >
                           <td>
-                            {order.first_name} {order.last_name}
+                            {order.customer.first_name}{" "}
+                            {order.customer.last_name}
                           </td>
                           <td>{order.case_number}</td>
                           <td>{order.sales_order}</td>

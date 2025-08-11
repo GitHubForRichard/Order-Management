@@ -27,7 +27,6 @@ def upgrade():
                     sa.Column('issues', sa.Text(), nullable=True),
                     sa.Column('case_number', sa.String(
                         length=50), nullable=True),
-                    sa.Column('email', sa.String(length=100), nullable=False),
                     sa.Column('sales_order', sa.String(
                         length=50), nullable=True),
                     sa.Column('date', sa.Date(), nullable=True),
