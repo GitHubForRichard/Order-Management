@@ -4,10 +4,14 @@ import "./App.css";
 
 function App() {
   const [orders, setOrders] = useState([]);
+  console.log("orders", orders);
   const toProperCase = (str) => {
-  return str
-    .replace(/_/g, " ")
-    .replace(/\w\S*/g, (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase());
+    return str
+      .replace(/_/g, " ")
+      .replace(
+        /\w\S*/g,
+        (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()
+      );
   };
   const [loggedInUser, setLoggedInUser] = useState("Xiaoyin Zhang"); // Replace with your actual logic
   
@@ -45,92 +49,104 @@ function App() {
   const [newOrder, setNewOrder] = useState(initialOrder);
   const [orderHistory, setOrderHistory] = useState([]);
   const countryCodes = [
-  { code: "+1", name: "USA/Canada" },
-  { code: "+44", name: "UK" },
-  { code: "+61", name: "Australia" },
-  { code: "+81", name: "Japan" },
-  { code: "+49", name: "Germany" },
-  { code: "+91", name: "India" },
-  { code: "+33", name: "France" },
-  { code: "+86", name: "China" },
-  { code: "+82", name: "South Korea" },
-  { code: "+34", name: "Spain" },
-  // Add more as needed
+    { code: "+1", name: "USA/Canada" },
+    { code: "+44", name: "UK" },
+    { code: "+61", name: "Australia" },
+    { code: "+81", name: "Japan" },
+    { code: "+49", name: "Germany" },
+    { code: "+91", name: "India" },
+    { code: "+33", name: "France" },
+    { code: "+86", name: "China" },
+    { code: "+82", name: "South Korea" },
+    { code: "+34", name: "Spain" },
+    // Add more as needed
   ];
 
   const countries = ["USA", "Canada", "UK", "Australia"];
   const usStates = [
-  { name: "Alabama", abbreviation: "AL" },
-  { name: "Alaska", abbreviation: "AK" },
-  { name: "Arizona", abbreviation: "AZ" },
-  { name: "Arkansas", abbreviation: "AR" },
-  { name: "California", abbreviation: "CA" },
-  { name: "Colorado", abbreviation: "CO" },
-  { name: "Connecticut", abbreviation: "CT" },
-  { name: "Delaware", abbreviation: "DE" },
-  { name: "Florida", abbreviation: "FL" },
-  { name: "Georgia", abbreviation: "GA" },
-  { name: "Hawaii", abbreviation: "HI" },
-  { name: "Idaho", abbreviation: "ID" },
-  { name: "Illinois", abbreviation: "IL" },
-  { name: "Indiana", abbreviation: "IN" },
-  { name: "Iowa", abbreviation: "IA" },
-  { name: "Kansas", abbreviation: "KS" },
-  { name: "Kentucky", abbreviation: "KY" },
-  { name: "Louisiana", abbreviation: "LA" },
-  { name: "Maine", abbreviation: "ME" },
-  { name: "Maryland", abbreviation: "MD" },
-  { name: "Massachusetts", abbreviation: "MA" },
-  { name: "Michigan", abbreviation: "MI" },
-  { name: "Minnesota", abbreviation: "MN" },
-  { name: "Mississippi", abbreviation: "MS" },
-  { name: "Missouri", abbreviation: "MO" },
-  { name: "Montana", abbreviation: "MT" },
-  { name: "Nebraska", abbreviation: "NE" },
-  { name: "Nevada", abbreviation: "NV" },
-  { name: "New Hampshire", abbreviation: "NH" },
-  { name: "New Jersey", abbreviation: "NJ" },
-  { name: "New Mexico", abbreviation: "NM" },
-  { name: "New York", abbreviation: "NY" },
-  { name: "North Carolina", abbreviation: "NC" },
-  { name: "North Dakota", abbreviation: "ND" },
-  { name: "Ohio", abbreviation: "OH" },
-  { name: "Oklahoma", abbreviation: "OK" },
-  { name: "Oregon", abbreviation: "OR" },
-  { name: "Pennsylvania", abbreviation: "PA" },
-  { name: "Rhode Island", abbreviation: "RI" },
-  { name: "South Carolina", abbreviation: "SC" },
-  { name: "South Dakota", abbreviation: "SD" },
-  { name: "Tennessee", abbreviation: "TN" },
-  { name: "Texas", abbreviation: "TX" },
-  { name: "Utah", abbreviation: "UT" },
-  { name: "Vermont", abbreviation: "VT" },
-  { name: "Virginia", abbreviation: "VA" },
-  { name: "Washington", abbreviation: "WA" },
-  { name: "West Virginia", abbreviation: "WV" },
-  { name: "Wisconsin", abbreviation: "WI" },
-  { name: "Wyoming", abbreviation: "WY" }
+    { name: "Alabama", abbreviation: "AL" },
+    { name: "Alaska", abbreviation: "AK" },
+    { name: "Arizona", abbreviation: "AZ" },
+    { name: "Arkansas", abbreviation: "AR" },
+    { name: "California", abbreviation: "CA" },
+    { name: "Colorado", abbreviation: "CO" },
+    { name: "Connecticut", abbreviation: "CT" },
+    { name: "Delaware", abbreviation: "DE" },
+    { name: "Florida", abbreviation: "FL" },
+    { name: "Georgia", abbreviation: "GA" },
+    { name: "Hawaii", abbreviation: "HI" },
+    { name: "Idaho", abbreviation: "ID" },
+    { name: "Illinois", abbreviation: "IL" },
+    { name: "Indiana", abbreviation: "IN" },
+    { name: "Iowa", abbreviation: "IA" },
+    { name: "Kansas", abbreviation: "KS" },
+    { name: "Kentucky", abbreviation: "KY" },
+    { name: "Louisiana", abbreviation: "LA" },
+    { name: "Maine", abbreviation: "ME" },
+    { name: "Maryland", abbreviation: "MD" },
+    { name: "Massachusetts", abbreviation: "MA" },
+    { name: "Michigan", abbreviation: "MI" },
+    { name: "Minnesota", abbreviation: "MN" },
+    { name: "Mississippi", abbreviation: "MS" },
+    { name: "Missouri", abbreviation: "MO" },
+    { name: "Montana", abbreviation: "MT" },
+    { name: "Nebraska", abbreviation: "NE" },
+    { name: "Nevada", abbreviation: "NV" },
+    { name: "New Hampshire", abbreviation: "NH" },
+    { name: "New Jersey", abbreviation: "NJ" },
+    { name: "New Mexico", abbreviation: "NM" },
+    { name: "New York", abbreviation: "NY" },
+    { name: "North Carolina", abbreviation: "NC" },
+    { name: "North Dakota", abbreviation: "ND" },
+    { name: "Ohio", abbreviation: "OH" },
+    { name: "Oklahoma", abbreviation: "OK" },
+    { name: "Oregon", abbreviation: "OR" },
+    { name: "Pennsylvania", abbreviation: "PA" },
+    { name: "Rhode Island", abbreviation: "RI" },
+    { name: "South Carolina", abbreviation: "SC" },
+    { name: "South Dakota", abbreviation: "SD" },
+    { name: "Tennessee", abbreviation: "TN" },
+    { name: "Texas", abbreviation: "TX" },
+    { name: "Utah", abbreviation: "UT" },
+    { name: "Vermont", abbreviation: "VT" },
+    { name: "Virginia", abbreviation: "VA" },
+    { name: "Washington", abbreviation: "WA" },
+    { name: "West Virginia", abbreviation: "WV" },
+    { name: "Wisconsin", abbreviation: "WI" },
+    { name: "Wyoming", abbreviation: "WY" },
   ];
   const canadaProvinces = [
-  { name: "Alberta", abbreviation: "AB" },
-  { name: "British Columbia", abbreviation: "BC" },
-  { name: "Manitoba", abbreviation: "MB" },
-  { name: "New Brunswick", abbreviation: "NB" },
-  { name: "Newfoundland and Labrador", abbreviation: "NL" },
-  { name: "Nova Scotia", abbreviation: "NS" },
-  { name: "Ontario", abbreviation: "ON" },
-  { name: "Prince Edward Island", abbreviation: "PE" },
-  { name: "Quebec", abbreviation: "QC" },
-  { name: "Saskatchewan", abbreviation: "SK" },
-  { name: "Northwest Territories", abbreviation: "NT" },
-  { name: "Nunavut", abbreviation: "NU" },
-  { name: "Yukon", abbreviation: "YT" }
+    { name: "Alberta", abbreviation: "AB" },
+    { name: "British Columbia", abbreviation: "BC" },
+    { name: "Manitoba", abbreviation: "MB" },
+    { name: "New Brunswick", abbreviation: "NB" },
+    { name: "Newfoundland and Labrador", abbreviation: "NL" },
+    { name: "Nova Scotia", abbreviation: "NS" },
+    { name: "Ontario", abbreviation: "ON" },
+    { name: "Prince Edward Island", abbreviation: "PE" },
+    { name: "Quebec", abbreviation: "QC" },
+    { name: "Saskatchewan", abbreviation: "SK" },
+    { name: "Northwest Territories", abbreviation: "NT" },
+    { name: "Nunavut", abbreviation: "NU" },
+    { name: "Yukon", abbreviation: "YT" },
   ];
   const requiredFields = [
-  "first_name", "last_name", "phone_number", "email", 
-  "street", "city", "zip_code", "country", "state", 
-  "sales_order", "date", "assign", "status", 
-  "model_number", "serial", "issues"
+    "first_name",
+    "last_name",
+    "phone_number",
+    "email",
+    "street",
+    "city",
+    "zip_code",
+    "country",
+    "state",
+    "sales_order",
+    "date",
+    "assign",
+    "status",
+    "model_number",
+    "serial",
+    "issues",
   ];
   const [productDetail, setProductDetail] = useState(null);
   
@@ -320,11 +336,16 @@ function App() {
       {fields.map((field) => (
         <div
           key={field}
-          className={`form-group ${["street", "email"].includes(field) ? "medium-wide" : ""}`}
+          className={`form-group ${
+            ["street", "email"].includes(field) ? "medium-wide" : ""
+          }`}
         >
-
-          <label>{toProperCase(field)}{" "}
-          {requiredFields.includes(field) && <span className="required-asterisk">*</span>}</label>
+          <label>
+            {toProperCase(field)}{" "}
+            {requiredFields.includes(field) && (
+              <span className="required-asterisk">*</span>
+            )}
+          </label>
           {/* Custom field types */}
           {field === "date" ? (
             <input
@@ -490,7 +511,7 @@ function App() {
       ))}
     </div>
   );
-  const [fileType, setFileType] = useState('');
+  const [fileType, setFileType] = useState("");
   const [selectedFiles, setSelectedFiles] = useState([]);
 
   const handleFileChange = (e) => {
