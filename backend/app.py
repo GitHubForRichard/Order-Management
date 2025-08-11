@@ -23,7 +23,6 @@ migrate = Migrate(app, db)
 def get_orders():
     """Get all orders"""
     orders = Order.query.all()
-    print('orders', orders)
     return jsonify([order.to_dict() for order in orders])
 
 
@@ -96,20 +95,21 @@ def get_order(order_id):
 @app.route('/api/orders/<order_id>', methods=['PUT'])
 def update_order(order_id):
     """Update an existing order"""
-    order = next((o for o in orders if o['id'] == order_id), None)
+    order = Order.query.get(order_id)
     if not order:
         return jsonify({'error': 'Order not found'}), 404
 
     data = request.get_json()
+    for field, value in data.items():
+        if hasattr(order, field):
+            setattr(order, field, value)
 
-    # Update fields
-    updatable_fields = ['customer_name', 'phone_number', 'model_number', 'issues', 'case', 'email', 'sales_order', 'date', 'address', 'street',
-                        'city', 'zip_code', 'state', 'country', 'assign', 'status', 'serial', 'solution', 'action', 'file_name', 'tracking', 'return_status']
-    for field in updatable_fields:
-        if field in data:
-            order[field] = data[field]
-
-    return jsonify({'order': order})
+    try:
+        db.session.commit()
+        return jsonify({'order': order.to_dict()}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
 
 
 @app.route('/api/orders/<order_id>', methods=['DELETE'])

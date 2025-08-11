@@ -283,10 +283,7 @@ function App() {
     };
 
     axios
-      .put(
-        `http://localhost:5001/api/orders/${newOrder.case_number}`,
-        orderToUpdate
-      )
+      .put(`http://localhost:5001/api/orders/${newOrder.id}`, orderToUpdate)
       .then((response) => {
         const updatedOrders = orders.map((order) =>
           order.case_number === newOrder.case_number
@@ -1083,7 +1080,6 @@ function App() {
                     </button>
                     <button
                       onClick={handleUpdate}
-                      disabled={!newOrder.case_number}
                       className={`btn-small ${
                         newOrder.case_number ? "btn-update" : "btn-disabled"
                       }`}
