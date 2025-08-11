@@ -970,7 +970,7 @@ function App() {
                       .map((order, idx) => (
                         <tr
                           key={idx}
-                          onClick={() => handleCaseSelect(order)}
+                          onDoubleClick={() => handleCaseSelect(order)}
                           style={{ cursor: "pointer" }}
                         >
                           <td>
