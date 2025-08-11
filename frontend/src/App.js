@@ -284,13 +284,9 @@ function App() {
 
     axios
       .put(`http://localhost:5001/api/orders/${newOrder.id}`, orderToUpdate)
+      .then(() => axios.get("http://localhost:5001/api/orders"))
       .then((response) => {
-        const updatedOrders = orders.map((order) =>
-          order.case_number === newOrder.case_number
-            ? response.data.order
-            : order
-        );
-        setOrders(updatedOrders);
+        setOrders(response.data);
         setNewOrder(initialOrder);
       })
       .catch((error) =>
