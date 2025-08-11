@@ -656,12 +656,24 @@ function App() {
                                   : ""
                               }`}
                             >
-                              <td>{order.customer_name}</td>
-                              <td>{order.fullPhone}</td>
+                              <td>
+                                {order.first_name} {order.last_name}
+                              </td>
+                              <td>{order.phone_number}</td>
                               <td>{order.email}</td>
-                              <td>{order.fullAddress}</td>
+                              <td>
+                                {order.street}, {order.city}, {order.state},
+                                {order.country} {order.zip_code}
+                              </td>
                               <td>{order.loggedInUser}</td>
-                              <td>{order.created_date}</td>
+                              <td>
+                                {new Date(
+                                  order.created_at
+                                ).toLocaleDateString()}{" "}
+                                {new Date(
+                                  order.created_at
+                                ).toLocaleTimeString()}
+                              </td>
                               <td>{order.last_updated}</td>
                             </tr>
                           ))}
