@@ -14,11 +14,16 @@ function App() {
       );
   };
   const [loggedInUser, setLoggedInUser] = useState("Xiaoyin Zhang"); // Replace with your actual logic
+
+  const [selectedCase, setSelectedCase] = useState(null);
+  const [isEdited, setIsEdited] = useState(false);
+
+  // Extract unique status and assigned for dropdowns
+
   const initialOrder = {
     first_name: "",
     last_name: "",
     mid: "",
-    phone_number: "",
     model_number: "",
     issues: "",
     case_number: "",
@@ -39,7 +44,8 @@ function App() {
     tracking: "",
     return_status: "",
   };
-
+  const [newOrder, setNewOrder] = useState(initialOrder);
+  const [orderHistory, setOrderHistory] = useState([]);
   const countryCodes = [
     { code: "+1", name: "USA/Canada" },
     { code: "+44", name: "UK" },
@@ -156,10 +162,20 @@ function App() {
         setProductDetail(null);
       });
   };
-  const [newOrder, setNewOrder] = useState(initialOrder);
-  const modelNumberList = ["ABC123", "XYZ789", "DEF456", "GHI012", "JKL345"];
-  const [searchName, setSearchName] = useState("");
 
+  const modelNumberList = ["ABC123", "XYZ789", "DEF456", "GHI012", "JKL345"];
+
+  const [searchName, setSearchName] = useState("");
+  const [isImageZoomed, setIsImageZoomed] = useState(false);
+  const [shipStationTracks, setShipStationTracks] = useState([]);
+  const handleImageClick = () => {
+    setIsImageZoomed(true);
+  };
+
+  const handleCloseZoom = () => {
+    setIsImageZoomed(false);
+  };
+  // Combined useEffect for orders + order history
   useEffect(() => {
     axios
       .get("http://localhost:5001/api/orders")
@@ -171,22 +187,127 @@ function App() {
         const caseNumbers = fetchedOrders
           .map((order) => parseInt(order.case?.replace(/[^\d]/g, ""), 10))
           .filter((num) => !isNaN(num));
-
         const maxCase = caseNumbers.length > 0 ? Math.max(...caseNumbers) : 0;
 
-        // Set new order with next case number
         setNewOrder((prev) => ({
           ...prev,
-          case: `CASE-${String(maxCase + 1).padStart(3, "0")}`,
+          case_number: `CASE-${String(maxCase + 1).padStart(3, "0")}`,
         }));
+
+        // Filter order history (case-insensitive + partial)
+        if (newOrder.customer_name && newOrder.customer_name.trim() !== "") {
+          const filteredHistory = fetchedOrders.filter(
+            (order) =>
+              order.customer_name &&
+              order.customer_name
+                .toLowerCase()
+                .includes(newOrder.customer_name.toLowerCase())
+          );
+
+          filteredHistory.sort(
+            (a, b) => new Date(b.order_date) - new Date(a.order_date)
+          );
+
+          setOrderHistory(filteredHistory);
+        } else {
+          setOrderHistory([]);
+        }
       })
       .catch((error) =>
         console.error("There was an error loading the orders!", error)
       );
-  }, []);
+  }, [newOrder.customer_name]);
 
+  // New useEffect for ShipStation tracking info
+  useEffect(() => {
+    if (newOrder.customer_name && newOrder.customer_name.trim() !== "") {
+      // Replace this URL with your actual ShipStation API endpoint
+      const shipStationAPI = `https://api.shipstation.com/shipments?customerName=${encodeURIComponent(
+        newOrder.customer_name
+      )}`;
+
+      // Example axios call with headers for ShipStation API authorization
+      axios
+        .get(shipStationAPI, {
+          headers: {
+            Authorization: "Basic " + btoa("YOUR_API_KEY:YOUR_API_SECRET"),
+            "Content-Type": "application/json",
+          },
+        })
+        .then((res) => {
+          // Assuming ShipStation API returns shipments array in res.data.shipments
+          setShipStationTracks(res.data.shipments || []);
+        })
+        .catch((err) => {
+          console.error("Error fetching ShipStation tracking data", err);
+          setShipStationTracks([]);
+        });
+    } else {
+      setShipStationTracks([]);
+    }
+  }, [newOrder.customer_name]);
+
+  const handleCaseSelect = (caseData) => {
+    if (isEdited) {
+      const confirmSwitch = window.confirm(
+        "You have unsaved changes. Do you want to discard them?"
+      );
+      if (!confirmSwitch) return; // Cancel switching
+    }
+
+    setNewOrder(caseData); // Load data into all sections
+    setSelectedCase(caseData.case_number);
+    setIsEdited(false); // Reset edit tracking
+  };
+
+  // Set new update to the database
+  const handleUpdate = (e) => {
+    e.preventDefault();
+
+    const fullPhone = `${newOrder.phoneCode || "+1"}${newOrder.phone || ""}`;
+    const customerName = `${newOrder.first_name} ${
+      newOrder.mid ? newOrder.mid + " " : ""
+    }${newOrder.last_name}`.trim();
+    const fullAddress =
+      `${newOrder.street}, ${newOrder.city}, ${newOrder.state}, ${newOrder.country} ${newOrder.zip_code}`
+        .replace(/\s+,/g, "")
+        .trim();
+    const orderToUpdate = {
+      ...newOrder,
+      phone_number: fullPhone,
+      customer_name: customerName,
+      fullAddress: fullAddress,
+      last_updated: new Date().toISOString(),
+    };
+
+    axios
+      .put(
+        `http://localhost:5001/api/orders/${newOrder.case_number}`,
+        orderToUpdate
+      )
+      .then((response) => {
+        const updatedOrders = orders.map((order) =>
+          order.case_number === newOrder.case_number
+            ? response.data.order
+            : order
+        );
+        setOrders(updatedOrders);
+        setNewOrder(initialOrder);
+      })
+      .catch((error) =>
+        console.error("There was an error updating the order!", error)
+      );
+  };
+
+  // Set new case to the database
   const handleSubmit = (e) => {
     e.preventDefault();
+
+    const fullPhone = `${newOrder.phoneCode || "+1"}${newOrder.phone || ""}`;
+    const customerName = `${newOrder.first_name} ${
+      newOrder.mid ? newOrder.mid + " " : ""
+    }${newOrder.last_name}`.trim();
+
     const missingFields = requiredFields.filter((field) => !newOrder[field]);
     if (missingFields.length > 0) {
       alert(
@@ -196,25 +317,39 @@ function App() {
       );
       return;
     }
-    axios
-      .post("http://localhost:5001/api/orders", newOrder)
-      .then((response) => {
-        setOrders([...orders, response.data]);
-        setNewOrder(initialOrder);
-      })
-      .catch((error) =>
-        console.error("There was an error creating the order!", error)
-      );
-  };
 
-  const filteredOrders = searchName
-    ? orders.filter((order) =>
-        [
-          order.last_name.toLowerCase(),
-          order.first_name.toLowerCase(),
-        ].includes(searchName.toLowerCase())
-      )
-    : orders;
+    const generatedCaseNumber = `CASE-${Date.now()}`; // Simple unique case number
+    const orderToSubmit = {
+      ...newOrder,
+      phone_number: fullPhone,
+      customer_name: customerName,
+      case_number: generatedCaseNumber,
+      created_date: new Date().toISOString(),
+      last_updated: new Date().toISOString(),
+    };
+
+    axios
+      .post("http://localhost:5001/api/orders", orderToSubmit)
+      .then((response) => {
+        setOrders((prev) => [...prev, response.data.order]);
+        setNewOrder(initialOrder);
+        setSelectedCase(null); // Clear selection
+        setIsEdited(false); // Reset edit tracking
+      })
+      .catch((error) => {
+        console.error("There was an error creating the order!", error);
+      });
+  };
+  const [currentPage, setCurrentPage] = useState("new");
+  const filteredOrders = orders.filter((order) => {
+    const searchLower = searchName.toLowerCase();
+    return (
+      order.first_name.toLowerCase().includes(searchLower) ||
+      order.last_name.toLowerCase().includes(searchLower) ||
+      order.case_number?.toLowerCase().includes(searchLower) ||
+      order.sales_order?.toLowerCase().includes(searchLower)
+    );
+  });
 
   const renderRow = (fields) => (
     <div className="form-row">
@@ -236,17 +371,19 @@ function App() {
             <input
               type="date"
               value={newOrder[field]}
-              onChange={(e) =>
-                setNewOrder({ ...newOrder, [field]: e.target.value })
-              }
+              onChange={(e) => {
+                setNewOrder({ ...newOrder, [field]: e.target.value });
+                setIsEdited(true); // 🔥 Track that something changed
+              }}
             />
           ) : field === "phone_number" ? (
             <div className="phone-wrapper">
               <select
                 value={newOrder.phoneCode || "+1"}
-                onChange={(e) =>
-                  setNewOrder({ ...newOrder, phoneCode: e.target.value })
-                }
+                onChange={(e) => {
+                  setNewOrder({ ...newOrder, phoneCode: e.target.value });
+                  setIsEdited(true); // 🔥 Track that something changed
+                }}
                 className="area-code"
               >
                 {countryCodes.map((c) => (
@@ -257,10 +394,11 @@ function App() {
               </select>
               <input
                 type="tel"
-                value={newOrder.phone_number}
-                onChange={(e) =>
-                  setNewOrder({ ...newOrder, phone_number: e.target.value })
-                }
+                value={newOrder.phone}
+                onChange={(e) => {
+                  setNewOrder({ ...newOrder, phone: e.target.value });
+                  setIsEdited(true); // 🔥 Track that something changed
+                }}
                 placeholder="Phone number"
                 className="phone-input"
               />
@@ -268,9 +406,10 @@ function App() {
           ) : field === "status" ? (
             <select
               value={newOrder[field]}
-              onChange={(e) =>
-                setNewOrder({ ...newOrder, [field]: e.target.value })
-              }
+              onChange={(e) => {
+                setNewOrder({ ...newOrder, [field]: e.target.value });
+                setIsEdited(true); // 🔥 Track that something changed
+              }}
             >
               <option value="">Select status</option>
               <option value="Pending">Pending</option>
@@ -280,13 +419,14 @@ function App() {
           ) : field === "country" ? (
             <select
               value={newOrder[field]}
-              onChange={(e) =>
+              onChange={(e) => {
                 setNewOrder({
                   ...newOrder,
                   country: e.target.value,
                   state: "", // reset state when country changes
-                })
-              }
+                });
+                setIsEdited(true); // 🔥 Track that something changed
+              }}
             >
               <option value="">Select country</option>
               {countries.map((country) => (
@@ -299,9 +439,10 @@ function App() {
             newOrder.country === "USA" || newOrder.country === "Canada" ? (
               <select
                 value={newOrder[field]}
-                onChange={(e) =>
-                  setNewOrder({ ...newOrder, [field]: e.target.value })
-                }
+                onChange={(e) => {
+                  setNewOrder({ ...newOrder, [field]: e.target.value });
+                  setIsEdited(true); // 🔥 Track that something changed
+                }}
               >
                 <option value="">Select state/province</option>
                 {(newOrder.country === "USA" ? usStates : canadaProvinces).map(
@@ -316,18 +457,20 @@ function App() {
               <input
                 type="text"
                 value={newOrder[field]}
-                onChange={(e) =>
-                  setNewOrder({ ...newOrder, [field]: e.target.value })
-                }
+                onChange={(e) => {
+                  setNewOrder({ ...newOrder, [field]: e.target.value });
+                  setIsEdited(true); // 🔥 Track that something changed
+                }}
                 placeholder="Enter state/province"
               />
             )
           ) : field === "assign" ? (
             <select
               value={newOrder[field]}
-              onChange={(e) =>
-                setNewOrder({ ...newOrder, [field]: e.target.value })
-              }
+              onChange={(e) => {
+                setNewOrder({ ...newOrder, [field]: e.target.value });
+                setIsEdited(true); // 🔥 Track that something changed
+              }}
             >
               <option value="">Please assign to</option>
               <option value="Vincent Ma">Vincent Ma</option>
@@ -347,23 +490,25 @@ function App() {
             <textarea
               className="textarea-scroll"
               value={newOrder[field]}
-              onChange={(e) =>
-                setNewOrder({ ...newOrder, [field]: e.target.value })
-              }
+              onChange={(e) => {
+                setNewOrder({ ...newOrder, [field]: e.target.value });
+                setIsEdited(true); // 🔥 Track that something changed
+              }}
             />
-          ) : field === "case Number" ? (
+          ) : field === "case_Number" ? (
             <input
               type="text"
-              value={newOrder["case Number"]}
+              value={newOrder["case_Number"]}
               readOnly
               style={{ backgroundColor: "#eee", cursor: "not-allowed" }}
             />
           ) : field === "model_number" ? (
             <select
               value={newOrder[field]}
-              onChange={(e) =>
-                setNewOrder({ ...newOrder, [field]: e.target.value })
-              }
+              onChange={(e) => {
+                setNewOrder({ ...newOrder, [field]: e.target.value });
+                setIsEdited(true); // 🔥 Track that something changed
+              }}
             >
               <option value="">Select a model</option>
               {modelNumberList.map((model) => (
@@ -376,9 +521,10 @@ function App() {
             <input
               type="text"
               value={newOrder[field]}
-              onChange={(e) =>
-                setNewOrder({ ...newOrder, [field]: e.target.value })
-              }
+              onChange={(e) => {
+                setNewOrder({ ...newOrder, [field]: e.target.value });
+                setIsEdited(true); // 🔥 Track that something changed
+              }}
             />
           )}
         </div>
@@ -402,7 +548,6 @@ function App() {
       alert("Please select at least one file to upload.");
       return;
     }
-
     // Simulate upload
     alert(`Uploading ${selectedFiles.length} file(s) as ${fileType}`);
   };
@@ -412,223 +557,531 @@ function App() {
       <div className="user-info-banner">
         Logged in: <strong>{loggedInUser}</strong>
       </div>
-      <form onSubmit={handleSubmit}>
-        <div className="form-container">
-          {/* Left Column */}
-          <div className="form-left">
-            <div className="form-row">
-              {/* Customer Info */}
-              <div className="form-section-card half-width">
-                <h3 className="section-title">Customer Info</h3>
-                {renderRow([
-                  "first_name",
-                  "last_name",
-                  "mid",
-                  "phone_number",
-                  "email",
-                ])}
-                <h3 className="section-title">Address Info</h3>
-                {renderRow(["street", "city", "zip_code", "country", "state"])}
-              </div>
+      <div style={{ display: "flex", gap: "5px", marginBottom: "5px" }}>
+        <div
+          className={`tab ${currentPage === "new" ? "active" : ""}`}
+          onClick={() => setCurrentPage("new")}
+        >
+          New Case
+        </div>
+        <div
+          className={`tab ${currentPage === "exist" ? "active" : ""}`}
+          onClick={() => setCurrentPage("exist")}
+        >
+          Exist Case
+        </div>
+      </div>
+      {currentPage === "new" && (
+        <form onSubmit={handleSubmit}>
+          <div className="form-container">
+            {/* Left Column */}
+            <div className="form-left">
+              <div className="form-row">
+                {/* Customer/address Info */}
+                <div className="form-section-card half-width">
+                  <h3 className="section-title">Customer Info</h3>
+                  {renderRow([
+                    "first_name",
+                    "last_name",
+                    "mid",
+                    "phone_number",
+                    "email",
+                  ])}
+                  <h3 className="section-title">Address Info</h3>
+                  {renderRow([
+                    "street",
+                    "city",
+                    "zip_code",
+                    "country",
+                    "state",
+                  ])}
+                </div>
 
-              {/* Order Info */}
-              <div className="form-section-card half-width">
-                <h3 className="section-title">Order Info</h3>
-                {renderRow([
-                  "sales_order",
-                  "date",
-                  "assign",
-                  "status",
-                  "case Number",
-                ])}
-                <h3 className="section-title">Extra Info</h3>
-                {renderRow(["file_name", "tracking", "return_status"])}
+                {/* Order/extra Info */}
+                <div className="form-section-card half-width">
+                  <h3 className="section-title">Order Info</h3>
+                  {renderRow([
+                    "sales_order",
+                    "date",
+                    "assign",
+                    "status",
+                    "case_Number",
+                  ])}
+                  <h3 className="section-title">Extra Info</h3>
+                  {renderRow(["file_name", "tracking", "return_status"])}
+                </div>
               </div>
-            </div>
-            <div className="form-section-card">
-              <input
-                type="text"
-                className="form-input search-input"
-                placeholder="Search by customer name"
-                value={searchName}
-                onChange={(e) => setSearchName(e.target.value)}
-              />
-              <table>
-                <thead>
-                  <tr>
-                    <th>Customer Name</th>
-                    <th>Case</th>
-                    <th>Sales Order</th>
-                    <th>Issues</th>
-                    <th>Action</th>
-                    <th>Status</th>
-                    <th>Recorded By</th>
-                    <th>Assigned To</th>
-                    <th>Created Date</th>
-                    <th>Last Updated</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredOrders.map((order, idx) => (
-                    <tr key={idx}>
-                      <td>
-                        {order.first_name} {order.last_name}
-                      </td>
-                      <td>{order.case_number}</td>
-                      <td>{order.sales_order}</td>
-                      <td>{order.issues}</td>
-                      <td>{order.action}</td>
-                      <td>{order.status}</td>
-                      <td>{order.recorded_by}</td>
-                      <td>{order.assign}</td>
-                      <td>{order.created_date}</td>
-                      <td>{order.last_update_date}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          {/* Right Column - Case Detail */}
-          <div className="form-right sticky-right">
-            <div className="form-section-card">
-              <h3 className="section-title">Case Detail</h3>
-              {renderRow([
-                "model_number",
-                "serial",
-                "issues",
-                "solution",
-                "action",
-              ])}
-            </div>
-
-            {/* Product detail */}
-            <div className="form-section-card">
-              <div className="product-detail-header">
-                <h3 className="section-title">Product Detail</h3>
-                <button
-                  type="button"
-                  className="search-button"
-                  onClick={handleProductSearch}
-                >
-                  Search
-                </button>
-              </div>
-              {productDetail ? (
-                <div className="product-detail-content">
-                  <div className="product-image">
-                    {productDetail.imageUrl ? (
-                      <img src={productDetail.imageUrl} alt="Product" />
+              {/* next container column */}
+              <div className="form-container">
+                <div className="form-left search-order">
+                  {/* customer search bar */}
+                  <div className="form-section-card search-bar">
+                    <input
+                      type="text"
+                      className="form-input search-input"
+                      placeholder="Search by customer name"
+                      value={searchName}
+                      onChange={(e) => setSearchName(e.target.value)}
+                    />
+                    <table>
+                      <thead>
+                        <tr>
+                          <th>Customer Name</th>
+                          <th>Phone Number</th>
+                          <th>Email</th>
+                          <th>Address</th>
+                          <th>Recorded By</th>
+                          <th>Created Date</th>
+                          <th>Last Updated</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {filteredOrders
+                          .filter((order) =>
+                            order.customer_name
+                              .toLowerCase()
+                              .includes(searchName.toLowerCase())
+                          )
+                          .map((order, idx) => (
+                            <tr
+                              key={idx}
+                              onDoubleClick={() => handleCaseSelect(order)}
+                              className={`cursor-pointer hover:bg-gray-100 ${
+                                selectedCase === order.case_number
+                                  ? "bg-yellow-100 font-semibold"
+                                  : ""
+                              }`}
+                            >
+                              <td>{order.customer_name}</td>
+                              <td>{order.fullPhone}</td>
+                              <td>{order.email}</td>
+                              <td>{order.fullAddress}</td>
+                              <td>{order.loggedInUser}</td>
+                              <td>{order.created_date}</td>
+                              <td>{order.last_updated}</td>
+                            </tr>
+                          ))}
+                      </tbody>
+                    </table>
+                  </div>
+                  {/* ShipStation Track */}
+                  <div className="form-section-card shipstation-track">
+                    <h3 className="section-title">ShipStation Track</h3>
+                    {shipStationTracks.length > 0 ? (
+                      <table className="shipstation-table">
+                        <thead>
+                          <tr>
+                            <th>Order#</th>
+                            <th>Provider</th>
+                            <th>Recipient</th>
+                            <th>Service</th>
+                            <th>Ship Date</th>
+                            <th>Ship From</th>
+                            <th>Tracking Number</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {shipStationTracks.map((shipment, idx) => (
+                            <tr key={idx}>
+                              <td>{shipment.orderNumber}</td>
+                              <td>{shipment.carrierCode}</td>
+                              <td>{shipment.recipient?.name}</td>
+                              <td>{shipment.serviceCode}</td>
+                              <td>
+                                {new Date(
+                                  shipment.shipDate
+                                ).toLocaleDateString()}
+                              </td>
+                              <td>
+                                {shipment.shipFrom?.city},{" "}
+                                {shipment.shipFrom?.state}
+                              </td>
+                              <td>{shipment.trackingNumber}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
                     ) : (
-                      <div className="image-placeholder">No Image</div>
+                      <p className="no-detail-text">
+                        No shipments found for this customer.
+                      </p>
                     )}
                   </div>
-                  <div className="product-description">
-                    <p>{productDetail.description}</p>
+                </div>
+                <div className="form-left ship-product">
+                  {/* order history */}
+                  <div className="form-section-card order-history">
+                    <h3 className="section-title">Order History</h3>
+                    {orderHistory.length > 0 ? (
+                      <table className="order-history-table">
+                        <thead>
+                          <tr>
+                            <th>Sales Order</th>
+                            <th>Model Name</th>
+                            <th>Order Date</th>
+                            <th>Marketplace</th>
+                            <th>Ship Status</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {orderHistory.map((order, idx) => (
+                            <tr key={idx}>
+                              <td>{order.sales_order}</td>
+                              <td>{order.model_name}</td>
+                              <td>
+                                {new Date(
+                                  order.order_date
+                                ).toLocaleDateString()}
+                              </td>
+                              <td>{order.marketplace}</td>
+                              <td>{order.ship_status}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    ) : (
+                      <p className="no-detail-text">
+                        No order history found for this customer.
+                      </p>
+                    )}
+                  </div>
+                  {/* Product detail */}
+                  <div className="form-section-card product-detail">
+                    <div className="product-detail-header">
+                      <h3 className="section-title">Product Detail</h3>
+                      <button
+                        type="button"
+                        className="search-button"
+                        onClick={handleProductSearch}
+                      >
+                        Search
+                      </button>
+                    </div>
+                    {productDetail ? (
+                      <div className="product-detail-content">
+                        <div className="product-image">
+                          {productDetail.imageUrl ? (
+                            <>
+                              <img
+                                src={productDetail.imageUrl}
+                                alt="Product"
+                                onClick={handleImageClick}
+                                className="clickable-image"
+                              />
+                              {isImageZoomed && (
+                                <div
+                                  className="image-zoom-overlay"
+                                  onClick={handleCloseZoom}
+                                >
+                                  <img
+                                    src={productDetail.imageUrl}
+                                    alt="Zoomed Product"
+                                    className="zoomed-image"
+                                  />
+                                </div>
+                              )}
+                            </>
+                          ) : (
+                            <div className="image-placeholder">No Image</div>
+                          )}
+                        </div>
+                        <div className="product-description">
+                          <p>{productDetail.description}</p>
+                        </div>
+                      </div>
+                    ) : (
+                      <p className="no-detail-text">No product detail found.</p>
+                    )}
                   </div>
                 </div>
-              ) : (
-                <p className="no-detail-text">No product detail found.</p>
-              )}
+              </div>
             </div>
-            <div className="form-section-card">
-              <h3 className="section-title">Attachments</h3>
 
-              {/* File Type Dropdown */}
-              <div className="form-group medium-wide">
-                <label>Select File Type</label>
-                <select
-                  value={fileType}
-                  onChange={(e) => setFileType(e.target.value)}
-                  className="form-input"
-                >
-                  <option value="">Select type</option>
-                  <option value="screenshot">Screenshot</option>
-                  <option value="log">Log File</option>
-                  <option value="pdf">PDF</option>
-                  <option value="image">Image</option>
-                </select>
+            {/* Right Column - Case Detail */}
+            <div className="form-right sticky-right">
+              <div className="form-section-card">
+                <h3 className="section-title">Case Detail</h3>
+                {renderRow([
+                  "model_number",
+                  "serial",
+                  "issues",
+                  "solution",
+                  "action",
+                ])}
+                <div className="action-buttons">
+                  <button
+                    onClick={handleSubmit}
+                    className="btn-small btn-create"
+                  >
+                    Create New
+                  </button>
+                </div>
               </div>
 
-              {/* File Input & Buttons */}
-              <div
-                className="form-row"
-                style={{ alignItems: "center", gap: "1rem", marginTop: "10px" }}
-              >
-                <input
-                  type="file"
-                  multiple
-                  accept="image/*,.pdf,.txt,.log"
-                  onChange={handleFileChange}
-                  className="form-input"
-                />
+              <div className="form-section-card">
+                <h3 className="section-title">Attachments</h3>
 
-                <button
-                  type="button"
-                  onClick={handleUpload}
-                  style={{ height: "36px" }}
+                {/* File Type Dropdown */}
+                <div className="form-group medium-wide">
+                  <label>Select File Type</label>
+                  <select
+                    value={fileType}
+                    onChange={(e) => setFileType(e.target.value)}
+                    className="form-input"
+                  >
+                    <option value="">Select type</option>
+                    <option value="screenshot">Screenshot</option>
+                    <option value="log">Log File</option>
+                    <option value="pdf">PDF</option>
+                    <option value="image">Image</option>
+                  </select>
+                </div>
+
+                {/* File Input & Buttons */}
+                <div
+                  className="form-row"
+                  style={{
+                    alignItems: "center",
+                    gap: "1rem",
+                    marginTop: "10px",
+                  }}
                 >
-                  Upload
-                </button>
-              </div>
+                  <input
+                    type="file"
+                    multiple
+                    accept="image/*,.pdf,.txt,.log"
+                    onChange={handleFileChange}
+                    className="form-input"
+                  />
 
-              {/* Preview Section */}
-              <div style={{ marginTop: "10px" }}>
-                {selectedFiles.length > 0 && (
-                  <div>
-                    <h4 style={{ fontSize: "14px", marginBottom: "8px" }}>
-                      Selected Files:
-                    </h4>
-                    <ul style={{ listStyle: "none", padding: 0 }}>
-                      {selectedFiles.map((file, index) => (
-                        <li key={index} style={{ marginBottom: "6px" }}>
-                          {file.type.startsWith("image/") ? (
-                            <img
-                              src={URL.createObjectURL(file)}
-                              alt={file.name}
+                  <button
+                    type="button"
+                    onClick={handleUpload}
+                    style={{ height: "36px" }}
+                  >
+                    Upload
+                  </button>
+                </div>
+
+                {/* Preview Section */}
+                <div style={{ marginTop: "10px" }}>
+                  {selectedFiles.length > 0 && (
+                    <div>
+                      <h4 style={{ fontSize: "14px", marginBottom: "8px" }}>
+                        Selected Files:
+                      </h4>
+                      <ul style={{ listStyle: "none", padding: 0 }}>
+                        {selectedFiles.map((file, index) => (
+                          <li key={index} style={{ marginBottom: "6px" }}>
+                            {file.type.startsWith("image/") ? (
+                              <img
+                                src={URL.createObjectURL(file)}
+                                alt={file.name}
+                                style={{
+                                  width: "60px",
+                                  height: "60px",
+                                  objectFit: "cover",
+                                  borderRadius: "6px",
+                                  marginRight: "10px",
+                                }}
+                              />
+                            ) : (
+                              <span
+                                style={{
+                                  fontSize: "13px",
+                                  marginRight: "10px",
+                                }}
+                              >
+                                {file.name}
+                              </span>
+                            )}
+                            <button
+                              type="button"
+                              onClick={() => removeFile(index)}
                               style={{
-                                width: "60px",
-                                height: "60px",
-                                objectFit: "cover",
-                                borderRadius: "6px",
-                                marginRight: "10px",
+                                fontSize: "12px",
+                                padding: "4px 8px",
+                                background: "#dc3545",
+                                color: "white",
+                                border: "none",
+                                borderRadius: "4px",
+                                cursor: "pointer",
                               }}
-                            />
-                          ) : (
-                            <span
-                              style={{ fontSize: "13px", marginRight: "10px" }}
                             >
-                              {file.name}
-                            </span>
-                          )}
-                          <button
-                            type="button"
-                            onClick={() => removeFile(index)}
-                            style={{
-                              fontSize: "12px",
-                              padding: "4px 8px",
-                              background: "#dc3545",
-                              color: "white",
-                              border: "none",
-                              borderRadius: "4px",
-                              cursor: "pointer",
-                            }}
-                          >
-                            Remove
-                          </button>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
+                              Remove
+                            </button>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           </div>
-        </div>
+        </form>
+      )}
+      {currentPage === "exist" && (
+        <form onSubmit={handleSubmit}>
+          <div className="form-container">
+            {/* Left Column */}
+            <div className="form-left">
+              {/* Search bar */}
+              <div className="form-section-card search-bar">
+                <input
+                  type="text"
+                  className="form-input search-input"
+                  placeholder="Search by customer name"
+                  value={searchName}
+                  onChange={(e) => setSearchName(e.target.value)}
+                />
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Customer Name</th>
+                      <th>Case</th>
+                      <th>Sales Order</th>
+                      <th>Issues</th>
+                      <th>Action</th>
+                      <th>Status</th>
+                      <th>Recorded By</th>
+                      <th>Assigned To</th>
+                      <th>Created Date</th>
+                      <th>Last Updated</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredOrders
+                      .filter((order) =>
+                        order.customer_name
+                          .toLowerCase()
+                          .includes(searchName.toLowerCase())
+                      )
+                      .map((order, idx) => (
+                        <tr
+                          key={idx}
+                          onDoubleClick={() => handleCaseSelect(order)}
+                          className={`cursor-pointer hover:bg-gray-100 ${
+                            selectedCase === order.case_number
+                              ? "bg-yellow-100 font-semibold"
+                              : ""
+                          }`}
+                        >
+                          <td>{order.customer_name}</td>
+                          <td>{order.case_number}</td>
+                          <td>{order.sales_order}</td>
+                          <td>{order.issues}</td>
+                          <td>{order.action}</td>
+                          <td>{order.status}</td>
+                          <td>{order.recorded_by}</td>
+                          <td>{order.assign}</td>
+                          <td>{order.created_date}</td>
+                          <td>{order.last_update_date}</td>
+                        </tr>
+                      ))}
+                  </tbody>
+                </table>
+              </div>
 
-        <button type="submit">Submit</button>
-      </form>
+              {/* Product detail */}
+              <div className="form-section-card">
+                <div className="product-detail-header">
+                  <h3 className="section-title">Product Detail</h3>
+                  <button
+                    type="button"
+                    className="search-button"
+                    onClick={handleProductSearch}
+                  >
+                    Search
+                  </button>
+                </div>
+                {productDetail ? (
+                  <div className="product-detail-content">
+                    <div className="product-image">
+                      {productDetail.imageUrl ? (
+                        <img src={productDetail.imageUrl} alt="Product" />
+                      ) : (
+                        <div className="image-placeholder">No Image</div>
+                      )}
+                    </div>
+                    <div className="product-description">
+                      <p>{productDetail.description}</p>
+                    </div>
+                  </div>
+                ) : (
+                  <p className="no-detail-text">No product detail found.</p>
+                )}
+              </div>
+              <div className="form-row">
+                {/* Customer Info */}
+                <div className="form-section-card half-width">
+                  <h3 className="section-title">Customer Info</h3>
+                  {renderRow([
+                    "first_name",
+                    "last_name",
+                    "mid",
+                    "phone_number",
+                    "email",
+                  ])}
+                  <h3 className="section-title">Address Info</h3>
+                  {renderRow([
+                    "street",
+                    "city",
+                    "zip_code",
+                    "country",
+                    "state",
+                  ])}
+                </div>
+
+                {/* Order Info */}
+                <div className="form-section-card half-width">
+                  <h3 className="section-title">Order Info</h3>
+                  {renderRow([
+                    "sales_order",
+                    "date",
+                    "assign",
+                    "status",
+                    "case_Number",
+                  ])}
+                  <h3 className="section-title">Extra Info</h3>
+                  {renderRow(["file_name", "tracking", "return_status"])}
+                </div>
+              </div>
+
+              {/* Right Column - Case Detail */}
+              <div className="form-right sticky-right">
+                <div className="form-section-card">
+                  <h3 className="section-title">Case Detail</h3>
+                  {renderRow([
+                    "model_number",
+                    "serial",
+                    "issues",
+                    "solution",
+                    "action",
+                  ])}
+                  <div className="action-buttons">
+                    <button
+                      onClick={handleSubmit}
+                      className="btn-small btn-create"
+                    >
+                      Create New
+                    </button>
+                    <button
+                      onClick={handleUpdate}
+                      disabled={!newOrder.case_number}
+                      className={`btn-small ${
+                        newOrder.case_number ? "btn-update" : "btn-disabled"
+                      }`}
+                    >
+                      Update Case
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </form>
+      )}
     </div>
   );
 }
