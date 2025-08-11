@@ -672,6 +672,7 @@ function App() {
                           .filter((customer) =>
                             [customer.first_name, customer.last_name]
                               .join(" ")
+                              .toLowerCase()
                               .includes(searchName.toLowerCase())
                           )
                           .map((customer, idx) => (
