@@ -4,7 +4,6 @@ import "./App.css";
 
 function App() {
   const [orders, setOrders] = useState([]);
-  console.log("orders", orders);
   const toProperCase = (str) => {
     return str
       .replace(/_/g, " ")
@@ -557,13 +556,19 @@ function App() {
       <div style={{ display: "flex", gap: "5px", marginBottom: "5px" }}>
         <div
           className={`tab ${currentPage === "new" ? "active" : ""}`}
-          onClick={() => setCurrentPage("new")}
+          onClick={() => {
+            setNewOrder(initialOrder);
+            setCurrentPage("new");
+          }}
         >
           New Case
         </div>
         <div
           className={`tab ${currentPage === "exist" ? "active" : ""}`}
-          onClick={() => setCurrentPage("exist")}
+          onClick={() => {
+            setNewOrder(initialOrder);
+            setCurrentPage("exist");
+          }}
         >
           Exist Case
         </div>
