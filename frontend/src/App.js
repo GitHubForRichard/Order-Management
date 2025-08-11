@@ -14,11 +14,9 @@ function App() {
       );
   };
   const [loggedInUser, setLoggedInUser] = useState("Xiaoyin Zhang"); // Replace with your actual logic
-  
+
   const [selectedCase, setSelectedCase] = useState(null);
   const [isEdited, setIsEdited] = useState(false);
-
-  
 
   // Extract unique status and assigned for dropdowns
 
@@ -149,7 +147,7 @@ function App() {
     "issues",
   ];
   const [productDetail, setProductDetail] = useState(null);
-  
+
   const handleProductSearch = () => {
     const model = newOrder.model_number.trim();
     if (!model) return alert("Please enter a model number.");
@@ -164,15 +162,8 @@ function App() {
         setProductDetail(null);
       });
   };
-  
-  const modelNumberList = [
-  "ABC123",
-  "XYZ789",
-  "DEF456",
-  "GHI012",
-  "JKL345"
-  ];
 
+  const modelNumberList = ["ABC123", "XYZ789", "DEF456", "GHI012", "JKL345"];
 
   const [searchName, setSearchName] = useState("");
   const [isImageZoomed, setIsImageZoomed] = useState(false);
@@ -189,7 +180,7 @@ function App() {
     axios
       .get("http://localhost:5001/api/orders")
       .then((response) => {
-        const fetchedOrders = response.data.orders;
+        const fetchedOrders = response.data;
         setOrders(fetchedOrders);
 
         // Find highest case number
@@ -205,12 +196,17 @@ function App() {
 
         // Filter order history (case-insensitive + partial)
         if (newOrder.customer_name && newOrder.customer_name.trim() !== "") {
-          const filteredHistory = fetchedOrders.filter(order =>
-            order.customer_name &&
-            order.customer_name.toLowerCase().includes(newOrder.customer_name.toLowerCase())
+          const filteredHistory = fetchedOrders.filter(
+            (order) =>
+              order.customer_name &&
+              order.customer_name
+                .toLowerCase()
+                .includes(newOrder.customer_name.toLowerCase())
           );
 
-          filteredHistory.sort((a, b) => new Date(b.order_date) - new Date(a.order_date));
+          filteredHistory.sort(
+            (a, b) => new Date(b.order_date) - new Date(a.order_date)
+          );
 
           setOrderHistory(filteredHistory);
         } else {
@@ -224,77 +220,105 @@ function App() {
 
   // New useEffect for ShipStation tracking info
   useEffect(() => {
-  if (newOrder.customer_name && newOrder.customer_name.trim() !== "") {
-    // Replace this URL with your actual ShipStation API endpoint
-    const shipStationAPI = `https://api.shipstation.com/shipments?customerName=${encodeURIComponent(newOrder.customer_name)}`;
+    if (newOrder.customer_name && newOrder.customer_name.trim() !== "") {
+      // Replace this URL with your actual ShipStation API endpoint
+      const shipStationAPI = `https://api.shipstation.com/shipments?customerName=${encodeURIComponent(
+        newOrder.customer_name
+      )}`;
 
-    // Example axios call with headers for ShipStation API authorization
-    axios.get(shipStationAPI, {
-      headers: {
-        Authorization: 'Basic ' + btoa('YOUR_API_KEY:YOUR_API_SECRET'),
-        'Content-Type': 'application/json',
-      }
-    })
-    .then(res => {
-      // Assuming ShipStation API returns shipments array in res.data.shipments
-      setShipStationTracks(res.data.shipments || []);
-    })
-    .catch(err => {
-      console.error("Error fetching ShipStation tracking data", err);
+      // Example axios call with headers for ShipStation API authorization
+      axios
+        .get(shipStationAPI, {
+          headers: {
+            Authorization: "Basic " + btoa("YOUR_API_KEY:YOUR_API_SECRET"),
+            "Content-Type": "application/json",
+          },
+        })
+        .then((res) => {
+          // Assuming ShipStation API returns shipments array in res.data.shipments
+          setShipStationTracks(res.data.shipments || []);
+        })
+        .catch((err) => {
+          console.error("Error fetching ShipStation tracking data", err);
+          setShipStationTracks([]);
+        });
+    } else {
       setShipStationTracks([]);
-    });
-  } else {
-    setShipStationTracks([]);
-  }
+    }
   }, [newOrder.customer_name]);
 
   const handleCaseSelect = (caseData) => {
-  if (isEdited) {
-    const confirmSwitch = window.confirm("You have unsaved changes. Do you want to discard them?");
-    if (!confirmSwitch) return; // Cancel switching
-  }
+    if (isEdited) {
+      const confirmSwitch = window.confirm(
+        "You have unsaved changes. Do you want to discard them?"
+      );
+      if (!confirmSwitch) return; // Cancel switching
+    }
 
-  setNewOrder(caseData); // Load data into all sections
-  setSelectedCase(caseData.case_number);
-  setIsEdited(false); // Reset edit tracking
+    setNewOrder(caseData); // Load data into all sections
+    setSelectedCase(caseData.case_number);
+    setIsEdited(false); // Reset edit tracking
   };
 
   // Set new update to the database
   const handleUpdate = (e) => {
-  e.preventDefault();
-  
-  const fullPhone = `${newOrder.phoneCode || "+1"}${newOrder.phone || ""}`;
-  const customerName = `${newOrder.first_name} ${newOrder.mid ? newOrder.mid + " " : ""}${newOrder.last_name}`.trim();
-  const fullAddress = `${newOrder.street}, ${newOrder.city}, ${newOrder.state}, ${newOrder.country} ${newOrder.zip_code}`.replace(/\s+,/g, '').trim();
-  const orderToUpdate = {
-    ...newOrder,
-    phone_number: fullPhone,
-    customer_name: customerName,
-    fullAddress: fullAddress,
-    last_updated: new Date().toISOString()
-  };
+    e.preventDefault();
 
-  axios.put(`http://localhost:5001/api/orders/${newOrder.case_number}`, orderToUpdate)
-    .then((response) => {
-      const updatedOrders = orders.map(order =>
-        order.case_number === newOrder.case_number ? response.data.order : order
+    const fullPhone = `${newOrder.phoneCode || "+1"}${
+      newOrder.phone_number || ""
+    }`;
+    const customerName = `${newOrder.first_name} ${
+      newOrder.mid ? newOrder.mid + " " : ""
+    }${newOrder.last_name}`.trim();
+    const fullAddress =
+      `${newOrder.street}, ${newOrder.city}, ${newOrder.state}, ${newOrder.country} ${newOrder.zip_code}`
+        .replace(/\s+,/g, "")
+        .trim();
+    const orderToUpdate = {
+      ...newOrder,
+      phone_number: fullPhone,
+      customer_name: customerName,
+      fullAddress: fullAddress,
+      last_updated: new Date().toISOString(),
+    };
+
+    axios
+      .put(
+        `http://localhost:5001/api/orders/${newOrder.case_number}`,
+        orderToUpdate
+      )
+      .then((response) => {
+        const updatedOrders = orders.map((order) =>
+          order.case_number === newOrder.case_number
+            ? response.data.order
+            : order
+        );
+        setOrders(updatedOrders);
+        setNewOrder(initialOrder);
+      })
+      .catch((error) =>
+        console.error("There was an error updating the order!", error)
       );
-      setOrders(updatedOrders);
-      setNewOrder(initialOrder);
-    })
-    .catch((error) => console.error("There was an error updating the order!", error));
   };
 
   // Set new case to the database
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    const fullPhone = `${newOrder.phoneCode || "+1"}${newOrder.phone || ""}`;
-    const customerName = `${newOrder.first_name} ${newOrder.mid ? newOrder.mid + " " : ""}${newOrder.last_name}`.trim();
+    const fullPhone = `${newOrder.phoneCode || "+1"}${
+      newOrder.phone_number || ""
+    }`;
+    const customerName = `${newOrder.first_name} ${
+      newOrder.mid ? newOrder.mid + " " : ""
+    }${newOrder.last_name}`.trim();
 
-    const missingFields = requiredFields.filter(field => !newOrder[field]);
+    const missingFields = requiredFields.filter((field) => !newOrder[field]);
     if (missingFields.length > 0) {
-      alert(`Please fill out all required fields: ${missingFields.map(toProperCase).join(", ")}`);
+      alert(
+        `Please fill out all required fields: ${missingFields
+          .map(toProperCase)
+          .join(", ")}`
+      );
       return;
     }
 
@@ -305,31 +329,31 @@ function App() {
       customer_name: customerName,
       case_number: generatedCaseNumber,
       created_date: new Date().toISOString(),
-      last_updated: new Date().toISOString()
+      last_updated: new Date().toISOString(),
     };
 
     axios
       .post("http://localhost:5001/api/orders", orderToSubmit)
       .then((response) => {
-        setOrders(prev => [...prev, response.data.order]);
+        setOrders((prev) => [...prev, response.data.order]);
         setNewOrder(initialOrder);
-        setSelectedCase(null);  // Clear selection
-        setIsEdited(false);     // Reset edit tracking
+        setSelectedCase(null); // Clear selection
+        setIsEdited(false); // Reset edit tracking
       })
       .catch((error) => {
         console.error("There was an error creating the order!", error);
       });
   };
   const [currentPage, setCurrentPage] = useState("new");
-  const filteredOrders = orders
-  .filter((order) => {
+  const filteredOrders = orders.filter((order) => {
     const searchLower = searchName.toLowerCase();
     return (
-      order.customer_name.toLowerCase().includes(searchLower) ||
+      order.first_name.toLowerCase().includes(searchLower) ||
+      order.last_name.toLowerCase().includes(searchLower) ||
       order.case_number?.toLowerCase().includes(searchLower) ||
       order.sales_order?.toLowerCase().includes(searchLower)
     );
-  })
+  });
 
   const renderRow = (fields) => (
     <div className="form-row">
@@ -351,18 +375,18 @@ function App() {
             <input
               type="date"
               value={newOrder[field]}
-              onChange={(e) =>{
+              onChange={(e) => {
                 setNewOrder({ ...newOrder, [field]: e.target.value });
-                setIsEdited(true);// 🔥 Track that something changed
+                setIsEdited(true); // 🔥 Track that something changed
               }}
             />
           ) : field === "phone_number" ? (
             <div className="phone-wrapper">
               <select
                 value={newOrder.phoneCode || "+1"}
-                onChange={(e) =>{
+                onChange={(e) => {
                   setNewOrder({ ...newOrder, phoneCode: e.target.value });
-                  setIsEdited(true);// 🔥 Track that something changed
+                  setIsEdited(true); // 🔥 Track that something changed
                 }}
                 className="area-code"
               >
@@ -374,10 +398,10 @@ function App() {
               </select>
               <input
                 type="tel"
-                value={newOrder.phone}
-                onChange={(e) =>{
-                  setNewOrder({ ...newOrder, phone: e.target.value });
-                  setIsEdited(true);// 🔥 Track that something changed
+                value={newOrder.phone_number}
+                onChange={(e) => {
+                  setNewOrder({ ...newOrder, phone_number: e.target.value });
+                  setIsEdited(true); // 🔥 Track that something changed
                 }}
                 placeholder="Phone number"
                 className="phone-input"
@@ -386,9 +410,9 @@ function App() {
           ) : field === "status" ? (
             <select
               value={newOrder[field]}
-              onChange={(e) =>{
+              onChange={(e) => {
                 setNewOrder({ ...newOrder, [field]: e.target.value });
-                setIsEdited(true);// 🔥 Track that something changed
+                setIsEdited(true); // 🔥 Track that something changed
               }}
             >
               <option value="">Select status</option>
@@ -399,13 +423,13 @@ function App() {
           ) : field === "country" ? (
             <select
               value={newOrder[field]}
-              onChange={(e) =>{
+              onChange={(e) => {
                 setNewOrder({
                   ...newOrder,
                   country: e.target.value,
                   state: "", // reset state when country changes
                 });
-                setIsEdited(true);// 🔥 Track that something changed
+                setIsEdited(true); // 🔥 Track that something changed
               }}
             >
               <option value="">Select country</option>
@@ -419,9 +443,9 @@ function App() {
             newOrder.country === "USA" || newOrder.country === "Canada" ? (
               <select
                 value={newOrder[field]}
-                onChange={(e) =>{
+                onChange={(e) => {
                   setNewOrder({ ...newOrder, [field]: e.target.value });
-                  setIsEdited(true);// 🔥 Track that something changed
+                  setIsEdited(true); // 🔥 Track that something changed
                 }}
               >
                 <option value="">Select state/province</option>
@@ -437,9 +461,9 @@ function App() {
               <input
                 type="text"
                 value={newOrder[field]}
-                onChange={(e) =>{
+                onChange={(e) => {
                   setNewOrder({ ...newOrder, [field]: e.target.value });
-                  setIsEdited(true);// 🔥 Track that something changed
+                  setIsEdited(true); // 🔥 Track that something changed
                 }}
                 placeholder="Enter state/province"
               />
@@ -447,9 +471,9 @@ function App() {
           ) : field === "assign" ? (
             <select
               value={newOrder[field]}
-              onChange={(e) =>{
+              onChange={(e) => {
                 setNewOrder({ ...newOrder, [field]: e.target.value });
-                setIsEdited(true);// 🔥 Track that something changed
+                setIsEdited(true); // 🔥 Track that something changed
               }}
             >
               <option value="">Please assign to</option>
@@ -467,46 +491,46 @@ function App() {
               <option value="Alexandra Geronimo">Alexandra Geronimo</option>
             </select>
           ) : ["issues", "solution", "action"].includes(field) ? (
-                <textarea
-                  className="textarea-scroll"
-                  value={newOrder[field]}
-                  onChange={(e) =>{
-                    setNewOrder({ ...newOrder, [field]: e.target.value });
-                    setIsEdited(true);// 🔥 Track that something changed
-                  }}
-                />
-              ) : field === "case_Number" ? (
-                <input
-                  type="text"
-                  value={newOrder["case_Number"]}
-                  readOnly
-                  style={{ backgroundColor: "#eee", cursor: "not-allowed" }}
-                />
-              ) : field === "model_number" ? (
-                <select
-                  value={newOrder[field]}
-                  onChange={(e) =>{
-                    setNewOrder({ ...newOrder, [field]: e.target.value });
-                    setIsEdited(true);// 🔥 Track that something changed
-                  }}
-                >
-                  <option value="">Select a model</option>
-                  {modelNumberList.map((model) => (
-                    <option key={model} value={model}>
-                      {model}
-                    </option>
-                  ))}
-                </select>
-              ) : (
-                <input
-                  type="text"
-                  value={newOrder[field]}
-                  onChange={(e) =>{
-                    setNewOrder({ ...newOrder, [field]: e.target.value });
-                    setIsEdited(true);// 🔥 Track that something changed
-                  }}
-                />
-              )}
+            <textarea
+              className="textarea-scroll"
+              value={newOrder[field]}
+              onChange={(e) => {
+                setNewOrder({ ...newOrder, [field]: e.target.value });
+                setIsEdited(true); // 🔥 Track that something changed
+              }}
+            />
+          ) : field === "case_Number" ? (
+            <input
+              type="text"
+              value={newOrder["case_Number"]}
+              readOnly
+              style={{ backgroundColor: "#eee", cursor: "not-allowed" }}
+            />
+          ) : field === "model_number" ? (
+            <select
+              value={newOrder[field]}
+              onChange={(e) => {
+                setNewOrder({ ...newOrder, [field]: e.target.value });
+                setIsEdited(true); // 🔥 Track that something changed
+              }}
+            >
+              <option value="">Select a model</option>
+              {modelNumberList.map((model) => (
+                <option key={model} value={model}>
+                  {model}
+                </option>
+              ))}
+            </select>
+          ) : (
+            <input
+              type="text"
+              value={newOrder[field]}
+              onChange={(e) => {
+                setNewOrder({ ...newOrder, [field]: e.target.value });
+                setIsEdited(true); // 🔥 Track that something changed
+              }}
+            />
+          )}
         </div>
       ))}
     </div>
@@ -532,22 +556,21 @@ function App() {
     alert(`Uploading ${selectedFiles.length} file(s) as ${fileType}`);
   };
   return (
-   
     <div className="App">
       <h2>Create New Order</h2>
       <div className="user-info-banner">
         Logged in: <strong>{loggedInUser}</strong>
       </div>
-      <div style={{ display: 'flex', gap: '5px', marginBottom: '5px' }}>
+      <div style={{ display: "flex", gap: "5px", marginBottom: "5px" }}>
         <div
-          className={`tab ${currentPage === 'new' ? 'active' : ''}`}
-          onClick={() => setCurrentPage('new')}
+          className={`tab ${currentPage === "new" ? "active" : ""}`}
+          onClick={() => setCurrentPage("new")}
         >
           New Case
         </div>
         <div
-          className={`tab ${currentPage === 'exist' ? 'active' : ''}`}
-          onClick={() => setCurrentPage('exist')}
+          className={`tab ${currentPage === "exist" ? "active" : ""}`}
+          onClick={() => setCurrentPage("exist")}
         >
           Exist Case
         </div>
@@ -555,22 +578,39 @@ function App() {
       {currentPage === "new" && (
         <form onSubmit={handleSubmit}>
           <div className="form-container">
-          
             {/* Left Column */}
             <div className="form-left">
               <div className="form-row">
                 {/* Customer/address Info */}
                 <div className="form-section-card half-width">
                   <h3 className="section-title">Customer Info</h3>
-                  {renderRow(["first_name", "last_name", "mid", "phone_number", "email"])}
+                  {renderRow([
+                    "first_name",
+                    "last_name",
+                    "mid",
+                    "phone_number",
+                    "email",
+                  ])}
                   <h3 className="section-title">Address Info</h3>
-                  {renderRow(["street", "city", "zip_code", "country", "state"])}
+                  {renderRow([
+                    "street",
+                    "city",
+                    "zip_code",
+                    "country",
+                    "state",
+                  ])}
                 </div>
 
                 {/* Order/extra Info */}
                 <div className="form-section-card half-width">
                   <h3 className="section-title">Order Info</h3>
-                  {renderRow(["sales_order", "date", "assign", "status", "case_Number"])}
+                  {renderRow([
+                    "sales_order",
+                    "date",
+                    "assign",
+                    "status",
+                    "case_Number",
+                  ])}
                   <h3 className="section-title">Extra Info</h3>
                   {renderRow(["file_name", "tracking", "return_status"])}
                 </div>
@@ -602,28 +642,42 @@ function App() {
                       <tbody>
                         {filteredOrders
                           .filter((order) =>
-                            order.customer_name.toLowerCase().includes(searchName.toLowerCase())
+                            [order.first_name, order.last_name]
+                              .join(" ")
+                              .includes(searchName.toLowerCase())
                           )
                           .map((order, idx) => (
                             <tr
                               key={idx}
                               onDoubleClick={() => handleCaseSelect(order)}
                               className={`cursor-pointer hover:bg-gray-100 ${
-                                selectedCase === order.case_number ? "bg-yellow-100 font-semibold" : ""
+                                selectedCase === order.case_number
+                                  ? "bg-yellow-100 font-semibold"
+                                  : ""
                               }`}
                             >
-                              <td>{order.customer_name}</td>
-                              <td>{order.fullPhone}</td>
+                              <td>
+                                {order.first_name} {order.last_name}
+                              </td>
+                              <td>{order.phone_number}</td>
                               <td>{order.email}</td>
-                              <td>{order.fullAddress}</td>
+                              <td>
+                                {order.street}, {order.city}, {order.state},
+                                {order.country} {order.zip_code}
+                              </td>
                               <td>{order.loggedInUser}</td>
-                              <td>{order.created_date}</td>
+                              <td>
+                                {new Date(
+                                  order.created_at
+                                ).toLocaleDateString()}{" "}
+                                {new Date(
+                                  order.created_at
+                                ).toLocaleTimeString()}
+                              </td>
                               <td>{order.last_updated}</td>
-
                             </tr>
                           ))}
                       </tbody>
-
                     </table>
                   </div>
                   {/* ShipStation Track */}
@@ -649,15 +703,24 @@ function App() {
                               <td>{shipment.carrierCode}</td>
                               <td>{shipment.recipient?.name}</td>
                               <td>{shipment.serviceCode}</td>
-                              <td>{new Date(shipment.shipDate).toLocaleDateString()}</td>
-                              <td>{shipment.shipFrom?.city}, {shipment.shipFrom?.state}</td>
+                              <td>
+                                {new Date(
+                                  shipment.shipDate
+                                ).toLocaleDateString()}
+                              </td>
+                              <td>
+                                {shipment.shipFrom?.city},{" "}
+                                {shipment.shipFrom?.state}
+                              </td>
                               <td>{shipment.trackingNumber}</td>
                             </tr>
                           ))}
                         </tbody>
                       </table>
                     ) : (
-                      <p className="no-detail-text">No shipments found for this customer.</p>
+                      <p className="no-detail-text">
+                        No shipments found for this customer.
+                      </p>
                     )}
                   </div>
                 </div>
@@ -681,7 +744,11 @@ function App() {
                             <tr key={idx}>
                               <td>{order.sales_order}</td>
                               <td>{order.model_name}</td>
-                              <td>{new Date(order.order_date).toLocaleDateString()}</td>
+                              <td>
+                                {new Date(
+                                  order.order_date
+                                ).toLocaleDateString()}
+                              </td>
                               <td>{order.marketplace}</td>
                               <td>{order.ship_status}</td>
                             </tr>
@@ -689,7 +756,9 @@ function App() {
                         </tbody>
                       </table>
                     ) : (
-                      <p className="no-detail-text">No order history found for this customer.</p>
+                      <p className="no-detail-text">
+                        No order history found for this customer.
+                      </p>
                     )}
                   </div>
                   {/* Product detail */}
@@ -709,13 +778,17 @@ function App() {
                         <div className="product-image">
                           {productDetail.imageUrl ? (
                             <>
-                              <img src={productDetail.imageUrl}
-                              alt="Product"
-                              onClick={handleImageClick}
-                              className="clickable-image"
+                              <img
+                                src={productDetail.imageUrl}
+                                alt="Product"
+                                onClick={handleImageClick}
+                                className="clickable-image"
                               />
                               {isImageZoomed && (
-                                <div className="image-zoom-overlay" onClick={handleCloseZoom}>
+                                <div
+                                  className="image-zoom-overlay"
+                                  onClick={handleCloseZoom}
+                                >
                                   <img
                                     src={productDetail.imageUrl}
                                     alt="Zoomed Product"
@@ -739,19 +812,27 @@ function App() {
                 </div>
               </div>
             </div>
-          
+
             {/* Right Column - Case Detail */}
             <div className="form-right sticky-right">
               <div className="form-section-card">
                 <h3 className="section-title">Case Detail</h3>
-                {renderRow(["model_number", "serial", "issues", "solution", "action"])}
+                {renderRow([
+                  "model_number",
+                  "serial",
+                  "issues",
+                  "solution",
+                  "action",
+                ])}
                 <div className="action-buttons">
-                  <button onClick={handleSubmit} className="btn-small btn-create">
+                  <button
+                    onClick={handleSubmit}
+                    className="btn-small btn-create"
+                  >
                     Create New
                   </button>
                 </div>
               </div>
-
 
               <div className="form-section-card">
                 <h3 className="section-title">Attachments</h3>
@@ -773,7 +854,14 @@ function App() {
                 </div>
 
                 {/* File Input & Buttons */}
-                <div className="form-row" style={{ alignItems: "center", gap: "1rem", marginTop: "10px" }}>
+                <div
+                  className="form-row"
+                  style={{
+                    alignItems: "center",
+                    gap: "1rem",
+                    marginTop: "10px",
+                  }}
+                >
                   <input
                     type="file"
                     multiple
@@ -782,7 +870,11 @@ function App() {
                     className="form-input"
                   />
 
-                  <button type="button" onClick={handleUpload} style={{ height: "36px" }}>
+                  <button
+                    type="button"
+                    onClick={handleUpload}
+                    style={{ height: "36px" }}
+                  >
                     Upload
                   </button>
                 </div>
@@ -791,7 +883,9 @@ function App() {
                 <div style={{ marginTop: "10px" }}>
                   {selectedFiles.length > 0 && (
                     <div>
-                      <h4 style={{ fontSize: "14px", marginBottom: "8px" }}>Selected Files:</h4>
+                      <h4 style={{ fontSize: "14px", marginBottom: "8px" }}>
+                        Selected Files:
+                      </h4>
                       <ul style={{ listStyle: "none", padding: 0 }}>
                         {selectedFiles.map((file, index) => (
                           <li key={index} style={{ marginBottom: "6px" }}>
@@ -799,10 +893,23 @@ function App() {
                               <img
                                 src={URL.createObjectURL(file)}
                                 alt={file.name}
-                                style={{ width: "60px", height: "60px", objectFit: "cover", borderRadius: "6px", marginRight: "10px" }}
+                                style={{
+                                  width: "60px",
+                                  height: "60px",
+                                  objectFit: "cover",
+                                  borderRadius: "6px",
+                                  marginRight: "10px",
+                                }}
                               />
                             ) : (
-                              <span style={{ fontSize: "13px", marginRight: "10px" }}>{file.name}</span>
+                              <span
+                                style={{
+                                  fontSize: "13px",
+                                  marginRight: "10px",
+                                }}
+                              >
+                                {file.name}
+                              </span>
                             )}
                             <button
                               type="button"
@@ -814,7 +921,7 @@ function App() {
                                 color: "white",
                                 border: "none",
                                 borderRadius: "4px",
-                                cursor: "pointer"
+                                cursor: "pointer",
                               }}
                             >
                               Remove
@@ -828,16 +935,13 @@ function App() {
               </div>
             </div>
           </div>
-
         </form>
       )}
       {currentPage === "exist" && (
         <form onSubmit={handleSubmit}>
           <div className="form-container">
-
             {/* Left Column */}
             <div className="form-left">
-
               {/* Search bar */}
               <div className="form-section-card search-bar">
                 <input
@@ -865,17 +969,24 @@ function App() {
                   <tbody>
                     {filteredOrders
                       .filter((order) =>
-                        order.customer_name.toLowerCase().includes(searchName.toLowerCase())
+                        [order.first_name, order.last_name]
+                          .join(" ")
+                          .toLowerCase()
+                          .includes(searchName.toLowerCase())
                       )
                       .map((order, idx) => (
                         <tr
                           key={idx}
                           onDoubleClick={() => handleCaseSelect(order)}
                           className={`cursor-pointer hover:bg-gray-100 ${
-                            selectedCase === order.case_number ? "bg-yellow-100 font-semibold" : ""
+                            selectedCase === order.case_number
+                              ? "bg-yellow-100 font-semibold"
+                              : ""
                           }`}
                         >
-                          <td>{order.customer_name}</td>
+                          <td>
+                            {order.first_name} {order.last_name}
+                          </td>
                           <td>{order.case_number}</td>
                           <td>{order.sales_order}</td>
                           <td>{order.issues}</td>
@@ -885,11 +996,9 @@ function App() {
                           <td>{order.assign}</td>
                           <td>{order.created_date}</td>
                           <td>{order.last_update_date}</td>
-
                         </tr>
                       ))}
                   </tbody>
-
                 </table>
               </div>
 
@@ -922,54 +1031,78 @@ function App() {
                   <p className="no-detail-text">No product detail found.</p>
                 )}
               </div>
-                <div className="form-row">
-                  {/* Customer Info */}
-                  <div className="form-section-card half-width">
-                    <h3 className="section-title">Customer Info</h3>
-                    {renderRow(["first_name", "last_name", "mid", "phone_number", "email"])}
-                    <h3 className="section-title">Address Info</h3>
-                    {renderRow(["street", "city", "zip_code", "country", "state"])}
-                  </div>
-
-                  {/* Order Info */}
-                  <div className="form-section-card half-width">
-                    <h3 className="section-title">Order Info</h3>
-                    {renderRow(["sales_order", "date", "assign", "status", "case_Number"])}
-                    <h3 className="section-title">Extra Info</h3>
-                    {renderRow(["file_name", "tracking", "return_status"])}
-                  </div>
+              <div className="form-row">
+                {/* Customer Info */}
+                <div className="form-section-card half-width">
+                  <h3 className="section-title">Customer Info</h3>
+                  {renderRow([
+                    "first_name",
+                    "last_name",
+                    "mid",
+                    "phone_number",
+                    "email",
+                  ])}
+                  <h3 className="section-title">Address Info</h3>
+                  {renderRow([
+                    "street",
+                    "city",
+                    "zip_code",
+                    "country",
+                    "state",
+                  ])}
                 </div>
 
-          
-                {/* Right Column - Case Detail */}
+                {/* Order Info */}
+                <div className="form-section-card half-width">
+                  <h3 className="section-title">Order Info</h3>
+                  {renderRow([
+                    "sales_order",
+                    "date",
+                    "assign",
+                    "status",
+                    "case_Number",
+                  ])}
+                  <h3 className="section-title">Extra Info</h3>
+                  {renderRow(["file_name", "tracking", "return_status"])}
+                </div>
+              </div>
+
+              {/* Right Column - Case Detail */}
               <div className="form-right sticky-right">
                 <div className="form-section-card">
                   <h3 className="section-title">Case Detail</h3>
-                  {renderRow(["model_number", "serial", "issues", "solution", "action"])}
+                  {renderRow([
+                    "model_number",
+                    "serial",
+                    "issues",
+                    "solution",
+                    "action",
+                  ])}
                   <div className="action-buttons">
-                    <button onClick={handleSubmit} className="btn-small btn-create">
+                    <button
+                      onClick={handleSubmit}
+                      className="btn-small btn-create"
+                    >
                       Create New
                     </button>
                     <button
                       onClick={handleUpdate}
                       disabled={!newOrder.case_number}
-                      className={`btn-small ${newOrder.case_number ? 'btn-update' : 'btn-disabled'}`}
+                      className={`btn-small ${
+                        newOrder.case_number ? "btn-update" : "btn-disabled"
+                      }`}
                     >
                       Update Case
                     </button>
                   </div>
                 </div>
               </div>
-
             </div>
           </div>
-
         </form>
       )}
     </div>
-    
   );
-   
 }
 
 export default App;
