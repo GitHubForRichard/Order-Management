@@ -264,7 +264,9 @@ function App() {
   const handleUpdate = (e) => {
     e.preventDefault();
 
-    const fullPhone = `${newOrder.phoneCode || "+1"}${newOrder.phone || ""}`;
+    const fullPhone = `${newOrder.phoneCode || "+1"}${
+      newOrder.phone_number || ""
+    }`;
     const customerName = `${newOrder.first_name} ${
       newOrder.mid ? newOrder.mid + " " : ""
     }${newOrder.last_name}`.trim();
@@ -303,7 +305,9 @@ function App() {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    const fullPhone = `${newOrder.phoneCode || "+1"}${newOrder.phone || ""}`;
+    const fullPhone = `${newOrder.phoneCode || "+1"}${
+      newOrder.phone_number || ""
+    }`;
     const customerName = `${newOrder.first_name} ${
       newOrder.mid ? newOrder.mid + " " : ""
     }${newOrder.last_name}`.trim();
@@ -394,9 +398,9 @@ function App() {
               </select>
               <input
                 type="tel"
-                value={newOrder.phone}
+                value={newOrder.phone_number}
                 onChange={(e) => {
-                  setNewOrder({ ...newOrder, phone: e.target.value });
+                  setNewOrder({ ...newOrder, phone_number: e.target.value });
                   setIsEdited(true); // 🔥 Track that something changed
                 }}
                 placeholder="Phone number"
