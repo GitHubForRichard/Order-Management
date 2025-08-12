@@ -276,7 +276,7 @@ function App() {
               value={newOrder[field]}
               onChange={(e) => {
                 setNewOrder({ ...newOrder, [field]: e.target.value });
-                setIsEdited(true); // 🔥 Track that something changed
+                setIsEdited(true);
               }}
             >
               <option value="">Select status</option>
@@ -293,7 +293,7 @@ function App() {
                   country: e.target.value,
                   state: "", // reset state when country changes
                 });
-                setIsEdited(true); // 🔥 Track that something changed
+                setIsEdited(true);
               }}
             >
               <option value="">Select country</option>
