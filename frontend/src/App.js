@@ -557,7 +557,9 @@ function App() {
                               <td>
                                 {customer.first_name} {customer.last_name}
                               </td>
-                              <td>{customer.phone_number}</td>
+                              <td>
+                                {customer.phone_code} {customer.phone_number}
+                              </td>
                               <td>{customer.email}</td>
                               <td>
                                 {customer.street}, {customer.city},{" "}
