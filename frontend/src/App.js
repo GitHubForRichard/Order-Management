@@ -177,7 +177,7 @@ function App() {
   const handleCloseZoom = () => {
     setIsImageZoomed(false);
   };
-  // Combined useEffect for orders + order history
+  // useEffect for getting orders
   useEffect(() => {
     axios
       .get("http://localhost:5001/api/orders")
@@ -192,30 +192,20 @@ function App() {
           )
           .filter((num) => !isNaN(num));
         const maxCase = caseNumbers.length > 0 ? Math.max(...caseNumbers) : 0;
-
-        // Filter order history (case-insensitive + partial)
-        if (newOrder.customer_name && newOrder.customer_name.trim() !== "") {
-          const filteredHistory = fetchedOrders.filter(
-            (order) =>
-              order.customer_name &&
-              order.customer_name
-                .toLowerCase()
-                .includes(newOrder.customer_name.toLowerCase())
-          );
-
-          filteredHistory.sort(
-            (a, b) => new Date(b.order_date) - new Date(a.order_date)
-          );
-
-          setOrderHistory(filteredHistory);
-        } else {
-          setOrderHistory([]);
-        }
       })
       .catch((error) =>
         console.error("There was an error loading the orders!", error)
       );
   }, [newOrder.customer_name]);
+
+  const customerName = newOrder.first_name + " " + newOrder.last_name;
+
+  // Filter order history (case-insensitive + partial)
+  let historyOrders = orders.filter(
+    (order) => order.customer.id === selectedCustomer?.id
+  );
+
+  historyOrders.sort((a, b) => new Date(b.order_date) - new Date(a.order_date));
 
   // useEffect to get customers
   useEffect(() => {
@@ -776,7 +766,7 @@ function App() {
                   {/* order history */}
                   <div className="form-section-card order-history">
                     <h3 className="section-title">Order History</h3>
-                    {orderHistory.length > 0 ? (
+                    {historyOrders.length > 0 ? (
                       <table className="order-history-table">
                         <thead>
                           <tr>
@@ -788,14 +778,12 @@ function App() {
                           </tr>
                         </thead>
                         <tbody>
-                          {orderHistory.map((order, idx) => (
+                          {historyOrders.map((order, idx) => (
                             <tr key={idx}>
                               <td>{order.sales_order}</td>
-                              <td>{order.model_name}</td>
+                              <td>{order.model_number}</td>
                               <td>
-                                {new Date(
-                                  order.order_date
-                                ).toLocaleDateString()}
+                                {new Date(order.date).toLocaleDateString()}
                               </td>
                               <td>{order.marketplace}</td>
                               <td>{order.ship_status}</td>
