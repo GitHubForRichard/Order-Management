@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import "./App.css";
 
+
 function App() {
   const [orders, setOrders] = useState([]);
   console.log("orders", orders);
@@ -13,10 +14,10 @@ function App() {
         (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()
       );
   };
-  const [loggedInUser, setLoggedInUser] = useState("Xiaoyin Zhang"); // Replace with your actual logic
 
   const [selectedCase, setSelectedCase] = useState(null);
   const [isEdited, setIsEdited] = useState(false);
+  const [loggedInUser, setLoggedInUser] = useState(null);
 
   // Extract unique status and assigned for dropdowns
 
@@ -550,11 +551,15 @@ function App() {
   };
   return (
     <div className="App">
-      <h2>Create New Order</h2>
+      <div className="header">
+        <img src="/logo_company.jpg" alt="Logo" className="logo" />
+        <h2 className="title">Customer Services</h2>
+        <div className="spacer" />
+      </div>
       <div className="user-info-banner">
         Logged in: <strong>{loggedInUser}</strong>
       </div>
-      <div style={{ display: "flex", gap: "5px", marginBottom: "5px" }}>
+      <div style={{ display: "flex",  marginLeft: "40px", gap: "5px", marginBottom: "5px" }}>
         <div
           className={`tab ${currentPage === "new" ? "active" : ""}`}
           onClick={() => setCurrentPage("new")}
@@ -652,7 +657,7 @@ function App() {
                               <td>
                                 {order.first_name} {order.last_name}
                               </td>
-                              <td>{order.phone_number}</td>
+                              <td>{order.fullPhone}</td>
                               <td>{order.email}</td>
                               <td>
                                 {order.street}, {order.city}, {order.state},
