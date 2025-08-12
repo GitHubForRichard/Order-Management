@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import "./App.css";
+import OrderHistory from "./OrderHistory";
 
 function App() {
   const [orders, setOrders] = useState([]);
@@ -46,7 +47,6 @@ function App() {
     phone_code: "+1",
   };
   const [newOrder, setNewOrder] = useState(initialOrder);
-  const [orderHistory, setOrderHistory] = useState([]);
   const [selectedCustomer, setSelectedCustomer] = useState(null);
   const countryCodes = [
     { code: "+1", name: "USA/Canada" },
@@ -192,30 +192,13 @@ function App() {
           )
           .filter((num) => !isNaN(num));
         const maxCase = caseNumbers.length > 0 ? Math.max(...caseNumbers) : 0;
-
-        // Filter order history (case-insensitive + partial)
-        if (newOrder.customer_name && newOrder.customer_name.trim() !== "") {
-          const filteredHistory = fetchedOrders.filter(
-            (order) =>
-              order.customer_name &&
-              order.customer_name
-                .toLowerCase()
-                .includes(newOrder.customer_name.toLowerCase())
-          );
-
-          filteredHistory.sort(
-            (a, b) => new Date(b.order_date) - new Date(a.order_date)
-          );
-
-          setOrderHistory(filteredHistory);
-        } else {
-          setOrderHistory([]);
-        }
       })
       .catch((error) =>
         console.error("There was an error loading the orders!", error)
       );
   }, [newOrder.customer_name]);
+
+  const customerName = newOrder.first_name + " " + newOrder.last_name;
 
   // useEffect to get customers
   useEffect(() => {
@@ -773,42 +756,10 @@ function App() {
                   </div>
                 </div>
                 <div className="form-left ship-product">
-                  {/* order history */}
-                  <div className="form-section-card order-history">
-                    <h3 className="section-title">Order History</h3>
-                    {orderHistory.length > 0 ? (
-                      <table className="order-history-table">
-                        <thead>
-                          <tr>
-                            <th>Sales Order</th>
-                            <th>Model Name</th>
-                            <th>Order Date</th>
-                            <th>Marketplace</th>
-                            <th>Ship Status</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {orderHistory.map((order, idx) => (
-                            <tr key={idx}>
-                              <td>{order.sales_order}</td>
-                              <td>{order.model_name}</td>
-                              <td>
-                                {new Date(
-                                  order.order_date
-                                ).toLocaleDateString()}
-                              </td>
-                              <td>{order.marketplace}</td>
-                              <td>{order.ship_status}</td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    ) : (
-                      <p className="no-detail-text">
-                        No order history found for this customer.
-                      </p>
-                    )}
-                  </div>
+                  <OrderHistory
+                    orders={orders}
+                    customer_id={selectedCustomer?.id}
+                  />
                   {/* Product detail */}
                   <div className="form-section-card product-detail">
                     <div className="product-detail-header">
