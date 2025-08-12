@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { startCase, toLower } from "lodash";
 import "./App.css";
 
 import {
@@ -17,14 +18,6 @@ import ShipStationTracks from "./ShipStationTracks";
 function App() {
   const [orders, setOrders] = useState([]);
   const [customers, setCustomers] = useState([]);
-  const toProperCase = (str) => {
-    return str
-      .replace(/_/g, " ")
-      .replace(
-        /\w\S*/g,
-        (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()
-      );
-  };
 
   const [selectedCase, setSelectedCase] = useState(null);
   const [isEdited, setIsEdited] = useState(false);
@@ -170,7 +163,7 @@ function App() {
       if (missingFields.length > 0) {
         alert(
           `Please fill out all required fields: ${missingFields
-            .map(toProperCase)
+            .map((field) => startCase(toLower(field)))
             .join(", ")}`
         );
         return;
@@ -236,7 +229,7 @@ function App() {
           }`}
         >
           <label>
-            {toProperCase(field)}{" "}
+            {startCase(field)}{" "}
             {requiredFields.includes(field) && (
               <span className="required-asterisk">*</span>
             )}
