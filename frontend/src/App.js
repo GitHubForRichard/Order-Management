@@ -5,7 +5,6 @@ import "./App.css";
 
 function App() {
   const [orders, setOrders] = useState([]);
-  console.log("orders", orders);
   const toProperCase = (str) => {
     return str
       .replace(/_/g, " ")
@@ -186,7 +185,9 @@ function App() {
 
         // Find highest case number
         const caseNumbers = fetchedOrders
-          .map((order) => parseInt(order.case?.replace(/[^\d]/g, ""), 10))
+          .map((order) =>
+            parseInt(order.case_number?.replace(/[^\d]/g, ""), 10)
+          )
           .filter((num) => !isNaN(num));
         const maxCase = caseNumbers.length > 0 ? Math.max(...caseNumbers) : 0;
 
@@ -562,13 +563,19 @@ function App() {
       <div style={{ display: "flex",  marginLeft: "40px", gap: "5px", marginBottom: "5px" }}>
         <div
           className={`tab ${currentPage === "new" ? "active" : ""}`}
-          onClick={() => setCurrentPage("new")}
+          onClick={() => {
+            setNewOrder(initialOrder);
+            setCurrentPage("new");
+          }}
         >
           New Case
         </div>
         <div
           className={`tab ${currentPage === "exist" ? "active" : ""}`}
-          onClick={() => setCurrentPage("exist")}
+          onClick={() => {
+            setNewOrder(initialOrder);
+            setCurrentPage("exist");
+          }}
         >
           Exist Case
         </div>
@@ -988,8 +995,24 @@ function App() {
                           <td>{order.status}</td>
                           <td>{order.recorded_by}</td>
                           <td>{order.assign}</td>
-                          <td>{order.created_date}</td>
-                          <td>{order.last_update_date}</td>
+                          <td>
+                            {new Date(order.created_at).toLocaleDateString()}{" "}
+                            {new Date(order.created_at).toLocaleTimeString()}
+                          </td>
+                          <td>
+                            {order.updated_at ? (
+                              <>
+                                {new Date(
+                                  order.updated_at
+                                ).toLocaleDateString()}{" "}
+                                {new Date(
+                                  order.updated_at
+                                ).toLocaleTimeString()}
+                              </>
+                            ) : (
+                              ""
+                            )}
+                          </td>
                         </tr>
                       ))}
                   </tbody>

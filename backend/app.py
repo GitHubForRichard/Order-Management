@@ -2,7 +2,7 @@ from models import db, Order
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from flask_migrate import Migrate
-from datetime import datetime
+from datetime import datetime, timezone
 
 import uuid
 import json
@@ -47,7 +47,7 @@ def create_order():
             phone_number=data['phone_number'],
             model_number=data['model_number'],
             issues=data.get('issues'),
-            case=data.get('case_number'),
+            case_number=data.get('case_number'),
             email=data['email'],
             sales_order=data.get('sales_order'),
             date=datetime.strptime(
@@ -65,7 +65,7 @@ def create_order():
             action=data.get('action'),
             tracking=data.get('tracking'),
             return_status=data.get('return_status'),
-            created_at=datetime.utcnow()
+            created_at=datetime.now(timezone.utc)
         )
 
         # Add to session and commit
@@ -104,36 +104,14 @@ def update_order(order_id):
         if hasattr(order, field):
             setattr(order, field, value)
 
+    setattr(order, 'updated_at', datetime.now(timezone.utc))
+
     try:
         db.session.commit()
         return jsonify({'order': order.to_dict()}), 200
     except Exception as e:
         db.session.rollback()
         return jsonify({'error': str(e)}), 500
-
-
-@app.route('/api/orders/<order_id>', methods=['DELETE'])
-def delete_order(order_id):
-    """Delete an order"""
-    global orders
-    order = next((o for o in orders if o['id'] == order_id), None)
-    if not order:
-        return jsonify({'error': 'Order not found'}), 404
-
-    orders = [o for o in orders if o['id'] != order_id]
-    # Save to file
-    with open(DATA_FILE, 'w') as f:
-        json.dump(orders, f, indent=2)
-
-    return jsonify({'message': 'Order deleted successfully'})
-
-
-@app.route('/api/orders/status/<status>', methods=['GET'])
-def get_orders_by_status(status):
-    """Get orders by status"""
-    filtered_orders = [
-        o for o in orders if o['status'].lower() == status.lower()]
-    return jsonify({'orders': filtered_orders})
 
 
 @app.route('/api/health', methods=['GET'])

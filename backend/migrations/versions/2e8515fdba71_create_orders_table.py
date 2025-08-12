@@ -29,7 +29,8 @@ def upgrade():
                     sa.Column('model_number', sa.String(
                         length=50), nullable=False),
                     sa.Column('issues', sa.Text(), nullable=True),
-                    sa.Column('case', sa.String(length=50), nullable=True),
+                    sa.Column('case_number', sa.String(
+                        length=50), nullable=True),
                     sa.Column('email', sa.String(length=100), nullable=False),
                     sa.Column('sales_order', sa.String(
                         length=50), nullable=True),
@@ -50,6 +51,7 @@ def upgrade():
                     sa.Column('return_status', sa.String(
                         length=50), nullable=True),
                     sa.Column('created_at', sa.DateTime(), nullable=False),
+                    sa.Column('updated_at', sa.DateTime(), nullable=True),
                     sa.PrimaryKeyConstraint('id')
                     )
 
