@@ -205,8 +205,6 @@ function App() {
     (order) => order.customer.id === selectedCustomer?.id
   );
 
-  console.log("historyOrders", historyOrders);
-
   historyOrders.sort((a, b) => new Date(b.order_date) - new Date(a.order_date));
 
   // useEffect to get customers
