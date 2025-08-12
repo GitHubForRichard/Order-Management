@@ -618,7 +618,7 @@ function App() {
                 <h3 className="section-title">Attachments</h3>
 
                 {/* File Type Dropdown */}
-                <div className="form-group medium-wide">
+                <div className="file-group medium-wide">
                   <label>Select File Type</label>
                   <select
                     value={fileType}
