@@ -1,7 +1,18 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import "./App.css";
+
+import {
+  CANADA_PROVINCES,
+  COUNTRIES,
+  PHONE_COUNTRY_CODES,
+  MODEL_NUMBERS,
+  US_STATES,
+} from "./constants";
+
 import OrderHistory from "./OrderHistory";
+import ProductDetail from "./ProductDetail";
+import ShipStationTracks from "./ShipStationTracks";
 
 function App() {
   const [orders, setOrders] = useState([]);
@@ -48,88 +59,7 @@ function App() {
   };
   const [newOrder, setNewOrder] = useState(initialOrder);
   const [selectedCustomer, setSelectedCustomer] = useState(null);
-  const countryCodes = [
-    { code: "+1", name: "USA/Canada" },
-    { code: "+44", name: "UK" },
-    { code: "+61", name: "Australia" },
-    { code: "+81", name: "Japan" },
-    { code: "+49", name: "Germany" },
-    { code: "+91", name: "India" },
-    { code: "+33", name: "France" },
-    { code: "+86", name: "China" },
-    { code: "+82", name: "South Korea" },
-    { code: "+34", name: "Spain" },
-    // Add more as needed
-  ];
 
-  const countries = ["USA", "Canada", "UK", "Australia"];
-  const usStates = [
-    { name: "Alabama", abbreviation: "AL" },
-    { name: "Alaska", abbreviation: "AK" },
-    { name: "Arizona", abbreviation: "AZ" },
-    { name: "Arkansas", abbreviation: "AR" },
-    { name: "California", abbreviation: "CA" },
-    { name: "Colorado", abbreviation: "CO" },
-    { name: "Connecticut", abbreviation: "CT" },
-    { name: "Delaware", abbreviation: "DE" },
-    { name: "Florida", abbreviation: "FL" },
-    { name: "Georgia", abbreviation: "GA" },
-    { name: "Hawaii", abbreviation: "HI" },
-    { name: "Idaho", abbreviation: "ID" },
-    { name: "Illinois", abbreviation: "IL" },
-    { name: "Indiana", abbreviation: "IN" },
-    { name: "Iowa", abbreviation: "IA" },
-    { name: "Kansas", abbreviation: "KS" },
-    { name: "Kentucky", abbreviation: "KY" },
-    { name: "Louisiana", abbreviation: "LA" },
-    { name: "Maine", abbreviation: "ME" },
-    { name: "Maryland", abbreviation: "MD" },
-    { name: "Massachusetts", abbreviation: "MA" },
-    { name: "Michigan", abbreviation: "MI" },
-    { name: "Minnesota", abbreviation: "MN" },
-    { name: "Mississippi", abbreviation: "MS" },
-    { name: "Missouri", abbreviation: "MO" },
-    { name: "Montana", abbreviation: "MT" },
-    { name: "Nebraska", abbreviation: "NE" },
-    { name: "Nevada", abbreviation: "NV" },
-    { name: "New Hampshire", abbreviation: "NH" },
-    { name: "New Jersey", abbreviation: "NJ" },
-    { name: "New Mexico", abbreviation: "NM" },
-    { name: "New York", abbreviation: "NY" },
-    { name: "North Carolina", abbreviation: "NC" },
-    { name: "North Dakota", abbreviation: "ND" },
-    { name: "Ohio", abbreviation: "OH" },
-    { name: "Oklahoma", abbreviation: "OK" },
-    { name: "Oregon", abbreviation: "OR" },
-    { name: "Pennsylvania", abbreviation: "PA" },
-    { name: "Rhode Island", abbreviation: "RI" },
-    { name: "South Carolina", abbreviation: "SC" },
-    { name: "South Dakota", abbreviation: "SD" },
-    { name: "Tennessee", abbreviation: "TN" },
-    { name: "Texas", abbreviation: "TX" },
-    { name: "Utah", abbreviation: "UT" },
-    { name: "Vermont", abbreviation: "VT" },
-    { name: "Virginia", abbreviation: "VA" },
-    { name: "Washington", abbreviation: "WA" },
-    { name: "West Virginia", abbreviation: "WV" },
-    { name: "Wisconsin", abbreviation: "WI" },
-    { name: "Wyoming", abbreviation: "WY" },
-  ];
-  const canadaProvinces = [
-    { name: "Alberta", abbreviation: "AB" },
-    { name: "British Columbia", abbreviation: "BC" },
-    { name: "Manitoba", abbreviation: "MB" },
-    { name: "New Brunswick", abbreviation: "NB" },
-    { name: "Newfoundland and Labrador", abbreviation: "NL" },
-    { name: "Nova Scotia", abbreviation: "NS" },
-    { name: "Ontario", abbreviation: "ON" },
-    { name: "Prince Edward Island", abbreviation: "PE" },
-    { name: "Quebec", abbreviation: "QC" },
-    { name: "Saskatchewan", abbreviation: "SK" },
-    { name: "Northwest Territories", abbreviation: "NT" },
-    { name: "Nunavut", abbreviation: "NU" },
-    { name: "Yukon", abbreviation: "YT" },
-  ];
   const requiredFields = [
     "first_name",
     "last_name",
@@ -148,35 +78,8 @@ function App() {
     "serial",
     "issues",
   ];
-  const [productDetail, setProductDetail] = useState(null);
-
-  const handleProductSearch = () => {
-    const model = newOrder.model_number.trim();
-    if (!model) return alert("Please enter a model number.");
-
-    axios
-      .get(`http://localhost:5001/api/products/${model}`)
-      .then((res) => {
-        setProductDetail(res.data);
-      })
-      .catch((err) => {
-        console.error("Product not found", err);
-        setProductDetail(null);
-      });
-  };
-
-  const modelNumberList = ["ABC123", "XYZ789", "DEF456", "GHI012", "JKL345"];
-
   const [searchName, setSearchName] = useState("");
-  const [isImageZoomed, setIsImageZoomed] = useState(false);
-  const [shipStationTracks, setShipStationTracks] = useState([]);
-  const handleImageClick = () => {
-    setIsImageZoomed(true);
-  };
 
-  const handleCloseZoom = () => {
-    setIsImageZoomed(false);
-  };
   // useEffect for getting orders
   useEffect(() => {
     axios
@@ -212,35 +115,6 @@ function App() {
         console.error("There was an error loading the customers!", error)
       );
   }, []);
-
-  // New useEffect for ShipStation tracking info
-  useEffect(() => {
-    if (newOrder.customer_name && newOrder.customer_name.trim() !== "") {
-      // Replace this URL with your actual ShipStation API endpoint
-      const shipStationAPI = `https://api.shipstation.com/shipments?customerName=${encodeURIComponent(
-        newOrder.customer_name
-      )}`;
-
-      // Example axios call with headers for ShipStation API authorization
-      axios
-        .get(shipStationAPI, {
-          headers: {
-            Authorization: "Basic " + btoa("YOUR_API_KEY:YOUR_API_SECRET"),
-            "Content-Type": "application/json",
-          },
-        })
-        .then((res) => {
-          // Assuming ShipStation API returns shipments array in res.data.shipments
-          setShipStationTracks(res.data.shipments || []);
-        })
-        .catch((err) => {
-          console.error("Error fetching ShipStation tracking data", err);
-          setShipStationTracks([]);
-        });
-    } else {
-      setShipStationTracks([]);
-    }
-  }, [newOrder.customer_name]);
 
   const handleCustomerRowSelect = (row) => {
     setSelectedCustomer(row);
@@ -387,7 +261,7 @@ function App() {
                 }}
                 className="area-code"
               >
-                {countryCodes.map((c) => (
+                {PHONE_COUNTRY_CODES.map((c) => (
                   <option key={c.code} value={c.code}>
                     {c.code}
                   </option>
@@ -430,7 +304,7 @@ function App() {
               }}
             >
               <option value="">Select country</option>
-              {countries.map((country) => (
+              {COUNTRIES.map((country) => (
                 <option key={country} value={country}>
                   {country}
                 </option>
@@ -446,13 +320,14 @@ function App() {
                 }}
               >
                 <option value="">Select state/province</option>
-                {(newOrder.country === "USA" ? usStates : canadaProvinces).map(
-                  (s) => (
-                    <option key={s.abbreviation} value={s.abbreviation}>
-                      {s.name} ({s.abbreviation})
-                    </option>
-                  )
-                )}
+                {(newOrder.country === "USA"
+                  ? US_STATES
+                  : CANADA_PROVINCES
+                ).map((s) => (
+                  <option key={s.abbreviation} value={s.abbreviation}>
+                    {s.name} ({s.abbreviation})
+                  </option>
+                ))}
               </select>
             ) : (
               <input
@@ -512,7 +387,7 @@ function App() {
               }}
             >
               <option value="">Select a model</option>
-              {modelNumberList.map((model) => (
+              {MODEL_NUMBERS.map((model) => (
                 <option key={model} value={model}>
                   {model}
                 </option>
@@ -711,103 +586,14 @@ function App() {
                       </tbody>
                     </table>
                   </div>
-                  {/* ShipStation Track */}
-                  <div className="form-section-card shipstation-track">
-                    <h3 className="section-title">ShipStation Track</h3>
-                    {shipStationTracks.length > 0 ? (
-                      <table className="shipstation-table">
-                        <thead>
-                          <tr>
-                            <th>Order#</th>
-                            <th>Provider</th>
-                            <th>Recipient</th>
-                            <th>Service</th>
-                            <th>Ship Date</th>
-                            <th>Ship From</th>
-                            <th>Tracking Number</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {shipStationTracks.map((shipment, idx) => (
-                            <tr key={idx}>
-                              <td>{shipment.orderNumber}</td>
-                              <td>{shipment.carrierCode}</td>
-                              <td>{shipment.recipient?.name}</td>
-                              <td>{shipment.serviceCode}</td>
-                              <td>
-                                {new Date(
-                                  shipment.shipDate
-                                ).toLocaleDateString()}
-                              </td>
-                              <td>
-                                {shipment.shipFrom?.city},{" "}
-                                {shipment.shipFrom?.state}
-                              </td>
-                              <td>{shipment.trackingNumber}</td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    ) : (
-                      <p className="no-detail-text">
-                        No shipments found for this customer.
-                      </p>
-                    )}
-                  </div>
+                  <ShipStationTracks shipStationTracks={[]} />
                 </div>
                 <div className="form-left ship-product">
                   <OrderHistory
                     orders={orders}
                     customer_id={selectedCustomer?.id}
                   />
-                  {/* Product detail */}
-                  <div className="form-section-card product-detail">
-                    <div className="product-detail-header">
-                      <h3 className="section-title">Product Detail</h3>
-                      <button
-                        type="button"
-                        className="search-button"
-                        onClick={handleProductSearch}
-                      >
-                        Search
-                      </button>
-                    </div>
-                    {productDetail ? (
-                      <div className="product-detail-content">
-                        <div className="product-image">
-                          {productDetail.imageUrl ? (
-                            <>
-                              <img
-                                src={productDetail.imageUrl}
-                                alt="Product"
-                                onClick={handleImageClick}
-                                className="clickable-image"
-                              />
-                              {isImageZoomed && (
-                                <div
-                                  className="image-zoom-overlay"
-                                  onClick={handleCloseZoom}
-                                >
-                                  <img
-                                    src={productDetail.imageUrl}
-                                    alt="Zoomed Product"
-                                    className="zoomed-image"
-                                  />
-                                </div>
-                              )}
-                            </>
-                          ) : (
-                            <div className="image-placeholder">No Image</div>
-                          )}
-                        </div>
-                        <div className="product-description">
-                          <p>{productDetail.description}</p>
-                        </div>
-                      </div>
-                    ) : (
-                      <p className="no-detail-text">No product detail found.</p>
-                    )}
-                  </div>
+                  <ProductDetail />
                 </div>
               </div>
             </div>
@@ -1016,32 +802,7 @@ function App() {
 
               {/* Product detail */}
               <div className="form-section-card">
-                <div className="product-detail-header">
-                  <h3 className="section-title">Product Detail</h3>
-                  <button
-                    type="button"
-                    className="search-button"
-                    onClick={handleProductSearch}
-                  >
-                    Search
-                  </button>
-                </div>
-                {productDetail ? (
-                  <div className="product-detail-content">
-                    <div className="product-image">
-                      {productDetail.imageUrl ? (
-                        <img src={productDetail.imageUrl} alt="Product" />
-                      ) : (
-                        <div className="image-placeholder">No Image</div>
-                      )}
-                    </div>
-                    <div className="product-description">
-                      <p>{productDetail.description}</p>
-                    </div>
-                  </div>
-                ) : (
-                  <p className="no-detail-text">No product detail found.</p>
-                )}
+                <ProductDetail />
               </div>
               <div className="form-row">
                 {/* Customer Info */}
