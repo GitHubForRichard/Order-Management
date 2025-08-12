@@ -13,10 +13,10 @@ function App() {
         (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()
       );
   };
-  const [loggedInUser, setLoggedInUser] = useState("Xiaoyin Zhang"); // Replace with your actual logic
 
   const [selectedCase, setSelectedCase] = useState(null);
   const [isEdited, setIsEdited] = useState(false);
+  const [loggedInUser, setLoggedInUser] = useState(null);
 
   // Extract unique status and assigned for dropdowns
 
@@ -312,7 +312,6 @@ function App() {
       }
 
       let customerId = null;
-      console.log("selectedCustomer", selectedCustomer);
       if (!selectedCustomer) {
         const postCustomerResponse = await axios.post(
           "http://localhost:5001/api/customers",
@@ -322,6 +321,17 @@ function App() {
         customerId = postCustomerResponse.data.customer.id;
       } else {
         customerId = selectedCustomer.id;
+        const updateCustomerResponse = await axios.put(
+          `http://localhost:5001/api/customers/${customerId}`,
+          newOrder
+        );
+        setCustomers((prev) =>
+          prev.map((customer) =>
+            customer.id === customerId
+              ? updateCustomerResponse.data.customer
+              : customer
+          )
+        );
       }
 
       const orderPostResponse = await axios.post(
@@ -553,11 +563,22 @@ function App() {
   };
   return (
     <div className="App">
-      <h2>Create New Order</h2>
+      <div className="header">
+        <img src="/logo_company.jpg" alt="Logo" className="logo" />
+        <h2 className="title">Customer Services</h2>
+        <div className="spacer" />
+      </div>
       <div className="user-info-banner">
         Logged in: <strong>{loggedInUser}</strong>
       </div>
-      <div style={{ display: "flex", gap: "5px", marginBottom: "5px" }}>
+      <div
+        style={{
+          display: "flex",
+          marginLeft: "40px",
+          gap: "5px",
+          marginBottom: "5px",
+        }}
+      >
         <div
           className={`tab ${currentPage === "new" ? "active" : ""}`}
           onClick={() => {

@@ -36,16 +36,16 @@ form h3 {
   padding: 8px 10px;
   border: 1px solid #ddd;
   border-radius: 6px;
-  font-size: 13px;
+  font-size: 14px;
   outline: none;
   transition: 0.2s ease;
-  background: #8ebdb569;
+  background: #a9dad169;
 }
 
 .form-group input:focus,
 .form-group select:focus,
 .form-group textarea:focus {
-  background-color: #8ebdb569;       /* Brighter on focus */
+  background-color: #a9dad169;       /* Brighter on focus */
   border-color: #007bff;
   outline: none;
   box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.2);  /* Subtle glow */
@@ -74,7 +74,7 @@ button:hover {
   border: 1px solid #ddd;
   border-radius: 6px;
   font-size: 13px;
-  background: #8ebdb569;
+  background: #a9dad169;
   transition: 0.2s ease;
 }
 .section-title {
@@ -91,6 +91,7 @@ button:hover {
   gap: 1rem;
   align-items: flex-start;
   flex-wrap: wrap; /* responsive wrap */
+  
 }
 
 .form-left {
@@ -350,7 +351,7 @@ select {
   border: 1px solid #ddd;
   border-radius: 6px;
   overflow: hidden;
-  background: #8ebdb569;
+  background: #a9dad169;
 }
 
 .phone-wrapper select.area-code {
@@ -403,6 +404,7 @@ select {
   border-radius: 8px;
   box-shadow: 0 2px 6px rgba(0,0,0,0.1);
   z-index: 10;
+  margin-bottom: 20px;
 }
 img {
   border: 1px solid #ccc;
@@ -453,14 +455,15 @@ img {
   cursor: pointer;
   color: rgb(101, 99, 104);
   border-bottom: 2px solid transparent;
+  background-color: #fcf8f8;
 }
 .tab.active {
-  color: #2563eb; /* blue-600 */
+  color: #e981a9; /* blue-600 */
   font-weight: 600;
-  border-bottom-color: #2563eb;
+  border-bottom-color: #e981a9;
 }
 .tab:hover {
-  background-color: rgba(168, 29, 29, 0.03);
+  background-color: rgba(13, 28, 114, 0.03);
   border-radius: 6px;
 }
 .order-history-table {
@@ -479,4 +482,39 @@ img {
   background-color: #f7f7f7;
   font-weight: bold;
   text-align: left;
+}
+.header {
+  display: flex;
+  align-items: center;
+  gap: 400px;
+  justify-content: center; /* centers children horizontally */
+  position: relative;
+  margin-bottom: 20px;
+  margin-top: 20px
+}
+
+.logo {
+  margin-left: 40px;
+  height: 80px;
+  border: none;        /* removes any border */
+  outline: none;       /* removes outline if any */
+  box-shadow: none;    /* removes shadow if it looks like a border */
+}
+
+.title {
+  flex: 1;
+  margin-left: 200px;
+  margin: 0;
+
+  font-family: "Poppins", "Segoe UI", sans-serif; /* rounded, friendly font */
+  font-size: 3.6rem;
+  font-weight: 700;
+  color: #f8f9fa; /* off-white */
+  letter-spacing: 0.4px;
+
+  background: linear-gradient(90deg, #ffcc70, #ff7eb3); /* warm gradient text */
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+
+  padding: 2px 0;
 }

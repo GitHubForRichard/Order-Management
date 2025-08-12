@@ -144,6 +144,28 @@ def create_customer():
         return jsonify({'error': str(e)}), 500
 
 
+@app.route('/api/customers/<customer_id>', methods=['PUT'])
+def update_customer(customer_id):
+    """Update an existing customer"""
+    customer = Customer.query.get(customer_id)
+    if not customer:
+        return jsonify({'error': 'Customer not found'}), 404
+
+    data = request.get_json()
+    for field, value in data.items():
+        if hasattr(customer, field):
+            setattr(customer, field, value)
+
+    setattr(customer, 'updated_at', datetime.now(timezone.utc))
+
+    try:
+        db.session.commit()
+        return jsonify({'customer': customer.to_dict()}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
+
+
 @app.route('/api/health', methods=['GET'])
 def health_check():
     """Health check endpoint"""
