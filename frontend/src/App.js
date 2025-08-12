@@ -2,9 +2,9 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import "./App.css";
 
-
 function App() {
   const [orders, setOrders] = useState([]);
+  const [customers, setCustomers] = useState([]);
   const toProperCase = (str) => {
     return str
       .replace(/_/g, " ")
@@ -43,9 +43,11 @@ function App() {
     file_name: "",
     tracking: "",
     return_status: "",
+    phone_code: "+1",
   };
   const [newOrder, setNewOrder] = useState(initialOrder);
   const [orderHistory, setOrderHistory] = useState([]);
+  const [selectedCustomer, setSelectedCustomer] = useState(null);
   const countryCodes = [
     { code: "+1", name: "USA/Canada" },
     { code: "+44", name: "UK" },
@@ -191,11 +193,6 @@ function App() {
           .filter((num) => !isNaN(num));
         const maxCase = caseNumbers.length > 0 ? Math.max(...caseNumbers) : 0;
 
-        setNewOrder((prev) => ({
-          ...prev,
-          case_number: `CASE-${String(maxCase + 1).padStart(3, "0")}`,
-        }));
-
         // Filter order history (case-insensitive + partial)
         if (newOrder.customer_name && newOrder.customer_name.trim() !== "") {
           const filteredHistory = fetchedOrders.filter(
@@ -219,6 +216,19 @@ function App() {
         console.error("There was an error loading the orders!", error)
       );
   }, [newOrder.customer_name]);
+
+  // useEffect to get customers
+  useEffect(() => {
+    axios
+      .get("http://localhost:5001/api/customers")
+      .then((response) => {
+        const fetchedCustomers = response.data;
+        setCustomers(fetchedCustomers);
+      })
+      .catch((error) =>
+        console.error("There was an error loading the customers!", error)
+      );
+  }, []);
 
   // New useEffect for ShipStation tracking info
   useEffect(() => {
@@ -249,6 +259,22 @@ function App() {
     }
   }, [newOrder.customer_name]);
 
+  const handleCustomerRowSelect = (row) => {
+    setSelectedCustomer(row);
+    setNewOrder((prev) => ({
+      ...prev,
+      first_name: row.first_name,
+      last_name: row.last_name,
+      email: row.email,
+      phone_number: row.phone_number,
+      street: row.street,
+      city: row.city,
+      state: row.state,
+      zip_code: row.zip_code,
+      country: row.country,
+    }));
+  };
+
   const handleCaseSelect = (caseData) => {
     if (isEdited) {
       const confirmSwitch = window.confirm(
@@ -266,26 +292,8 @@ function App() {
   const handleUpdate = (e) => {
     e.preventDefault();
 
-    const fullPhone = `${newOrder.phoneCode || "+1"}${
-      newOrder.phone_number || ""
-    }`;
-    const customerName = `${newOrder.first_name} ${
-      newOrder.mid ? newOrder.mid + " " : ""
-    }${newOrder.last_name}`.trim();
-    const fullAddress =
-      `${newOrder.street}, ${newOrder.city}, ${newOrder.state}, ${newOrder.country} ${newOrder.zip_code}`
-        .replace(/\s+,/g, "")
-        .trim();
-    const orderToUpdate = {
-      ...newOrder,
-      phone_number: fullPhone,
-      customer_name: customerName,
-      fullAddress: fullAddress,
-      last_updated: new Date().toISOString(),
-    };
-
     axios
-      .put(`http://localhost:5001/api/orders/${newOrder.id}`, orderToUpdate)
+      .put(`http://localhost:5001/api/orders/${newOrder.id}`, newOrder)
       .then(() => axios.get("http://localhost:5001/api/orders"))
       .then((response) => {
         setOrders(response.data);
@@ -297,54 +305,65 @@ function App() {
   };
 
   // Set new case to the database
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const fullPhone = `${newOrder.phoneCode || "+1"}${
-      newOrder.phone_number || ""
-    }`;
-    const customerName = `${newOrder.first_name} ${
-      newOrder.mid ? newOrder.mid + " " : ""
-    }${newOrder.last_name}`.trim();
+    try {
+      const missingFields = requiredFields.filter((field) => !newOrder[field]);
+      if (missingFields.length > 0) {
+        alert(
+          `Please fill out all required fields: ${missingFields
+            .map(toProperCase)
+            .join(", ")}`
+        );
+        return;
+      }
 
-    const missingFields = requiredFields.filter((field) => !newOrder[field]);
-    if (missingFields.length > 0) {
-      alert(
-        `Please fill out all required fields: ${missingFields
-          .map(toProperCase)
-          .join(", ")}`
+      let customerId = null;
+      if (!selectedCustomer) {
+        const postCustomerResponse = await axios.post(
+          "http://localhost:5001/api/customers",
+          newOrder
+        );
+        setCustomers((prev) => [...prev, postCustomerResponse.data.customer]);
+        customerId = postCustomerResponse.data.customer.id;
+      } else {
+        customerId = selectedCustomer.id;
+        const updateCustomerResponse = await axios.put(
+          `http://localhost:5001/api/customers/${customerId}`,
+          newOrder
+        );
+        setCustomers((prev) =>
+          prev.map((customer) =>
+            customer.id === customerId
+              ? updateCustomerResponse.data.customer
+              : customer
+          )
+        );
+      }
+
+      const orderPostResponse = await axios.post(
+        "http://localhost:5001/api/orders",
+        { ...newOrder, customer_id: customerId }
       );
-      return;
+
+      const ordersGetResponse = await axios.get(
+        "http://localhost:5001/api/orders"
+      );
+      setOrders(ordersGetResponse.data);
+      setNewOrder(initialOrder);
+      setSelectedCase(null); // Clear selection
+      setIsEdited(false); // Reset edit tracking
+    } catch (error) {
+      console.error("There was an error creating the order!", error);
     }
-
-    const generatedCaseNumber = `CASE-${Date.now()}`; // Simple unique case number
-    const orderToSubmit = {
-      ...newOrder,
-      phone_number: fullPhone,
-      customer_name: customerName,
-      case_number: generatedCaseNumber,
-      created_date: new Date().toISOString(),
-      last_updated: new Date().toISOString(),
-    };
-
-    axios
-      .post("http://localhost:5001/api/orders", orderToSubmit)
-      .then((response) => {
-        setOrders((prev) => [...prev, response.data.order]);
-        setNewOrder(initialOrder);
-        setSelectedCase(null); // Clear selection
-        setIsEdited(false); // Reset edit tracking
-      })
-      .catch((error) => {
-        console.error("There was an error creating the order!", error);
-      });
   };
   const [currentPage, setCurrentPage] = useState("new");
   const filteredOrders = orders.filter((order) => {
     const searchLower = searchName.toLowerCase();
     return (
-      order.first_name.toLowerCase().includes(searchLower) ||
-      order.last_name.toLowerCase().includes(searchLower) ||
+      order.customer.first_name.toLowerCase().includes(searchLower) ||
+      order.customer.last_name.toLowerCase().includes(searchLower) ||
       order.case_number?.toLowerCase().includes(searchLower) ||
       order.sales_order?.toLowerCase().includes(searchLower)
     );
@@ -378,9 +397,9 @@ function App() {
           ) : field === "phone_number" ? (
             <div className="phone-wrapper">
               <select
-                value={newOrder.phoneCode || "+1"}
+                value={newOrder.phone_code}
                 onChange={(e) => {
-                  setNewOrder({ ...newOrder, phoneCode: e.target.value });
+                  setNewOrder({ ...newOrder, phone_code: e.target.value });
                   setIsEdited(true); // 🔥 Track that something changed
                 }}
                 className="area-code"
@@ -560,7 +579,14 @@ function App() {
       <div className="user-info-banner">
         Logged in: <strong>{loggedInUser}</strong>
       </div>
-      <div style={{ display: "flex",  marginLeft: "40px", gap: "5px", marginBottom: "5px" }}>
+      <div
+        style={{
+          display: "flex",
+          marginLeft: "40px",
+          gap: "5px",
+          marginBottom: "5px",
+        }}
+      >
         <div
           className={`tab ${currentPage === "new" ? "active" : ""}`}
           onClick={() => {
@@ -588,6 +614,24 @@ function App() {
               <div className="form-row">
                 {/* Customer/address Info */}
                 <div className="form-section-card half-width">
+                  <h2>
+                    {selectedCustomer ? (
+                      <>
+                        {selectedCustomer.first_name}{" "}
+                        {selectedCustomer.last_name}
+                        <button
+                          onClick={() => {
+                            setNewOrder(initialOrder);
+                            setSelectedCustomer(null);
+                          }}
+                        >
+                          New Customer
+                        </button>
+                      </>
+                    ) : (
+                      "New Customer"
+                    )}
+                  </h2>
                   <h3 className="section-title">Customer Info</h3>
                   {renderRow([
                     "first_name",
@@ -645,41 +689,40 @@ function App() {
                         </tr>
                       </thead>
                       <tbody>
-                        {filteredOrders
-                          .filter((order) =>
-                            [order.first_name, order.last_name]
+                        {customers
+                          .filter((customer) =>
+                            [customer.first_name, customer.last_name]
                               .join(" ")
+                              .toLowerCase()
                               .includes(searchName.toLowerCase())
                           )
-                          .map((order, idx) => (
+                          .map((customer, idx) => (
                             <tr
                               key={idx}
-                              onDoubleClick={() => handleCaseSelect(order)}
-                              className={`cursor-pointer hover:bg-gray-100 ${
-                                selectedCase === order.case_number
-                                  ? "bg-yellow-100 font-semibold"
-                                  : ""
-                              }`}
+                              onDoubleClick={() =>
+                                handleCustomerRowSelect(customer)
+                              }
                             >
                               <td>
-                                {order.first_name} {order.last_name}
+                                {customer.first_name} {customer.last_name}
                               </td>
-                              <td>{order.fullPhone}</td>
-                              <td>{order.email}</td>
+                              <td>{customer.phone_number}</td>
+                              <td>{customer.email}</td>
                               <td>
-                                {order.street}, {order.city}, {order.state},
-                                {order.country} {order.zip_code}
+                                {customer.street}, {customer.city},{" "}
+                                {customer.state},{customer.country}{" "}
+                                {customer.zip_code}
                               </td>
-                              <td>{order.loggedInUser}</td>
+                              <td>{customer.loggedInUser}</td>
                               <td>
                                 {new Date(
-                                  order.created_at
+                                  customer.created_at
                                 ).toLocaleDateString()}{" "}
                                 {new Date(
-                                  order.created_at
+                                  customer.created_at
                                 ).toLocaleTimeString()}
                               </td>
-                              <td>{order.last_updated}</td>
+                              <td>{customer.last_updated}</td>
                             </tr>
                           ))}
                       </tbody>
@@ -974,7 +1017,7 @@ function App() {
                   <tbody>
                     {filteredOrders
                       .filter((order) =>
-                        [order.first_name, order.last_name]
+                        [order.customer.first_name, order.customer.last_name]
                           .join(" ")
                           .toLowerCase()
                           .includes(searchName.toLowerCase())
@@ -986,7 +1029,8 @@ function App() {
                           style={{ cursor: "pointer" }}
                         >
                           <td>
-                            {order.first_name} {order.last_name}
+                            {order.customer.first_name}{" "}
+                            {order.customer.last_name}
                           </td>
                           <td>{order.case_number}</td>
                           <td>{order.sales_order}</td>
