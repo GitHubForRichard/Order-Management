@@ -320,7 +320,6 @@ function App() {
       }
 
       let customerId = null;
-      console.log("selectedCustomer", selectedCustomer);
       if (!selectedCustomer) {
         const postCustomerResponse = await axios.post(
           "http://localhost:5001/api/customers",
@@ -330,6 +329,17 @@ function App() {
         customerId = postCustomerResponse.data.customer.id;
       } else {
         customerId = selectedCustomer.id;
+        const updateCustomerResponse = await axios.put(
+          `http://localhost:5001/api/customers/${customerId}`,
+          newOrder
+        );
+        setCustomers((prev) =>
+          prev.map((customer) =>
+            customer.id === customerId
+              ? updateCustomerResponse.data.customer
+              : customer
+          )
+        );
       }
 
       const orderPostResponse = await axios.post(
