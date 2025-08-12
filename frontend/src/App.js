@@ -177,7 +177,7 @@ function App() {
   const handleCloseZoom = () => {
     setIsImageZoomed(false);
   };
-  // Combined useEffect for orders + order history
+  // useEffect for getting orders
   useEffect(() => {
     axios
       .get("http://localhost:5001/api/orders")
