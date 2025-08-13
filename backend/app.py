@@ -1,4 +1,4 @@
-from models import Customer, db, Order
+from models import Customer, db, Case
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from flask_migrate import Migrate
@@ -19,27 +19,27 @@ db.init_app(app)
 migrate = Migrate(app, db)
 
 
-@app.route('/api/orders', methods=['GET'])
-def get_orders():
-    """Get all orders"""
-    orders = db.session.query(Order, Customer).join(
-        Customer, Order.customer_id == Customer.id).all()
+@app.route('/api/cases', methods=['GET'])
+def get_cases():
+    """Get all cases"""
+    cases = db.session.query(Case, Customer).join(
+        Customer, Case.customer_id == Customer.id).all()
     result = []
-    for order, customer in orders:
-        order_dict = order.to_dict()
-        order_dict['customer'] = customer.to_dict()
-        result.append(order_dict)
+    for case, customer in cases:
+        case_dict = case.to_dict()
+        case_dict['customer'] = customer.to_dict()
+        result.append(case_dict)
     return jsonify(result)
 
 
-@app.route('/api/orders', methods=['POST'])
-def create_order():
-    """Create a new order"""
+@app.route('/api/cases', methods=['POST'])
+def create_case():
+    """Create a new case"""
     data = request.get_json()
 
     try:
-        # Create a new Order instance
-        new_order = Order(
+        # Create a new Case instance
+        new_case = Case(
             id=str(uuid.uuid4()),
             customer_id=data['customer_id'],
             model_number=data['model_number'],
@@ -59,46 +59,33 @@ def create_order():
         )
 
         # Add to session and commit
-        db.session.add(new_order)
+        db.session.add(new_case)
         db.session.commit()
 
-        return jsonify({'order': new_order.to_dict()}), 201
+        return jsonify({'case': new_case.to_dict()}), 201
 
     except Exception as e:
         db.session.rollback()
         return jsonify({'error': str(e)}), 500
 
 
-@app.route('/api/orders/<order_id>', methods=['GET'])
-def get_order(order_id):
-    """Get a specific order by ID"""
-    order = next((o for o in orders if o['id'] == order_id), None)
-    if not order:
-        return jsonify({'error': 'Order not found'}), 404
-    # Save to file
-    with open(DATA_FILE, 'w') as f:
-        json.dump(orders, f, indent=2)
-
-    return jsonify({'order': order})
-
-
-@app.route('/api/orders/<order_id>', methods=['PUT'])
-def update_order(order_id):
-    """Update an existing order"""
-    order = Order.query.get(order_id)
-    if not order:
-        return jsonify({'error': 'Order not found'}), 404
+@app.route('/api/cases/<case_id>', methods=['PUT'])
+def update_case(case_id):
+    """Update an existing case"""
+    case = Case.query.get(case_id)
+    if not case:
+        return jsonify({'error': 'Case not found'}), 404
 
     data = request.get_json()
     for field, value in data.items():
-        if hasattr(order, field):
-            setattr(order, field, value)
+        if hasattr(case, field):
+            setattr(case, field, value)
 
-    setattr(order, 'updated_at', datetime.now(timezone.utc))
+    setattr(case, 'updated_at', datetime.now(timezone.utc))
 
     try:
         db.session.commit()
-        return jsonify({'order': order.to_dict()}), 200
+        return jsonify({'case': case.to_dict()}), 200
     except Exception as e:
         db.session.rollback()
         return jsonify({'error': str(e)}), 500
@@ -169,7 +156,7 @@ def update_customer(customer_id):
 @app.route('/api/health', methods=['GET'])
 def health_check():
     """Health check endpoint"""
-    return jsonify({'status': 'healthy', 'message': 'Order Management API is running'})
+    return jsonify({'status': 'healthy', 'message': 'Case Management API is running'})
 
 
 if __name__ == '__main__':

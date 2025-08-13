@@ -4,8 +4,8 @@ from flask_sqlalchemy import SQLAlchemy
 db = SQLAlchemy()
 
 
-class Order(db.Model):
-    __tablename__ = 'orders'  # Or 'orders' (recommended)
+class Case(db.Model):
+    __tablename__ = 'cases'
 
     id = db.Column(db.String(36), primary_key=True)  # UUID string
     customer_id = db.Column(db.String(36), db.ForeignKey(
@@ -27,7 +27,7 @@ class Order(db.Model):
     updated_at = db.Column(db.DateTime, nullable=True)
 
     def __repr__(self):
-        return f'<Order {self.id}>'
+        return f'<Case {self.id}>'
 
     def to_dict(self):
         return {
