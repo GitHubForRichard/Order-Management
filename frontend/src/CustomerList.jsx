@@ -35,8 +35,26 @@ const CustomerList = ({ customers, onRowDoubleClicked }) => {
         } ${row.zip_code || ""}`,
     },
     { field: "loggedInUser", headerName: "Recorded By", width: 130 },
-    { field: "created_at", headerName: "Created Date", width: 130 },
-    { field: "updated_at", headerName: "Last Updated", width: 130 },
+    {
+      field: "created_at",
+      headerName: "Created Date",
+      width: 160,
+      valueGetter: (value, row) =>
+        row.created_at &&
+        `${new Date(row.created_at).toLocaleDateString()} ${new Date(
+          row.created_at
+        ).toLocaleTimeString()}`,
+    },
+    {
+      field: "updated_at",
+      headerName: "Last Updated",
+      width: 160,
+      valueGetter: (value, row) =>
+        row.updated_at &&
+        `${new Date(row.updated_at).toLocaleDateString()} ${new Date(
+          row.updated_at
+        ).toLocaleTimeString()}`,
+    },
   ];
 
   return (
