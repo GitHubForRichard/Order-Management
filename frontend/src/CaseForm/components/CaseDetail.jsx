@@ -1,5 +1,5 @@
 import React from "react";
-import { useForm, Controller } from "react-hook-form";
+import { useFormContext, Controller } from "react-hook-form";
 import {
   MenuItem,
   Select,
@@ -9,10 +9,10 @@ import {
   InputLabel,
 } from "@mui/material";
 
-import { MODEL_NUMBERS } from "../constants";
+import { MODEL_NUMBERS } from "../../constants";
 
 const CaseDetail = () => {
-  const { control } = useForm({
+  const { control } = useFormContext({
     defaultValues: {
       model_number: "",
       serial: "",

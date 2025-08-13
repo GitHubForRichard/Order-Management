@@ -1,9 +1,9 @@
 import React from "react";
-import { useForm, Controller } from "react-hook-form";
+import { useFormContext, Controller } from "react-hook-form";
 import { TextField, Typography } from "@mui/material";
 
 const ExtraInfo = () => {
-  const { control } = useForm({
+  const { control } = useFormContext({
     defaultValues: {
       tracking: "",
       return_status: "",

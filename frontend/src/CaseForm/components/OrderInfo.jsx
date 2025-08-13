@@ -1,5 +1,5 @@
 import React from "react";
-import { useForm, Controller } from "react-hook-form";
+import { useFormContext, Controller } from "react-hook-form";
 import {
   MenuItem,
   Select,
@@ -25,7 +25,7 @@ const ASSIGNEES = [
 ];
 
 const OrderInfo = () => {
-  const { control } = useForm({
+  const { control } = useFormContext({
     defaultValues: {
       sales_order: "",
       date: "",
@@ -125,6 +125,7 @@ const OrderInfo = () => {
         render={({ field }) => (
           <TextField
             {...field}
+            disabled
             label="Case Number"
             variant="outlined"
             fullWidth

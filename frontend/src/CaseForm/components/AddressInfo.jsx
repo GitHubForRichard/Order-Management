@@ -1,5 +1,5 @@
 import React from "react";
-import { Controller, useForm } from "react-hook-form";
+import { Controller, useFormContext } from "react-hook-form";
 import {
   FormControl,
   MenuItem,
@@ -9,10 +9,10 @@ import {
   Typography,
 } from "@mui/material";
 
-import { CANADA_PROVINCES, COUNTRIES, US_STATES } from "../constants";
+import { CANADA_PROVINCES, COUNTRIES, US_STATES } from "../../constants";
 
 const AddressInfo = () => {
-  const { control, watch } = useForm({
+  const { control, watch } = useFormContext({
     defaultValues: {
       street: "",
       city: "",

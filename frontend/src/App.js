@@ -11,14 +11,11 @@ import {
   US_STATES,
 } from "./constants";
 
-import OrderHistory from "./OrderHistory";
 import ProductDetail from "./ProductDetail";
-import ShipStationTracks from "./ShipStationTracks";
 import CaseForm from "./CaseForm/CaseForm";
 
 function App() {
   const [orders, setOrders] = useState([]);
-  const [customers, setCustomers] = useState([]);
 
   const [selectedCase, setSelectedCase] = useState(null);
   const [isEdited, setIsEdited] = useState(false);
@@ -34,6 +31,7 @@ function App() {
     issues: "",
     case_number: "",
     email: "",
+    phone_code: "",
     sales_order: "",
     date: "",
     street: "",
@@ -49,7 +47,6 @@ function App() {
     file_name: "",
     tracking: "",
     return_status: "",
-    phone_code: "+1",
   };
   const [newOrder, setNewOrder] = useState(initialOrder);
   const [selectedCustomer, setSelectedCustomer] = useState(null);
@@ -94,21 +91,6 @@ function App() {
         console.error("There was an error loading the orders!", error)
       );
   }, [newOrder.customer_name]);
-
-  const customerName = newOrder.first_name + " " + newOrder.last_name;
-
-  // useEffect to get customers
-  useEffect(() => {
-    axios
-      .get("http://localhost:5001/api/customers")
-      .then((response) => {
-        const fetchedCustomers = response.data;
-        setCustomers(fetchedCustomers);
-      })
-      .catch((error) =>
-        console.error("There was an error loading the customers!", error)
-      );
-  }, []);
 
   const handleCaseSelect = (caseData) => {
     if (isEdited) {
@@ -160,7 +142,7 @@ function App() {
           "http://localhost:5001/api/customers",
           newOrder
         );
-        setCustomers((prev) => [...prev, postCustomerResponse.data.customer]);
+        // setCustomers((prev) => [...prev, postCustomerResponse.data.customer]);
         customerId = postCustomerResponse.data.customer.id;
       } else {
         customerId = selectedCustomer.id;
@@ -168,13 +150,13 @@ function App() {
           `http://localhost:5001/api/customers/${customerId}`,
           newOrder
         );
-        setCustomers((prev) =>
-          prev.map((customer) =>
-            customer.id === customerId
-              ? updateCustomerResponse.data.customer
-              : customer
-          )
-        );
+        // setCustomers((prev) =>
+        //   prev.map((customer) =>
+        //     customer.id === customerId
+        //       ? updateCustomerResponse.data.customer
+        //       : customer
+        //   )
+        // );
       }
 
       const orderPostResponse = await axios.post(
@@ -442,15 +424,7 @@ function App() {
           Exist Case
         </div>
       </div>
-      {currentPage === "new" && (
-        <CaseForm
-          customers={customers}
-          orders={orders}
-          selectedCustomer={selectedCustomer}
-          setSelectedCustomer={setSelectedCustomer}
-          setNewOrder={setNewOrder}
-        />
-      )}
+      {currentPage === "new" && <CaseForm />}
       {currentPage === "exist" && (
         <form onSubmit={handleSubmit}>
           <div className="form-container">

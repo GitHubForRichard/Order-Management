@@ -1,21 +1,24 @@
 import React from "react";
-import { useForm, Controller } from "react-hook-form";
-import { Button, TextField, Typography } from "@mui/material";
+import { useFormContext, Controller } from "react-hook-form";
+import {
+  Button,
+  InputLabel,
+  FormControl,
+  MenuItem,
+  Select,
+  TextField,
+  Typography,
+} from "@mui/material";
 
-const CustomerInfo = ({ selectedCustomer, setSelectedCustomer }) => {
+import { PHONE_COUNTRY_CODES } from "../../constants";
+import { defaultValues } from "../CaseForm";
+
+const CustomerInfo = ({ selectedCustomer }) => {
   const {
     control,
     reset,
     formState: { errors },
-  } = useForm({
-    defaultValues: {
-      first_name: "",
-      last_name: "",
-      mid: "",
-      phone_number: "",
-      email: "",
-    },
-  });
+  } = useFormContext();
 
   return (
     <div>
@@ -26,8 +29,7 @@ const CustomerInfo = ({ selectedCustomer, setSelectedCustomer }) => {
             <Button
               variant="contained"
               onClick={() => {
-                reset();
-                setSelectedCustomer(null);
+                reset(defaultValues);
               }}
             >
               New Customer
@@ -89,6 +91,29 @@ const CustomerInfo = ({ selectedCustomer, setSelectedCustomer }) => {
             fullWidth
             margin="normal"
           />
+        )}
+      />
+
+      <Controller
+        name="phone_code"
+        control={control}
+        rules={{ required: "Phone code is required" }}
+        render={({ field, fieldState }) => (
+          <FormControl fullWidth required margin="normal">
+            <InputLabel id="phone-code-label">Phone Code</InputLabel>
+            <Select
+              {...field}
+              labelId="phone-code-label"
+              label="Phone Code"
+              error={!!fieldState.error}
+            >
+              {PHONE_COUNTRY_CODES.map((s) => (
+                <MenuItem key={s.code} value={s.code}>
+                  {s.code} {s.name}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
         )}
       />
 
