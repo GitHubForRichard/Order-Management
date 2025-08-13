@@ -1,13 +1,16 @@
-from models import Customer, db, Case
+import requests
+import uuid
+
+from datetime import datetime, timezone
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from flask_migrate import Migrate
-from datetime import datetime, timezone
+from requests.auth import HTTPBasicAuth
 
-import uuid
-import json
 
 from constants import DB_HOST, DB_NAME, DB_PASSWORD, DB_PORT, DB_USER
+from config import SHIP_STATION_API_KEY, SHIP_STATION_API_SECRET
+from models import Customer, db, Case
 
 app = Flask(__name__)
 CORS(app)
@@ -150,7 +153,18 @@ def update_customer(customer_id):
         return jsonify({'customer': customer.to_dict()}), 200
     except Exception as e:
         db.session.rollback()
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'error': f'Failed to update customer with id {customer_id}: {str(e)}'}), 500
+
+
+@app.route('/api/shipstation/<tracking_number>', methods=['GET'])
+def get_shipstation_info(tracking_number):
+    response = requests.get(f'https://ssapi.shipstation.com/shipments?trackingNumber={tracking_number}', auth=HTTPBasicAuth(
+        SHIP_STATION_API_KEY, SHIP_STATION_API_SECRET))
+
+    if response.status_code == 200:
+        return jsonify(response.json())
+    else:
+        return jsonify({'error': f'Failed to retrieve tracking information for tracking number {tracking_number}: {response.text}'}), 500
 
 
 @app.route('/api/health', methods=['GET'])
