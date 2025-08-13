@@ -12,7 +12,7 @@ import {
 import {
   CASE_FORM_ACTION_TYPES,
   PHONE_COUNTRY_CODES,
-} from "../../../constants.js";
+} from "../../../constants";
 import { defaultValues } from "../CaseForm";
 
 const CustomerInfo = ({

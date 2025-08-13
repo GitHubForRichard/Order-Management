@@ -14,7 +14,7 @@ import OrderInfo from "./components/OrderInfo";
 import ExtraInfo from "./components/ExtraInfo";
 import CaseDetail from "./components/CaseDetail";
 
-import { CASE_FORM_ACTION_TYPES } from "../../constants.js";
+import { CASE_FORM_ACTION_TYPES } from "../../constants";
 
 import { Customer } from "@/types/customer";
 import CaseList from "../CaseList";
