@@ -10,10 +10,10 @@ import {
   Typography,
 } from "@mui/material";
 
-import { PHONE_COUNTRY_CODES } from "../../constants";
-import { defaultValues } from "../CaseForm";
+import { PHONE_COUNTRY_CODES } from "../../../constants.js";
+import { defaultValues } from "../CaseForm.tsx";
 
-const CustomerInfo = ({ selectedCustomer }) => {
+const CustomerInfo = ({ selectedCustomer, setSelectedCustomer }) => {
   const {
     control,
     reset,
@@ -30,6 +30,7 @@ const CustomerInfo = ({ selectedCustomer }) => {
               variant="contained"
               onClick={() => {
                 reset(defaultValues);
+                setSelectedCustomer(null);
               }}
             >
               New Customer

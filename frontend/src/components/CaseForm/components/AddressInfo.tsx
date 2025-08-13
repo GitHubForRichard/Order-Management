@@ -9,7 +9,7 @@ import {
   Typography,
 } from "@mui/material";
 
-import { CANADA_PROVINCES, COUNTRIES, US_STATES } from "../../constants";
+import { CANADA_PROVINCES, COUNTRIES, US_STATES } from "../../../constants";
 
 const AddressInfo = () => {
   const { control, watch } = useFormContext({

@@ -9,7 +9,7 @@ import {
   InputLabel,
 } from "@mui/material";
 
-import { MODEL_NUMBERS } from "../../constants";
+import { MODEL_NUMBERS } from "../../../constants";
 
 const CaseDetail = () => {
   const { control } = useFormContext({

@@ -11,8 +11,8 @@ import {
   US_STATES,
 } from "./constants";
 
-import ProductDetail from "./ProductDetail";
-import CaseForm from "./CaseForm/CaseForm";
+import ProductDetail from "./components/ProductDetail.tsx";
+import CaseForm from "./components/CaseForm/CaseForm.tsx";
 
 function App() {
   const [orders, setOrders] = useState([]);
@@ -49,7 +49,6 @@ function App() {
     return_status: "",
   };
   const [newOrder, setNewOrder] = useState(initialOrder);
-  const [selectedCustomer, setSelectedCustomer] = useState(null);
 
   const requiredFields = [
     "first_name",
@@ -137,27 +136,6 @@ function App() {
       }
 
       let customerId = null;
-      if (!selectedCustomer) {
-        const postCustomerResponse = await axios.post(
-          "http://localhost:5001/api/customers",
-          newOrder
-        );
-        // setCustomers((prev) => [...prev, postCustomerResponse.data.customer]);
-        customerId = postCustomerResponse.data.customer.id;
-      } else {
-        customerId = selectedCustomer.id;
-        const updateCustomerResponse = await axios.put(
-          `http://localhost:5001/api/customers/${customerId}`,
-          newOrder
-        );
-        // setCustomers((prev) =>
-        //   prev.map((customer) =>
-        //     customer.id === customerId
-        //       ? updateCustomerResponse.data.customer
-        //       : customer
-        //   )
-        // );
-      }
 
       const orderPostResponse = await axios.post(
         "http://localhost:5001/api/orders",

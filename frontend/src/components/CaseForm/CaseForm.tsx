@@ -4,15 +4,15 @@ import { useForm, FormProvider } from "react-hook-form";
 
 import { Button } from "@mui/material";
 
-import CustomerList from "../CustomerList";
-import OrderHistory from "../OrderHistory";
-import ProductDetail from "../ProductDetail";
-import ShipStationTracks from "../ShipStationTracks";
-import CustomerInfo from "./components/CustomerInfo";
-import AddressInfo from "./components/AddressInfo";
-import OrderInfo from "./components/OrderInfo";
-import ExtraInfo from "./components/ExtraInfo";
-import CaseDetail from "./components/CaseDetail";
+import CustomerList from "../CustomerList.tsx";
+import OrderHistory from "../OrderHistory.tsx";
+import ProductDetail from "../ProductDetail.tsx";
+import ShipStationTracks from "../ShipStationTracks.tsx";
+import CustomerInfo from "./components/CustomerInfo.tsx";
+import AddressInfo from "./components/AddressInfo.tsx";
+import OrderInfo from "./components/OrderInfo.tsx";
+import ExtraInfo from "./components/ExtraInfo.tsx";
+import CaseDetail from "./components/CaseDetail.tsx";
 
 export const defaultValues = {
   first_name: "",
@@ -46,9 +46,11 @@ const CaseForm = () => {
     defaultValues,
   });
 
-  const [cases, setCases] = React.useState([]);
-  const [customers, setCustomers] = React.useState([]);
-  const [selectedCustomer, setSelectedCustomer] = React.useState(null);
+  const [cases, setCases] = React.useState<any[]>([]);
+  const [customers, setCustomers] = React.useState<any[]>([]);
+  const [selectedCustomer, setSelectedCustomer] = React.useState<any | null>(
+    null
+  );
 
   // useEffect to get customers
   React.useEffect(() => {
@@ -136,7 +138,10 @@ const CaseForm = () => {
           <div className="form-left">
             <div className="form-row">
               <div className="form-section-card half-width">
-                <CustomerInfo selectedCustomer={selectedCustomer} />
+                <CustomerInfo
+                  selectedCustomer={selectedCustomer}
+                  setSelectedCustomer={setSelectedCustomer}
+                />
                 <AddressInfo />
               </div>
 
