@@ -11,13 +11,11 @@ import {
   US_STATES,
 } from "./constants";
 
-import OrderHistory from "./OrderHistory";
-import ProductDetail from "./ProductDetail";
-import ShipStationTracks from "./ShipStationTracks";
+import ProductDetail from "./components/ProductDetail.tsx";
+import CaseForm from "./components/CaseForm/CaseForm.tsx";
 
 function App() {
   const [orders, setOrders] = useState([]);
-  const [customers, setCustomers] = useState([]);
 
   const [selectedCase, setSelectedCase] = useState(null);
   const [isEdited, setIsEdited] = useState(false);
@@ -33,6 +31,7 @@ function App() {
     issues: "",
     case_number: "",
     email: "",
+    phone_code: "",
     sales_order: "",
     date: "",
     street: "",
@@ -48,10 +47,8 @@ function App() {
     file_name: "",
     tracking: "",
     return_status: "",
-    phone_code: "+1",
   };
   const [newOrder, setNewOrder] = useState(initialOrder);
-  const [selectedCustomer, setSelectedCustomer] = useState(null);
 
   const requiredFields = [
     "first_name",
@@ -93,37 +90,6 @@ function App() {
         console.error("There was an error loading the orders!", error)
       );
   }, [newOrder.customer_name]);
-
-  const customerName = newOrder.first_name + " " + newOrder.last_name;
-
-  // useEffect to get customers
-  useEffect(() => {
-    axios
-      .get("http://localhost:5001/api/customers")
-      .then((response) => {
-        const fetchedCustomers = response.data;
-        setCustomers(fetchedCustomers);
-      })
-      .catch((error) =>
-        console.error("There was an error loading the customers!", error)
-      );
-  }, []);
-
-  const handleCustomerRowSelect = (row) => {
-    setSelectedCustomer(row);
-    setNewOrder((prev) => ({
-      ...prev,
-      first_name: row.first_name,
-      last_name: row.last_name,
-      email: row.email,
-      phone_number: row.phone_number,
-      street: row.street,
-      city: row.city,
-      state: row.state,
-      zip_code: row.zip_code,
-      country: row.country,
-    }));
-  };
 
   const handleCaseSelect = (caseData) => {
     if (isEdited) {
@@ -170,27 +136,6 @@ function App() {
       }
 
       let customerId = null;
-      if (!selectedCustomer) {
-        const postCustomerResponse = await axios.post(
-          "http://localhost:5001/api/customers",
-          newOrder
-        );
-        setCustomers((prev) => [...prev, postCustomerResponse.data.customer]);
-        customerId = postCustomerResponse.data.customer.id;
-      } else {
-        customerId = selectedCustomer.id;
-        const updateCustomerResponse = await axios.put(
-          `http://localhost:5001/api/customers/${customerId}`,
-          newOrder
-        );
-        setCustomers((prev) =>
-          prev.map((customer) =>
-            customer.id === customerId
-              ? updateCustomerResponse.data.customer
-              : customer
-          )
-        );
-      }
 
       const orderPostResponse = await axios.post(
         "http://localhost:5001/api/orders",
@@ -457,266 +402,7 @@ function App() {
           Exist Case
         </div>
       </div>
-      {currentPage === "new" && (
-        <form onSubmit={handleSubmit}>
-          <div className="form-container">
-            {/* Left Column */}
-            <div className="form-left">
-              <div className="form-row">
-                {/* Customer/address Info */}
-                <div className="form-section-card half-width">
-                  <h2>
-                    {selectedCustomer ? (
-                      <>
-                        {selectedCustomer.first_name}{" "}
-                        {selectedCustomer.last_name}
-                        <button
-                          onClick={() => {
-                            setNewOrder(initialOrder);
-                            setSelectedCustomer(null);
-                          }}
-                        >
-                          New Customer
-                        </button>
-                      </>
-                    ) : (
-                      "New Customer"
-                    )}
-                  </h2>
-                  <h3 className="section-title">Customer Info</h3>
-                  {renderRow([
-                    "first_name",
-                    "last_name",
-                    "mid",
-                    "phone_number",
-                    "email",
-                  ])}
-                  <h3 className="section-title">Address Info</h3>
-                  {renderRow([
-                    "street",
-                    "city",
-                    "zip_code",
-                    "country",
-                    "state",
-                  ])}
-                </div>
-
-                {/* Order/extra Info */}
-                <div className="form-section-card half-width">
-                  <h3 className="section-title">Order Info</h3>
-                  {renderRow([
-                    "sales_order",
-                    "date",
-                    "assign",
-                    "status",
-                    "case_Number",
-                  ])}
-                  <h3 className="section-title">Extra Info</h3>
-                  {renderRow(["file_name", "tracking", "return_status"])}
-                </div>
-              </div>
-              {/* next container column */}
-              <div className="form-container">
-                <div className="form-left search-order">
-                  {/* customer search bar */}
-                  <div className="form-section-card search-bar">
-                    <input
-                      type="text"
-                      className="form-input search-input"
-                      placeholder="Search by customer name"
-                      value={searchName}
-                      onChange={(e) => setSearchName(e.target.value)}
-                    />
-                    <table>
-                      <thead>
-                        <tr>
-                          <th>Customer Name</th>
-                          <th>Phone Number</th>
-                          <th>Email</th>
-                          <th>Address</th>
-                          <th>Recorded By</th>
-                          <th>Created Date</th>
-                          <th>Last Updated</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {customers
-                          .filter((customer) =>
-                            [customer.first_name, customer.last_name]
-                              .join(" ")
-                              .toLowerCase()
-                              .includes(searchName.toLowerCase())
-                          )
-                          .map((customer, idx) => (
-                            <tr
-                              key={idx}
-                              onDoubleClick={() =>
-                                handleCustomerRowSelect(customer)
-                              }
-                            >
-                              <td>
-                                {customer.first_name} {customer.last_name}
-                              </td>
-                              <td>
-                                {customer.phone_code} {customer.phone_number}
-                              </td>
-                              <td>{customer.email}</td>
-                              <td>
-                                {customer.street}, {customer.city},{" "}
-                                {customer.state},{customer.country}{" "}
-                                {customer.zip_code}
-                              </td>
-                              <td>{customer.loggedInUser}</td>
-                              <td>
-                                {new Date(
-                                  customer.created_at
-                                ).toLocaleDateString()}{" "}
-                                {new Date(
-                                  customer.created_at
-                                ).toLocaleTimeString()}
-                              </td>
-                              <td>{customer.last_updated}</td>
-                            </tr>
-                          ))}
-                      </tbody>
-                    </table>
-                  </div>
-                  <ShipStationTracks shipStationTracks={[]} />
-                </div>
-                <div className="form-left ship-product">
-                  <OrderHistory
-                    orders={orders}
-                    customer_id={selectedCustomer?.id}
-                  />
-                  <ProductDetail />
-                </div>
-              </div>
-            </div>
-
-            {/* Right Column - Case Detail */}
-            <div className="form-right sticky-right">
-              <div className="form-section-card">
-                <h3 className="section-title">Case Detail</h3>
-                {renderRow([
-                  "model_number",
-                  "serial",
-                  "issues",
-                  "solution",
-                  "action",
-                ])}
-                <div className="action-buttons">
-                  <button
-                    onClick={handleSubmit}
-                    className="btn-small btn-create"
-                  >
-                    Create New
-                  </button>
-                </div>
-              </div>
-
-              <div className="form-section-card">
-                <h3 className="section-title">Attachments</h3>
-
-                {/* File Type Dropdown */}
-                <div className="file-group medium-wide">
-                  <label>Select File Type</label>
-                  <select
-                    value={fileType}
-                    onChange={(e) => setFileType(e.target.value)}
-                    className="form-input"
-                  >
-                    <option value="">Select type</option>
-                    <option value="screenshot">Screenshot</option>
-                    <option value="log">Log File</option>
-                    <option value="pdf">PDF</option>
-                    <option value="image">Image</option>
-                  </select>
-                </div>
-
-                {/* File Input & Buttons */}
-                <div
-                  className="form-row"
-                  style={{
-                    alignItems: "center",
-                    gap: "1rem",
-                    marginTop: "10px",
-                  }}
-                >
-                  <input
-                    type="file"
-                    multiple
-                    accept="image/*,.pdf,.txt,.log"
-                    onChange={handleFileChange}
-                    className="form-input"
-                  />
-
-                  <button
-                    type="button"
-                    onClick={handleUpload}
-                    style={{ height: "36px" }}
-                  >
-                    Upload
-                  </button>
-                </div>
-
-                {/* Preview Section */}
-                <div style={{ marginTop: "10px" }}>
-                  {selectedFiles.length > 0 && (
-                    <div>
-                      <h4 style={{ fontSize: "14px", marginBottom: "8px" }}>
-                        Selected Files:
-                      </h4>
-                      <ul style={{ listStyle: "none", padding: 0 }}>
-                        {selectedFiles.map((file, index) => (
-                          <li key={index} style={{ marginBottom: "6px" }}>
-                            {file.type.startsWith("image/") ? (
-                              <img
-                                src={URL.createObjectURL(file)}
-                                alt={file.name}
-                                style={{
-                                  width: "60px",
-                                  height: "60px",
-                                  objectFit: "cover",
-                                  borderRadius: "6px",
-                                  marginRight: "10px",
-                                }}
-                              />
-                            ) : (
-                              <span
-                                style={{
-                                  fontSize: "13px",
-                                  marginRight: "10px",
-                                }}
-                              >
-                                {file.name}
-                              </span>
-                            )}
-                            <button
-                              type="button"
-                              onClick={() => removeFile(index)}
-                              style={{
-                                fontSize: "12px",
-                                padding: "4px 8px",
-                                background: "#dc3545",
-                                color: "white",
-                                border: "none",
-                                borderRadius: "4px",
-                                cursor: "pointer",
-                              }}
-                            >
-                              Remove
-                            </button>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-          </div>
-        </form>
-      )}
+      {currentPage === "new" && <CaseForm />}
       {currentPage === "exist" && (
         <form onSubmit={handleSubmit}>
           <div className="form-container">
