@@ -11,11 +11,11 @@ import {
   US_STATES,
 } from "./constants";
 
-import ProductDetail from "./components/ProductDetail.tsx";
-import CaseForm from "./components/CaseForm/CaseForm.tsx";
+import ProductDetail from "./components/ProductDetail";
+import CaseForm from "./components/CaseForm/CaseForm";
 
 function App() {
-  const [orders, setOrders] = useState([]);
+  const [cases, setCases] = useState([]);
 
   const [selectedCase, setSelectedCase] = useState(null);
   const [isEdited, setIsEdited] = useState(false);
@@ -23,7 +23,8 @@ function App() {
 
   // Extract unique status and assigned for dropdowns
 
-  const initialOrder = {
+  const initialCase = {
+    id: "",
     first_name: "",
     last_name: "",
     mid: "",
@@ -32,7 +33,8 @@ function App() {
     case_number: "",
     email: "",
     phone_code: "",
-    sales_order: "",
+    phone_number: "",
+    sales_case: "",
     date: "",
     street: "",
     city: "",
@@ -48,7 +50,7 @@ function App() {
     tracking: "",
     return_status: "",
   };
-  const [newOrder, setNewOrder] = useState(initialOrder);
+  const [newCase, setNewCase] = useState(initialCase);
 
   const requiredFields = [
     "first_name",
@@ -60,7 +62,7 @@ function App() {
     "zip_code",
     "country",
     "state",
-    "sales_order",
+    "sales_case",
     "date",
     "assign",
     "status",
@@ -70,26 +72,18 @@ function App() {
   ];
   const [searchName, setSearchName] = useState("");
 
-  // useEffect for getting orders
+  // useEffect for getting cases
   useEffect(() => {
     axios
-      .get("http://localhost:5001/api/orders")
+      .get("http://localhost:5001/api/cases")
       .then((response) => {
-        const fetchedOrders = response.data;
-        setOrders(fetchedOrders);
-
-        // Find highest case number
-        const caseNumbers = fetchedOrders
-          .map((order) =>
-            parseInt(order.case_number?.replace(/[^\d]/g, ""), 10)
-          )
-          .filter((num) => !isNaN(num));
-        const maxCase = caseNumbers.length > 0 ? Math.max(...caseNumbers) : 0;
+        const fetchedCases = response.data;
+        setCases(fetchedCases);
       })
       .catch((error) =>
-        console.error("There was an error loading the orders!", error)
+        console.error("There was an error loading the cases!", error)
       );
-  }, [newOrder.customer_name]);
+  }, []);
 
   const handleCaseSelect = (caseData) => {
     if (isEdited) {
@@ -99,7 +93,7 @@ function App() {
       if (!confirmSwitch) return; // Cancel switching
     }
 
-    setNewOrder(caseData); // Load data into all sections
+    setNewCase(caseData); // Load data into all sections
     setSelectedCase(caseData.case_number);
     setIsEdited(false); // Reset edit tracking
   };
@@ -109,14 +103,14 @@ function App() {
     e.preventDefault();
 
     axios
-      .put(`http://localhost:5001/api/orders/${newOrder.id}`, newOrder)
-      .then(() => axios.get("http://localhost:5001/api/orders"))
+      .put(`http://localhost:5001/api/cases/${newCase.id}`, newCase)
+      .then(() => axios.get("http://localhost:5001/api/cases"))
       .then((response) => {
-        setOrders(response.data);
-        setNewOrder(initialOrder);
+        setCases(response.data);
+        setNewCase(initialCase);
       })
       .catch((error) =>
-        console.error("There was an error updating the order!", error)
+        console.error("There was an error updating the case!", error)
       );
   };
 
@@ -125,7 +119,7 @@ function App() {
     e.preventDefault();
 
     try {
-      const missingFields = requiredFields.filter((field) => !newOrder[field]);
+      const missingFields = requiredFields.filter((field) => !newCase[field]);
       if (missingFields.length > 0) {
         alert(
           `Please fill out all required fields: ${missingFields
@@ -135,32 +129,25 @@ function App() {
         return;
       }
 
-      let customerId = null;
-
-      const orderPostResponse = await axios.post(
-        "http://localhost:5001/api/orders",
-        { ...newOrder, customer_id: customerId }
+      const casesGetResponse = await axios.get(
+        "http://localhost:5001/api/cases"
       );
-
-      const ordersGetResponse = await axios.get(
-        "http://localhost:5001/api/orders"
-      );
-      setOrders(ordersGetResponse.data);
-      setNewOrder(initialOrder);
+      setCases(casesGetResponse.data);
+      setNewCase(initialCase);
       setSelectedCase(null); // Clear selection
       setIsEdited(false); // Reset edit tracking
     } catch (error) {
-      console.error("There was an error creating the order!", error);
+      console.error("There was an error creating the case!", error);
     }
   };
   const [currentPage, setCurrentPage] = useState("new");
-  const filteredOrders = orders.filter((order) => {
+  const filteredCases = cases.filter((caseItem) => {
     const searchLower = searchName.toLowerCase();
     return (
-      order.customer.first_name.toLowerCase().includes(searchLower) ||
-      order.customer.last_name.toLowerCase().includes(searchLower) ||
-      order.case_number?.toLowerCase().includes(searchLower) ||
-      order.sales_order?.toLowerCase().includes(searchLower)
+      caseItem.customer.first_name.toLowerCase().includes(searchLower) ||
+      caseItem.customer.last_name.toLowerCase().includes(searchLower) ||
+      caseItem.case_number?.toLowerCase().includes(searchLower) ||
+      caseItem.sales_case?.toLowerCase().includes(searchLower)
     );
   });
 
@@ -183,18 +170,18 @@ function App() {
           {field === "date" ? (
             <input
               type="date"
-              value={newOrder[field]}
+              value={newCase[field]}
               onChange={(e) => {
-                setNewOrder({ ...newOrder, [field]: e.target.value });
+                setNewCase({ ...newCase, [field]: e.target.value });
                 setIsEdited(true); // 🔥 Track that something changed
               }}
             />
           ) : field === "phone_number" ? (
             <div className="phone-wrapper">
               <select
-                value={newOrder.phone_code}
+                value={newCase.phone_code}
                 onChange={(e) => {
-                  setNewOrder({ ...newOrder, phone_code: e.target.value });
+                  setNewCase({ ...newCase, phone_code: e.target.value });
                   setIsEdited(true); // 🔥 Track that something changed
                 }}
                 className="area-code"
@@ -207,9 +194,9 @@ function App() {
               </select>
               <input
                 type="tel"
-                value={newOrder.phone_number}
+                value={newCase.phone_number}
                 onChange={(e) => {
-                  setNewOrder({ ...newOrder, phone_number: e.target.value });
+                  setNewCase({ ...newCase, phone_number: e.target.value });
                   setIsEdited(true); // 🔥 Track that something changed
                 }}
                 placeholder="Phone number"
@@ -218,9 +205,9 @@ function App() {
             </div>
           ) : field === "status" ? (
             <select
-              value={newOrder[field]}
+              value={newCase[field]}
               onChange={(e) => {
-                setNewOrder({ ...newOrder, [field]: e.target.value });
+                setNewCase({ ...newCase, [field]: e.target.value });
                 setIsEdited(true);
               }}
             >
@@ -231,10 +218,10 @@ function App() {
             </select>
           ) : field === "country" ? (
             <select
-              value={newOrder[field]}
+              value={newCase[field]}
               onChange={(e) => {
-                setNewOrder({
-                  ...newOrder,
+                setNewCase({
+                  ...newCase,
                   country: e.target.value,
                   state: "", // reset state when country changes
                 });
@@ -249,30 +236,29 @@ function App() {
               ))}
             </select>
           ) : field === "state" ? (
-            newOrder.country === "USA" || newOrder.country === "Canada" ? (
+            newCase.country === "USA" || newCase.country === "Canada" ? (
               <select
-                value={newOrder[field]}
+                value={newCase[field]}
                 onChange={(e) => {
-                  setNewOrder({ ...newOrder, [field]: e.target.value });
+                  setNewCase({ ...newCase, [field]: e.target.value });
                   setIsEdited(true); // 🔥 Track that something changed
                 }}
               >
                 <option value="">Select state/province</option>
-                {(newOrder.country === "USA"
-                  ? US_STATES
-                  : CANADA_PROVINCES
-                ).map((s) => (
-                  <option key={s.abbreviation} value={s.abbreviation}>
-                    {s.name} ({s.abbreviation})
-                  </option>
-                ))}
+                {(newCase.country === "USA" ? US_STATES : CANADA_PROVINCES).map(
+                  (s) => (
+                    <option key={s.abbreviation} value={s.abbreviation}>
+                      {s.name} ({s.abbreviation})
+                    </option>
+                  )
+                )}
               </select>
             ) : (
               <input
                 type="text"
-                value={newOrder[field]}
+                value={newCase[field]}
                 onChange={(e) => {
-                  setNewOrder({ ...newOrder, [field]: e.target.value });
+                  setNewCase({ ...newCase, [field]: e.target.value });
                   setIsEdited(true); // 🔥 Track that something changed
                 }}
                 placeholder="Enter state/province"
@@ -280,9 +266,9 @@ function App() {
             )
           ) : field === "assign" ? (
             <select
-              value={newOrder[field]}
+              value={newCase[field]}
               onChange={(e) => {
-                setNewOrder({ ...newOrder, [field]: e.target.value });
+                setNewCase({ ...newCase, [field]: e.target.value });
                 setIsEdited(true); // 🔥 Track that something changed
               }}
             >
@@ -303,24 +289,24 @@ function App() {
           ) : ["issues", "solution", "action"].includes(field) ? (
             <textarea
               className="textarea-scroll"
-              value={newOrder[field]}
+              value={newCase[field]}
               onChange={(e) => {
-                setNewOrder({ ...newOrder, [field]: e.target.value });
+                setNewCase({ ...newCase, [field]: e.target.value });
                 setIsEdited(true); // 🔥 Track that something changed
               }}
             />
           ) : field === "case_Number" ? (
             <input
               type="text"
-              value={newOrder["case_Number"]}
+              value={newCase["case_Number"]}
               readOnly
               style={{ backgroundColor: "#eee", cursor: "not-allowed" }}
             />
           ) : field === "model_number" ? (
             <select
-              value={newOrder[field]}
+              value={newCase[field]}
               onChange={(e) => {
-                setNewOrder({ ...newOrder, [field]: e.target.value });
+                setNewCase({ ...newCase, [field]: e.target.value });
                 setIsEdited(true); // 🔥 Track that something changed
               }}
             >
@@ -334,9 +320,9 @@ function App() {
           ) : (
             <input
               type="text"
-              value={newOrder[field]}
+              value={newCase[field]}
               onChange={(e) => {
-                setNewOrder({ ...newOrder, [field]: e.target.value });
+                setNewCase({ ...newCase, [field]: e.target.value });
                 setIsEdited(true); // 🔥 Track that something changed
               }}
             />
@@ -386,7 +372,7 @@ function App() {
         <div
           className={`tab ${currentPage === "new" ? "active" : ""}`}
           onClick={() => {
-            setNewOrder(initialOrder);
+            setNewCase(initialCase);
             setCurrentPage("new");
           }}
         >
@@ -395,7 +381,7 @@ function App() {
         <div
           className={`tab ${currentPage === "exist" ? "active" : ""}`}
           onClick={() => {
-            setNewOrder(initialOrder);
+            setNewCase(initialCase);
             setCurrentPage("exist");
           }}
         >
@@ -433,42 +419,45 @@ function App() {
                     </tr>
                   </thead>
                   <tbody>
-                    {filteredOrders
-                      .filter((order) =>
-                        [order.customer.first_name, order.customer.last_name]
+                    {filteredCases
+                      .filter((caseItem) =>
+                        [
+                          caseItem.customer.first_name,
+                          caseItem.customer.last_name,
+                        ]
                           .join(" ")
                           .toLowerCase()
                           .includes(searchName.toLowerCase())
                       )
-                      .map((order, idx) => (
+                      .map((caseItem, idx) => (
                         <tr
                           key={idx}
-                          onDoubleClick={() => handleCaseSelect(order)}
+                          onDoubleClick={() => handleCaseSelect(caseItem)}
                           style={{ cursor: "pointer" }}
                         >
                           <td>
-                            {order.customer.first_name}{" "}
-                            {order.customer.last_name}
+                            {caseItem.customer.first_name}{" "}
+                            {caseItem.customer.last_name}
                           </td>
-                          <td>{order.case_number}</td>
-                          <td>{order.sales_order}</td>
-                          <td>{order.issues}</td>
-                          <td>{order.action}</td>
-                          <td>{order.status}</td>
-                          <td>{order.recorded_by}</td>
-                          <td>{order.assign}</td>
+                          <td>{caseItem.case_number}</td>
+                          <td>{caseItem.sales_case}</td>
+                          <td>{caseItem.issues}</td>
+                          <td>{caseItem.action}</td>
+                          <td>{caseItem.status}</td>
+                          <td>{caseItem.recorded_by}</td>
+                          <td>{caseItem.assign}</td>
                           <td>
-                            {new Date(order.created_at).toLocaleDateString()}{" "}
-                            {new Date(order.created_at).toLocaleTimeString()}
+                            {new Date(caseItem.created_at).toLocaleDateString()}{" "}
+                            {new Date(caseItem.created_at).toLocaleTimeString()}
                           </td>
                           <td>
-                            {order.updated_at ? (
+                            {caseItem.updated_at ? (
                               <>
                                 {new Date(
-                                  order.updated_at
+                                  caseItem.updated_at
                                 ).toLocaleDateString()}{" "}
                                 {new Date(
-                                  order.updated_at
+                                  caseItem.updated_at
                                 ).toLocaleTimeString()}
                               </>
                             ) : (
@@ -506,11 +495,11 @@ function App() {
                   ])}
                 </div>
 
-                {/* Order Info */}
+                {/* Case Info */}
                 <div className="form-section-card half-width">
-                  <h3 className="section-title">Order Info</h3>
+                  <h3 className="section-title">Case Info</h3>
                   {renderRow([
-                    "sales_order",
+                    "sales_case",
                     "date",
                     "assign",
                     "status",
@@ -542,7 +531,7 @@ function App() {
                     <button
                       onClick={handleUpdate}
                       className={`btn-small ${
-                        newOrder.case_number ? "btn-update" : "btn-disabled"
+                        newCase.case_number ? "btn-update" : "btn-disabled"
                       }`}
                     >
                       Update Case

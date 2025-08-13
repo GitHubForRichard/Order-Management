@@ -1,4 +1,3 @@
-import React from "react";
 import { useFormContext, Controller } from "react-hook-form";
 import {
   MenuItem,
@@ -24,21 +23,13 @@ const ASSIGNEES = [
   "Alexandra Geronimo",
 ];
 
-const OrderInfo = () => {
-  const { control } = useFormContext({
-    defaultValues: {
-      sales_order: "",
-      date: "",
-      assign: "",
-      status: "",
-      case_Number: "",
-    },
-  });
+const CaseInfo = () => {
+  const { control } = useFormContext();
 
   return (
     <div>
       <Typography variant="h5" gutterBottom>
-        Order Info
+        Case Info
       </Typography>
 
       <Controller
@@ -137,4 +128,4 @@ const OrderInfo = () => {
   );
 };
 
-export default OrderInfo;
+export default CaseInfo;

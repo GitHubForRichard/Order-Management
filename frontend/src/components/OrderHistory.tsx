@@ -1,8 +1,6 @@
-import React from "react";
-
 import { DataGrid } from "@mui/x-data-grid";
 
-const OrderHistory = ({ orders, customer_id }) => {
+const OrderHistory = ({ cases, customer_id }) => {
   const columns = [
     {
       field: "sales_order",
@@ -16,18 +14,18 @@ const OrderHistory = ({ orders, customer_id }) => {
     },
     {
       field: "date",
-      headerName: "Order Date",
+      headerName: "Case Date",
       sortable: false,
       width: 160,
-      valueGetter: (value, row) => `${new Date(row.date).toLocaleDateString()}`,
+      valueGetter: (_, row) => `${new Date(row.date).toLocaleDateString()}`,
     },
   ];
 
-  const historyOrders = orders.filter(
-    (order) => order.customer.id === customer_id
+  const historyCases = cases.filter(
+    (caseItem) => caseItem.customer.id === customer_id
   );
 
-  return <DataGrid rows={historyOrders} columns={columns} />;
+  return <DataGrid rows={historyCases} columns={columns} />;
 };
 
 export default OrderHistory;

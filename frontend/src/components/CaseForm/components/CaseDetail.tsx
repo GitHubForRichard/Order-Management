@@ -1,4 +1,3 @@
-import React from "react";
 import { useFormContext, Controller } from "react-hook-form";
 import {
   MenuItem,
@@ -12,15 +11,7 @@ import {
 import { MODEL_NUMBERS } from "../../../constants";
 
 const CaseDetail = () => {
-  const { control } = useFormContext({
-    defaultValues: {
-      model_number: "",
-      serial: "",
-      issues: "",
-      solution: "",
-      action: "",
-    },
-  });
+  const { control } = useFormContext();
 
   return (
     <div>

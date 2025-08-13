@@ -8,7 +8,7 @@ const ShipStationTracks = ({ shipStationTracks }) => {
         <table className="shipstation-table">
           <thead>
             <tr>
-              <th>Order#</th>
+              <th>Case#</th>
               <th>Provider</th>
               <th>Recipient</th>
               <th>Service</th>

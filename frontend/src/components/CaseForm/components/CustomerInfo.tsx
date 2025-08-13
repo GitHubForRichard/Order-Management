@@ -1,4 +1,3 @@
-import React from "react";
 import { useFormContext, Controller } from "react-hook-form";
 import {
   Button,
@@ -11,7 +10,7 @@ import {
 } from "@mui/material";
 
 import { PHONE_COUNTRY_CODES } from "../../../constants.js";
-import { defaultValues } from "../CaseForm.tsx";
+import { defaultValues } from "../CaseForm";
 
 const CustomerInfo = ({ selectedCustomer, setSelectedCustomer }) => {
   const {
@@ -57,7 +56,6 @@ const CustomerInfo = ({ selectedCustomer, setSelectedCustomer }) => {
             fullWidth
             required
             error={!!errors.first_name}
-            helperText={errors.first_name?.message}
             margin="normal"
           />
         )}
@@ -75,7 +73,6 @@ const CustomerInfo = ({ selectedCustomer, setSelectedCustomer }) => {
             fullWidth
             required
             error={!!errors.last_name}
-            helperText={errors.last_name?.message}
             margin="normal"
           />
         )}
@@ -130,7 +127,6 @@ const CustomerInfo = ({ selectedCustomer, setSelectedCustomer }) => {
             fullWidth
             required
             error={!!errors.phone_number}
-            helperText={errors.phone_number?.message}
             margin="normal"
           />
         )}
@@ -154,7 +150,6 @@ const CustomerInfo = ({ selectedCustomer, setSelectedCustomer }) => {
             fullWidth
             required
             error={!!errors.email}
-            helperText={errors.email?.message}
             margin="normal"
           />
         )}
