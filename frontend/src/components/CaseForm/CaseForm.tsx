@@ -4,15 +4,17 @@ import { useForm, FormProvider } from "react-hook-form";
 
 import { Button } from "@mui/material";
 
-import CustomerList from "../CustomerList.tsx";
-import OrderHistory from "../OrderHistory.tsx";
-import ProductDetail from "../ProductDetail.tsx";
-import ShipStationTracks from "../ShipStationTracks.tsx";
-import CustomerInfo from "./components/CustomerInfo.tsx";
-import AddressInfo from "./components/AddressInfo.tsx";
-import OrderInfo from "./components/OrderInfo.tsx";
-import ExtraInfo from "./components/ExtraInfo.tsx";
-import CaseDetail from "./components/CaseDetail.tsx";
+import CustomerList from "../CustomerList";
+import OrderHistory from "../OrderHistory";
+import ProductDetail from "../ProductDetail";
+import ShipStationTracks from "../ShipStationTracks";
+import CustomerInfo from "./components/CustomerInfo";
+import AddressInfo from "./components/AddressInfo";
+import OrderInfo from "./components/OrderInfo";
+import ExtraInfo from "./components/ExtraInfo";
+import CaseDetail from "./components/CaseDetail";
+
+import { Customer } from "@/types/customer";
 
 export const defaultValues = {
   first_name: "",
@@ -47,10 +49,9 @@ const CaseForm = () => {
   });
 
   const [cases, setCases] = React.useState<any[]>([]);
-  const [customers, setCustomers] = React.useState<any[]>([]);
-  const [selectedCustomer, setSelectedCustomer] = React.useState<any | null>(
-    null
-  );
+  const [customers, setCustomers] = React.useState<Customer[]>([]);
+  const [selectedCustomer, setSelectedCustomer] =
+    React.useState<Customer | null>(null);
 
   // useEffect to get customers
   React.useEffect(() => {
@@ -68,17 +69,17 @@ const CaseForm = () => {
   // useEffect for getting cases
   React.useEffect(() => {
     axios
-      .get("http://localhost:5001/api/orders")
+      .get("http://localhost:5001/api/cases")
       .then((response) => {
         const fetchedCases = response.data;
         setCases(fetchedCases);
       })
       .catch((error) =>
-        console.error("There was an error loading the orders!", error)
+        console.error("There was an error loading the cases!", error)
       );
   }, []);
 
-  const onSubmit = async (data) => {
+  const onSubmit = async (data: any) => {
     try {
       let customerId = null;
       if (!selectedCustomer) {
@@ -103,13 +104,18 @@ const CaseForm = () => {
         );
       }
 
+      await axios.post("http://localhost:5001/api/cases", {
+        ...data,
+        customer_id: customerId,
+      });
+
       const casesGetResponse = await axios.get(
-        "http://localhost:5001/api/orders"
+        "http://localhost:5001/api/cases"
       );
       setCases(casesGetResponse.data);
       methods.reset(defaultValues);
     } catch (error) {
-      console.error("There was an error creating the order!", error);
+      console.error("There was an error creating the case!", error);
     }
   };
 
@@ -134,7 +140,6 @@ const CaseForm = () => {
     <FormProvider {...methods}>
       <form onSubmit={methods.handleSubmit(onSubmit)}>
         <div className="form-container">
-          {/* Left Column */}
           <div className="form-left">
             <div className="form-row">
               <div className="form-section-card half-width">
@@ -145,16 +150,14 @@ const CaseForm = () => {
                 <AddressInfo />
               </div>
 
-              {/* Order/extra Info */}
               <div className="form-section-card half-width">
                 <OrderInfo />
                 <ExtraInfo />
               </div>
             </div>
 
-            {/* Search + History/Products */}
             <div className="form-container">
-              <div className="form-left search-order">
+              <div className="form-left search-case">
                 <CustomerList
                   customers={customers}
                   onRowDoubleClicked={handleCustomerRowSelect}
@@ -163,7 +166,7 @@ const CaseForm = () => {
               </div>
               <div className="form-left ship-product">
                 <OrderHistory
-                  orders={cases}
+                  cases={cases}
                   customer_id={selectedCustomer?.id}
                 />
                 <ProductDetail />
@@ -185,7 +188,6 @@ const CaseForm = () => {
 
             <div className="form-section-card">
               <h3 className="section-title">Attachments</h3>
-              {/* fileType + uploads still in local state */}
             </div>
           </div>
         </div>

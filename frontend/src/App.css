@@ -7,8 +7,7 @@ form {
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
   backdrop-filter: blur(8px);
   background: rgba(255, 255, 255, 0.3);
-  font-family: 'Segoe UI', Tahoma, sans-serif;
-
+  font-family: "Segoe UI", Tahoma, sans-serif;
 }
 
 form h3 {
@@ -20,8 +19,6 @@ form h3 {
   border-bottom: 1px solid #eee;
   padding-bottom: 5px;
 }
-
-
 
 .form-group label {
   font-size: 13px;
@@ -50,7 +47,7 @@ form h3 {
 }
 .file-group input,
 .file-group select,
-.file-group textarea{
+.file-group textarea {
   padding: 8px 10px;
   border: 1px solid #ddd;
   border-radius: 6px;
@@ -63,12 +60,11 @@ form h3 {
 .form-group input:focus,
 .form-group select:focus,
 .form-group textarea:focus {
-  background-color: #a9dad169;       /* Brighter on focus */
+  background-color: #a9dad169; /* Brighter on focus */
   border-color: #007bff;
   outline: none;
-  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.2);  /* Subtle glow */
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.2); /* Subtle glow */
 }
-
 
 button {
   background: #007bff;
@@ -96,12 +92,12 @@ button:hover {
   transition: 0.2s ease;
 }
 .section-title {
-  font-weight: 700;             /* Bold */
+  font-weight: 700; /* Bold */
   font-size: 20px;
   margin-top: 30px;
   margin-bottom: 10px;
   padding-bottom: 5px;
-  border-bottom: 3px groove #aaa;  /* Underline */
+  border-bottom: 3px groove #aaa; /* Underline */
   color: #333;
 }
 .form-container {
@@ -109,15 +105,14 @@ button:hover {
   gap: 1rem;
   align-items: flex-start;
   flex-wrap: wrap; /* responsive wrap */
-  
 }
 
 .form-left {
   flex: 1;
 }
-/* Left main column (Search Bar + Order History stacked vertically) */
-.form-left.search-order {
-  flex: 3;  /* wider */
+/* Left main column (Search Bar + Case History stacked vertically) */
+.form-left.search-case {
+  flex: 3; /* wider */
   display: flex;
   flex-direction: column;
   gap: 1rem;
@@ -137,8 +132,8 @@ button:hover {
   min-width: 0; /* prevent overflow */
 }
 
-/* Order History below search bar, take full width inside the left column */
-.form-section-card.order-history {
+/* Case History below search bar, take full width inside the left column */
+.form-section-card.case-history {
   flex: 1 1 auto;
   min-width: 0;
 }
@@ -154,7 +149,6 @@ button:hover {
   flex: 1 1 auto;
   min-width: 0;
 }
-
 
 .form-row {
   display: flex;
@@ -180,7 +174,7 @@ button:hover {
   padding: 20px;
   margin-bottom: 20px;
   border-radius: 12px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
   transition: 0.3s ease;
 }
 
@@ -209,9 +203,10 @@ table {
   overflow-x: auto;
 
   white-space: nowrap;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
-th, td {
+th,
+td {
   padding: 12px 8px;
   text-align: left;
   border-bottom: 1px solid #ddd;
@@ -242,8 +237,9 @@ td {
   table {
     font-size: 12px;
   }
-  
-  th, td {
+
+  th,
+  td {
     padding: 8px 4px;
   }
 }
@@ -251,7 +247,7 @@ td {
   .form-container {
     flex-direction: column;
   }
-  .form-left.search-order,
+  .form-left.search-case,
   .form-left.ship-product {
     flex: 1 1 100%;
   }
@@ -328,7 +324,7 @@ td {
   left: 0;
   width: 100vw;
   height: 100vh;
-  background: rgba(0,0,0,0.7);
+  background: rgba(0, 0, 0, 0.7);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -340,7 +336,7 @@ td {
   max-width: 90%;
   max-height: 90%;
   border-radius: 10px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
 }
 /* text box size */
 .form-group {
@@ -420,7 +416,7 @@ select {
   background: rgba(255, 255, 255, 0.7);
   padding: 6px 12px;
   border-radius: 8px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
   z-index: 10;
   margin-bottom: 20px;
 }
@@ -484,19 +480,19 @@ img {
   background-color: rgba(13, 28, 114, 0.03);
   border-radius: 6px;
 }
-.order-history-table {
+.case-history-table {
   width: 100%;
   border-collapse: collapse;
   margin-top: 10px;
 }
 
-.order-history-table th,
-.order-history-table td {
+.case-history-table th,
+.case-history-table td {
   padding: 8px 12px;
   border-bottom: 1px solid #ddd;
 }
 
-.order-history-table th {
+.case-history-table th {
   background-color: #f7f7f7;
   font-weight: bold;
   text-align: left;
@@ -508,15 +504,15 @@ img {
   justify-content: center; /* centers children horizontally */
   position: relative;
   margin-bottom: 20px;
-  margin-top: 20px
+  margin-top: 20px;
 }
 
 .logo {
   margin-left: 40px;
   height: 80px;
-  border: none;        /* removes any border */
-  outline: none;       /* removes outline if any */
-  box-shadow: none;    /* removes shadow if it looks like a border */
+  border: none; /* removes any border */
+  outline: none; /* removes outline if any */
+  box-shadow: none; /* removes shadow if it looks like a border */
 }
 
 .title {

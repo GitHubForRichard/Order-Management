@@ -1,11 +1,11 @@
-import React from "react";
-
 const ProductDetail = () => {
   const handleProductSearch = () => {
     console.log("Product search initiated");
   };
 
-  const productDetail = {};
+  const productDetail = {
+    description: "",
+  };
 
   return (
     <div className="form-section-card product-detail">

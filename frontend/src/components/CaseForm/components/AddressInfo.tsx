@@ -1,4 +1,3 @@
-import React from "react";
 import { Controller, useFormContext } from "react-hook-form";
 import {
   FormControl,
@@ -12,15 +11,7 @@ import {
 import { CANADA_PROVINCES, COUNTRIES, US_STATES } from "../../../constants";
 
 const AddressInfo = () => {
-  const { control, watch } = useFormContext({
-    defaultValues: {
-      street: "",
-      city: "",
-      zip_code: "",
-      country: "",
-      state: "",
-    },
-  });
+  const { control, watch } = useFormContext();
 
   const country = watch("country");
 
