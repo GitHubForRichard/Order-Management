@@ -29,7 +29,7 @@ const CaseInfo = () => {
   return (
     <div>
       <Typography variant="h5" gutterBottom>
-        Case Info
+        Order Info
       </Typography>
 
       <Controller
@@ -111,7 +111,7 @@ const CaseInfo = () => {
       </FormControl>
 
       <Controller
-        name="case_Number"
+        name="case_number"
         control={control}
         render={({ field }) => (
           <TextField
@@ -121,6 +121,7 @@ const CaseInfo = () => {
             variant="outlined"
             fullWidth
             margin="normal"
+            InputLabelProps={{ shrink: true }}
           />
         )}
       />

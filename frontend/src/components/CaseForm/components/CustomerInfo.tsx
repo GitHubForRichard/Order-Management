@@ -9,10 +9,17 @@ import {
   Typography,
 } from "@mui/material";
 
-import { PHONE_COUNTRY_CODES } from "../../../constants.js";
+import {
+  CASE_FORM_ACTION_TYPES,
+  PHONE_COUNTRY_CODES,
+} from "../../../constants";
 import { defaultValues } from "../CaseForm";
 
-const CustomerInfo = ({ selectedCustomer, setSelectedCustomer }) => {
+const CustomerInfo = ({
+  caseFormActionType,
+  selectedCustomer,
+  setSelectedCustomer,
+}) => {
   const {
     control,
     reset,
@@ -21,24 +28,26 @@ const CustomerInfo = ({ selectedCustomer, setSelectedCustomer }) => {
 
   return (
     <div>
-      <Typography variant="h4" gutterBottom>
-        {selectedCustomer ? (
-          <>
-            {selectedCustomer.first_name} {selectedCustomer.last_name}{" "}
-            <Button
-              variant="contained"
-              onClick={() => {
-                reset(defaultValues);
-                setSelectedCustomer(null);
-              }}
-            >
-              New Customer
-            </Button>
-          </>
-        ) : (
-          "New Customer"
-        )}
-      </Typography>
+      {caseFormActionType === CASE_FORM_ACTION_TYPES.NEW && (
+        <Typography variant="h4" gutterBottom>
+          {selectedCustomer ? (
+            <>
+              {selectedCustomer.first_name} {selectedCustomer.last_name}{" "}
+              <Button
+                variant="contained"
+                onClick={() => {
+                  reset(defaultValues);
+                  setSelectedCustomer(null);
+                }}
+              >
+                New Customer
+              </Button>
+            </>
+          ) : (
+            "New Customer"
+          )}
+        </Typography>
+      )}
 
       <Typography variant="h5" gutterBottom>
         Customer Info

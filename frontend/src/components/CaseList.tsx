@@ -1,38 +1,38 @@
 import { DataGrid } from "@mui/x-data-grid";
 
-const CustomerList = ({ customers, onRowDoubleClicked }) => {
+const CaseList = ({ cases, onRowDoubleClicked }) => {
   const columns = [
     {
       field: "fullName",
       headerName: "Full name",
       width: 160,
-      valueGetter: (_, row) => `${row.first_name || ""} ${row.last_name || ""}`,
-    },
-
-    {
-      field: "phoneNumber",
-      headerName: "Phone number",
-      sortable: false,
-      width: 90,
       valueGetter: (_, row) =>
-        `${row.phone_code || ""} ${row.phone_number || ""}`,
+        `${row.customer.first_name || ""} ${row.customer.last_name || ""}`,
     },
-    { field: "email", headerName: "Email", width: 160 },
     {
-      field: "address",
-      headerName: "Address",
+      field: "case_number",
+      headerName: "Case Number",
+      sortable: false,
+      width: 200,
+    },
+    {
+      field: "sales_order",
+      headerName: "Sales Order",
+      sortable: false,
+      width: 120,
+    },
+    { field: "issues", headerName: "Issues", width: 300 },
+    {
+      field: "status",
+      headerName: "Status",
       sortable: false,
       width: 160,
-      valueGetter: (_, row) =>
-        `${row.street || ""}, ${row.city || ""}, ${row.state || ""}, ${
-          row.country || ""
-        } ${row.zip_code || ""}`,
     },
     { field: "loggedInUser", headerName: "Recorded By", width: 130 },
     {
       field: "created_at",
       headerName: "Created Date",
-      width: 160,
+      width: 240,
       valueGetter: (_, row) =>
         row.created_at &&
         `${new Date(row.created_at).toLocaleDateString()} ${new Date(
@@ -42,7 +42,7 @@ const CustomerList = ({ customers, onRowDoubleClicked }) => {
     {
       field: "updated_at",
       headerName: "Last Updated",
-      width: 160,
+      width: 240,
       valueGetter: (_, row) =>
         row.updated_at &&
         `${new Date(row.updated_at).toLocaleDateString()} ${new Date(
@@ -53,7 +53,7 @@ const CustomerList = ({ customers, onRowDoubleClicked }) => {
 
   return (
     <DataGrid
-      rows={customers}
+      rows={cases}
       columns={columns}
       onRowDoubleClick={(params) =>
         onRowDoubleClicked && onRowDoubleClicked(params.row)
@@ -62,4 +62,4 @@ const CustomerList = ({ customers, onRowDoubleClicked }) => {
   );
 };
 
-export default CustomerList;
+export default CaseList;

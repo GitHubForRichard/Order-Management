@@ -83,3 +83,8 @@ export const PHONE_COUNTRY_CODES = [
 ];
 
 export const COUNTRIES = ["USA", "Canada", "UK", "Australia"];
+
+export const CASE_FORM_ACTION_TYPES = {
+  NEW: "NEW",
+  EXIST: "EXIST",
+};
