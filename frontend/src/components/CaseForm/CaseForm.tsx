@@ -204,17 +204,15 @@ const CaseForm = ({ actionType }) => {
                 <ExtraInfo />
               </div>
             </div>
-
             <div className="form-container">
               <div className="form-left search-case">
-                {actionType === CASE_FORM_ACTION_TYPES.NEW && (
-                  <>
-                    <CustomerList
-                      customers={customers}
-                      onRowDoubleClicked={handleCustomerRowSelect}
-                    />
-                    <ShipStationTracks shipStationTracks={[]} />
-                  </>
+                {actionType === CASE_FORM_ACTION_TYPES.NEW ? (
+                  <CustomerList
+                    customers={customers}
+                    onRowDoubleClicked={handleCustomerRowSelect}
+                  />
+                ) : (
+                  <ShipStationTracks trackingNumber={selectedCase?.tracking} />
                 )}
               </div>
               <div className="form-left ship-product">

@@ -1,42 +1,72 @@
 import React from "react";
+import axios from "axios";
 
-const ShipStationTracks = ({ shipStationTracks }) => {
+import {
+  Paper,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+} from "@mui/material";
+
+const ShipStationTracks = ({ trackingNumber }) => {
+  const [shipStationTracks, setShipStationTracks] = React.useState<any[]>([]);
+
+  React.useEffect(() => {
+    if (trackingNumber) {
+      // Fetch ShipStation tracking information
+      const fetchTrackingInfo = async () => {
+        try {
+          const response = await axios.get(
+            `http://localhost:5001/api/shipstation/${trackingNumber}`
+          );
+          setShipStationTracks(response.data.shipments || []);
+        } catch (error) {
+          console.error("Error fetching ShipStation tracking info:", error);
+        }
+      };
+
+      fetchTrackingInfo();
+    }
+  }, [trackingNumber]);
+
   return (
-    <div className="form-section-card shipstation-track">
-      <h3 className="section-title">ShipStation Track</h3>
-      {shipStationTracks.length > 0 ? (
-        <table className="shipstation-table">
-          <thead>
-            <tr>
-              <th>Case#</th>
-              <th>Provider</th>
-              <th>Recipient</th>
-              <th>Service</th>
-              <th>Ship Date</th>
-              <th>Ship From</th>
-              <th>Tracking Number</th>
-            </tr>
-          </thead>
-          <tbody>
-            {shipStationTracks.map((shipment, idx) => (
-              <tr key={idx}>
-                <td>{shipment.orderNumber}</td>
-                <td>{shipment.carrierCode}</td>
-                <td>{shipment.recipient?.name}</td>
-                <td>{shipment.serviceCode}</td>
-                <td>{new Date(shipment.shipDate).toLocaleDateString()}</td>
-                <td>
-                  {shipment.shipFrom?.city}, {shipment.shipFrom?.state}
-                </td>
-                <td>{shipment.trackingNumber}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      ) : (
-        <p className="no-detail-text">No shipments found for this customer.</p>
-      )}
-    </div>
+    trackingNumber && (
+      <div className="form-section-card shipstation-track">
+        <h3 className="section-title">ShipStation Track</h3>
+        <TableContainer component={Paper}>
+          <Table sx={{ minWidth: 650 }} aria-label="simple table">
+            <TableHead>
+              <TableRow>
+                <TableCell>Carrier</TableCell>
+                <TableCell>Service</TableCell>
+                <TableCell>Recipient</TableCell>
+                <TableCell>Ship Date</TableCell>
+                <TableCell>Tracking Number</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {shipStationTracks.map((row) => (
+                <TableRow
+                  key={row.carrierCode}
+                  sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+                >
+                  <TableCell>{row.carrierCode}</TableCell>
+                  <TableCell>{row.serviceCode}</TableCell>
+                  <TableCell>{row.shipTo?.name}</TableCell>
+                  <TableCell>
+                    {new Date(row.shipDate).toLocaleDateString()}
+                  </TableCell>
+                  <TableCell>{row.trackingNumber}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </div>
+    )
   );
 };
 
