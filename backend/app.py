@@ -47,10 +47,8 @@ def create_case():
             customer_id=data['customer_id'],
             model_number=data['model_number'],
             issues=data.get('issues'),
-            case_number=f"CASE-{int(datetime.now().timestamp() * 1000)}",
+            case_number=f"TML{int(datetime.now().timestamp())}",
             sales_order=data.get('sales_order'),
-            date=datetime.strptime(
-                data.get('date'), '%Y-%m-%d') if data.get('date') else None,
             assign=data.get('assign'),
             status=data.get('status', 'Pending'),
             serial=data.get('serial'),

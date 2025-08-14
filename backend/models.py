@@ -14,7 +14,6 @@ class Case(db.Model):
     model_number = db.Column(db.String(50), nullable=False)
     case_number = db.Column(db.String(50), nullable=True)
     sales_order = db.Column(db.String(50), nullable=True)
-    date = db.Column(db.Date, nullable=True)
     assign = db.Column(db.String(100), nullable=True)
     status = db.Column(db.String(50), nullable=True)
     serial = db.Column(db.String(100), nullable=True)
@@ -36,7 +35,6 @@ class Case(db.Model):
             'issues': self.issues,
             'case_number': self.case_number,
             'sales_order': self.sales_order,
-            'date': self.date.isoformat() if self.date else None,
             'assign': self.assign,
             'status': self.status,
             'serial': self.serial,
