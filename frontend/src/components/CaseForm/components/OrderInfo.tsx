@@ -8,6 +8,8 @@ import {
   InputLabel,
 } from "@mui/material";
 
+import { CASE_FORM_ACTION_TYPES } from "../../../constants";
+
 const ASSIGNEES = [
   "Vincent Ma",
   "James Tan",
@@ -23,7 +25,7 @@ const ASSIGNEES = [
   "Alexandra Geronimo",
 ];
 
-const CaseInfo = () => {
+const CaseInfo = ({ caseFormActionType }) => {
   const { control } = useFormContext();
 
   return (
@@ -42,22 +44,6 @@ const CaseInfo = () => {
             variant="outlined"
             fullWidth
             margin="normal"
-          />
-        )}
-      />
-
-      <Controller
-        name="date"
-        control={control}
-        render={({ field }) => (
-          <TextField
-            {...field}
-            label="Date"
-            type="date"
-            variant="outlined"
-            fullWidth
-            margin="normal"
-            InputLabelProps={{ shrink: true }}
           />
         )}
       />
@@ -110,21 +96,23 @@ const CaseInfo = () => {
         />
       </FormControl>
 
-      <Controller
-        name="case_number"
-        control={control}
-        render={({ field }) => (
-          <TextField
-            {...field}
-            disabled
-            label="Case Number"
-            variant="outlined"
-            fullWidth
-            margin="normal"
-            InputLabelProps={{ shrink: true }}
-          />
-        )}
-      />
+      {caseFormActionType === CASE_FORM_ACTION_TYPES.EXIST && (
+        <Controller
+          name="case_number"
+          control={control}
+          render={({ field }) => (
+            <TextField
+              {...field}
+              disabled
+              label="Case Number"
+              variant="outlined"
+              fullWidth
+              margin="normal"
+              InputLabelProps={{ shrink: true }}
+            />
+          )}
+        />
+      )}
     </div>
   );
 };

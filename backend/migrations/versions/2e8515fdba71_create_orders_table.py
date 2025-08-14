@@ -29,7 +29,6 @@ def upgrade():
                         length=50), nullable=True),
                     sa.Column('sales_order', sa.String(
                         length=50), nullable=True),
-                    sa.Column('date', sa.Date(), nullable=True),
                     sa.Column('assign', sa.String(length=100), nullable=True),
                     sa.Column('status', sa.String(length=50), nullable=True),
                     sa.Column('serial', sa.String(length=100), nullable=True),
