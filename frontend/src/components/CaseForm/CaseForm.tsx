@@ -30,7 +30,6 @@ export const defaultValues = {
   issues: "",
   case_number: "",
   sales_order: "",
-  date: "",
   street: "",
   city: "",
   zip_code: "",
@@ -200,7 +199,7 @@ const CaseForm = ({ actionType }) => {
               </div>
 
               <div className="form-section-card half-width">
-                <OrderInfo />
+                <OrderInfo caseFormActionType={actionType} />
                 <ExtraInfo />
               </div>
             </div>
