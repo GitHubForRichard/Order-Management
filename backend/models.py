@@ -122,3 +122,28 @@ class File(db.Model):
             's3_key': self.s3_key,
             'created_at': self.created_at.isoformat() if self.created_at else None
         }
+
+
+class User(db.Model):
+    __tablename__ = 'users'
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    email = Column(String(100), unique=True, nullable=False)
+    password_hash = Column(String(200), nullable=False)
+    first_name = Column(String(100), nullable=False)
+    last_name = Column(String(100), nullable=False)
+    created_at = Column(DateTime, default=lambda: datetime.now(
+        timezone.utc), nullable=False)
+
+    def __repr__(self):
+        return f'<User {self.id}>'
+
+    def to_dict(self):
+        return {
+            'id': str(self.id),
+            'email': self.email,
+            'first_name': self.first_name,
+            'last_name': self.last_name,
+            'password_hash': self.password_hash,
+            'created_at': self.created_at.isoformat() if self.created_at else None
+        }
