@@ -15,11 +15,18 @@ const CaseDetail = () => {
 
   return (
     <div>
-      <Typography variant="h5" gutterBottom>
+      <Typography variant="h5" gutterBottom sx={{ mb: 3, 
+        color: "#3d79bdff",       // modern blue color (Material UI primary)
+        fontWeight: 500,         // medium weight
+        letterSpacing: "0.5px",  // subtle spacing
+        textTransform: "capitalize", // optional, modern look
+        borderBottom: "1px solid #31609eff",
+        display: "inline-block", // makes the line match text width
+        fontStyle: "normal",}}>
         Case Detail
       </Typography>
 
-      <FormControl fullWidth margin="normal" variant="outlined">
+      <FormControl fullWidth margin="normal" variant="outlined" size="small">
         <InputLabel id="model-number-label">Model</InputLabel>
         <Controller
           name="model_number"
@@ -49,6 +56,7 @@ const CaseDetail = () => {
             variant="outlined"
             fullWidth
             margin="normal"
+            size="small"
           />
         )}
       />
