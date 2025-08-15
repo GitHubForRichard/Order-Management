@@ -5,12 +5,14 @@ from datetime import datetime, timezone
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from flask_migrate import Migrate
+from flask_sqlalchemy import SQLAlchemy
 from requests.auth import HTTPBasicAuth
 
 
 from constants import DB_HOST, DB_NAME, DB_PASSWORD, DB_PORT, DB_USER
-from config import SHIP_STATION_API_KEY, SHIP_STATION_API_SECRET
-from models import Customer, db, Case
+from config import S3_BUCKET, SHIP_STATION_API_KEY, SHIP_STATION_API_SECRET
+from models import Customer, db, Case, File
+from s3_client import get_presigned_url, upload_file_to_s3
 
 app = Flask(__name__)
 CORS(app)
@@ -163,6 +165,48 @@ def get_shipstation_info(tracking_number):
         return jsonify(response.json())
     else:
         return jsonify({'error': f'Failed to retrieve tracking information for tracking number {tracking_number}: {response.text}'}), 500
+
+
+@app.route("/api/files/<case_id>", methods=["POST"])
+def upload_file(case_id):
+    if "file" not in request.files:
+        return jsonify({"error": "No file part found"}), 400
+
+    file = request.files["file"]
+    if file.filename == "":
+        return jsonify({"error": "No selected file found"}), 400
+
+    case = Case.query.get(case_id)
+    if not case:
+        return jsonify({"error": f"No case found with the provided case_id {case_id}"}), 404
+
+    try:
+        file_name = upload_file_to_s3(file)
+
+        # Save metadata in DB
+        new_file = File(
+            case_id=case_id,
+            name=file.filename,
+            bucket_name=S3_BUCKET,
+            s3_key=file_name,
+            created_at=datetime.now(timezone.utc),
+        )
+
+        db.session.add(new_file)
+        db.session.commit()
+
+        return jsonify({"message": "File uploaded", "id": str(new_file.id)}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route('/api/files/<case_id>', methods=['GET'])
+def get_file(case_id):
+    files = File.query.filter_by(case_id=case_id).all()
+    if not files:
+        return jsonify({"error": f"No files found for the provided case_id {case_id}"}), 404
+
+    return jsonify({"urls": [get_presigned_url(file.to_dict()["s3_key"]) for file in files]}), 200
 
 
 @app.route('/api/health', methods=['GET'])
