@@ -7,6 +7,7 @@ import {
   Select,
   TextField,
   Typography,
+  Stack,
 } from "@mui/material";
 
 import {
@@ -49,120 +50,137 @@ const CustomerInfo = ({
         </Typography>
       )}
 
-      <Typography variant="h5" gutterBottom>
+      <Typography variant="h5" gutterBottom sx={{ mb: 3, 
+        color: "#3d79bdff",       // modern blue color (Material UI primary)
+        fontWeight: 500,         // medium weight
+        letterSpacing: "0.5px",  // subtle spacing
+        textTransform: "capitalize", // optional, modern look
+        borderBottom: "1px solid #31609eff",
+        display: "inline-block", // makes the line match text width
+        fontStyle: "normal",}}>
         Customer Info
       </Typography>
-
-      <Controller
-        name="first_name"
-        control={control}
-        rules={{ required: "First name is required" }}
-        render={({ field }) => (
-          <TextField
-            {...field}
-            label="First Name"
-            variant="outlined"
-            fullWidth
-            required
-            error={!!errors.first_name}
-            margin="normal"
-          />
-        )}
-      />
-
-      <Controller
-        name="last_name"
-        control={control}
-        rules={{ required: "Last name is required" }}
-        render={({ field }) => (
-          <TextField
-            {...field}
-            label="Last Name"
-            variant="outlined"
-            fullWidth
-            required
-            error={!!errors.last_name}
-            margin="normal"
-          />
-        )}
-      />
-
-      <Controller
-        name="mid"
-        control={control}
-        render={({ field }) => (
-          <TextField
-            {...field}
-            label="MID"
-            variant="outlined"
-            fullWidth
-            margin="normal"
-          />
-        )}
-      />
-
-      <Controller
-        name="phone_code"
-        control={control}
-        rules={{ required: "Phone code is required" }}
-        render={({ field, fieldState }) => (
-          <FormControl fullWidth required margin="normal">
-            <InputLabel id="phone-code-label">Phone Code</InputLabel>
-            <Select
+      
+      <Stack direction="row" spacing={2} >
+        <Controller
+          name="first_name"
+          control={control}
+          rules={{ required: "First name is required" }}
+          render={({ field }) => (
+            <TextField
               {...field}
-              labelId="phone-code-label"
-              label="Phone Code"
-              error={!!fieldState.error}
-            >
-              {PHONE_COUNTRY_CODES.map((s) => (
-                <MenuItem key={s.code} value={s.code}>
-                  {s.code} {s.name}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-        )}
-      />
+              label="First Name"
+              variant="outlined"
+              required
+              error={!!errors.first_name}
+              size="small"
+              margin="normal"
+              sx={{ width: '260px' }}
+            />
+          )}
+        />
+        <Controller
+          name="mid"
+          control={control}
+          render={({ field }) => (
+            <TextField
+              {...field}
+              label="MID"
+              variant="outlined"
+              margin="normal"
+              sx={{ width: '100px' }}
+              size="small"
+            />
+          )}
+        />
 
-      <Controller
-        name="phone_number"
-        control={control}
-        rules={{ required: "Phone number is required" }}
-        render={({ field }) => (
-          <TextField
-            {...field}
-            label="Phone Number"
-            variant="outlined"
-            fullWidth
-            required
-            error={!!errors.phone_number}
-            margin="normal"
-          />
-        )}
-      />
+        <Controller
+          name="last_name"
+          control={control}
+          rules={{ required: "Last name is required" }}
+          render={({ field }) => (
+            <TextField
+              {...field}
+              label="Last Name"
+              variant="outlined"
+              required
+              error={!!errors.last_name}
+              margin="normal"
+              size="small"
+              sx={{ flex: 1 }}
+            />
+          )}
+        />
 
-      <Controller
-        name="email"
-        control={control}
-        rules={{
-          required: "Email is required",
-          pattern: {
-            value: /^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/,
-            message: "Invalid email address",
-          },
-        }}
-        render={({ field }) => (
-          <TextField
-            {...field}
-            label="Email"
-            variant="outlined"
-            fullWidth
-            required
-            error={!!errors.email}
-            margin="normal"
-          />
-        )}
-      />
+      </Stack>
+      <Stack direction="row" spacing={2} flexWrap="wrap" mt={3} mb={4} >
+        <Controller
+          name="phone_code"
+          control={control}
+          rules={{ required: "Phone code is required" }}
+          render={({ field, fieldState }) => (
+            <FormControl required margin="normal" size="small" sx={{ width: '70px' }} >
+              <InputLabel id="phone-code-label" sx={{ fontSize: '0.6rem' }}>Code</InputLabel>
+              <Select
+                {...field}
+                labelId="phone-code-label"
+                label="Phone Code"
+                error={!!fieldState.error}
+                renderValue={(selected) => selected} // only show the code
+
+              >
+                {PHONE_COUNTRY_CODES.map((s) => (
+                  <MenuItem key={s.code} value={s.code} sx={{ fontSize: "0.8rem" }} >
+                    {s.code} {s.name}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          )}
+        />
+
+        <Controller
+          name="phone_number"
+          control={control}
+          rules={{ required: "Phone number is required" }}
+          render={({ field }) => (
+            <TextField
+              {...field}
+              label="Phone Number"
+              variant="outlined"
+              required
+              error={!!errors.phone_number}
+              margin="normal"
+              size="small"
+            />
+          )}
+        />
+      
+      
+        <Controller
+          name="email"
+          control={control}
+          rules={{
+            required: "Email is required",
+            pattern: {
+              value: /^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/,
+              message: "Invalid email address",
+            },
+          }}
+          render={({ field }) => (
+            <TextField
+              {...field}
+              label="Email"
+              variant="outlined"
+              required
+              error={!!errors.email}
+              margin="normal"
+              size="small"
+              sx={{ flex: 1 }} 
+            />
+          )}
+        />
+      </Stack>
     </div>
   );
 };
