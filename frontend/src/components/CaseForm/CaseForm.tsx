@@ -18,6 +18,7 @@ import { CASE_FORM_ACTION_TYPES } from "../../constants";
 
 import { Customer } from "@/types/customer";
 import CaseList from "../CaseList";
+import Attachments from "./Attachments";
 
 export const defaultValues = {
   first_name: "",
@@ -43,6 +44,7 @@ export const defaultValues = {
   file_name: "",
   tracking: "",
   return_status: "",
+  attachments: [],
 };
 
 const CaseForm = ({ actionType }) => {
@@ -82,6 +84,30 @@ const CaseForm = ({ actionType }) => {
       );
   }, []);
 
+  const uploadAttachmentsToCase = async (
+    attachments: File[],
+    caseId: string
+  ) => {
+    const formData = new FormData();
+    attachments.forEach((file) => {
+      formData.append("files", file);
+    });
+
+    try {
+      const response = await axios.post(
+        `http://localhost:5001/api/files/${caseId}`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+    } catch (error) {
+      console.error("Error uploading files:", error);
+    }
+  };
+
   const onFormCreate = async (data: any) => {
     try {
       let customerId = null;
@@ -107,10 +133,18 @@ const CaseForm = ({ actionType }) => {
         );
       }
 
-      await axios.post("http://localhost:5001/api/cases", {
-        ...data,
-        customer_id: customerId,
-      });
+      const casePostResponse = await axios.post(
+        "http://localhost:5001/api/cases",
+        {
+          ...data,
+          customer_id: customerId,
+        }
+      );
+
+      const newCase = casePostResponse.data.case;
+      if (data.attachments) {
+        await uploadAttachmentsToCase(data.attachments, newCase.id);
+      }
 
       const casesGetResponse = await axios.get(
         "http://localhost:5001/api/cases"
@@ -239,12 +273,10 @@ const CaseForm = ({ actionType }) => {
                 </Button>
               </div>
             </div>
-
-            {actionType === CASE_FORM_ACTION_TYPES.NEW && (
-              <div className="form-section-card">
-                <h3 className="section-title">Attachments</h3>
-              </div>
-            )}
+            <Attachments
+              caseFormActionType={actionType}
+              selectedCase={selectedCase}
+            />
           </div>
         </div>
       </form>
