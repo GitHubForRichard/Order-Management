@@ -1,11 +1,11 @@
 import React from "react";
-import axios from "axios";
 
 import Button from "@mui/material/Button";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import { styled } from "@mui/material/styles";
 import { Controller, useFormContext } from "react-hook-form";
 
+import api from "../../api";
 import { CASE_FORM_ACTION_TYPES } from "../../constants";
 const Attachments = ({ caseFormActionType, selectedCase }) => {
   const { control } = useFormContext();
@@ -17,9 +17,7 @@ const Attachments = ({ caseFormActionType, selectedCase }) => {
     if (selectedCase) {
       const fetchAttachments = async () => {
         try {
-          const response = await axios.get(
-            `http://localhost:5001/api/files/${selectedCase.id}`
-          );
+          const response = await api.get(`files/${selectedCase.id}`);
           setAttachments(response.data.files);
         } catch (error) {
           console.error("Error fetching attachments:", error);

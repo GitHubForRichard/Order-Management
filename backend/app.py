@@ -5,13 +5,13 @@ from datetime import datetime, timezone
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from flask_migrate import Migrate
-from flask_sqlalchemy import SQLAlchemy
 from requests.auth import HTTPBasicAuth
+from werkzeug.security import generate_password_hash, check_password_hash
 
-
+from auth import generate_jwt, jwt_required
 from constants import DB_HOST, DB_NAME, DB_PASSWORD, DB_PORT, DB_USER
 from config import S3_BUCKET, SHIP_STATION_API_KEY, SHIP_STATION_API_SECRET
-from models import Customer, db, Case, File
+from models import Customer, db, Case, File, User
 from s3_client import get_presigned_url, upload_file_to_s3
 
 app = Flask(__name__)
@@ -25,6 +25,7 @@ migrate = Migrate(app, db)
 
 
 @app.route('/api/cases', methods=['GET'])
+@jwt_required
 def get_cases():
     """Get all cases"""
     cases = db.session.query(Case, Customer).join(
@@ -38,6 +39,7 @@ def get_cases():
 
 
 @app.route('/api/cases', methods=['POST'])
+@jwt_required
 def create_case():
     """Create a new case"""
     data = request.get_json()
@@ -73,6 +75,7 @@ def create_case():
 
 
 @app.route('/api/cases/<case_id>', methods=['PUT'])
+@jwt_required
 def update_case(case_id):
     """Update an existing case"""
     case = Case.query.get(case_id)
@@ -95,6 +98,7 @@ def update_case(case_id):
 
 
 @app.route('/api/customers', methods=['GET'])
+@jwt_required
 def get_customers():
     """Get all customers"""
     customers = Customer.query.all()
@@ -102,6 +106,7 @@ def get_customers():
 
 
 @app.route('/api/customers', methods=['POST'])
+@jwt_required
 def create_customer():
     """Create a new customer"""
     data = request.get_json()
@@ -135,6 +140,7 @@ def create_customer():
 
 
 @app.route('/api/customers/<customer_id>', methods=['PUT'])
+@jwt_required
 def update_customer(customer_id):
     """Update an existing customer"""
     customer = Customer.query.get(customer_id)
@@ -157,6 +163,7 @@ def update_customer(customer_id):
 
 
 @app.route('/api/shipstation/<tracking_number>', methods=['GET'])
+@jwt_required
 def get_shipstation_info(tracking_number):
     response = requests.get(f'https://ssapi.shipstation.com/shipments?trackingNumber={tracking_number}', auth=HTTPBasicAuth(
         SHIP_STATION_API_KEY, SHIP_STATION_API_SECRET))
@@ -168,6 +175,7 @@ def get_shipstation_info(tracking_number):
 
 
 @app.route("/api/files/<case_id>", methods=["POST"])
+@jwt_required
 def upload_file(case_id):
     if "files" not in request.files:
         return jsonify({"error": "No files part found"}), 400
@@ -212,6 +220,7 @@ def upload_file(case_id):
 
 
 @app.route('/api/files/<case_id>', methods=['GET'])
+@jwt_required
 def get_file(case_id):
     files = File.query.filter_by(case_id=case_id).all()
     if not files:
@@ -225,7 +234,40 @@ def get_file(case_id):
     return jsonify({"files": file_dict}), 200
 
 
+@app.route("/api/register", methods=["POST"])
+def register():
+    data = request.json
+    if not data.get("password") or not data.get("email") or not data.get("first_name") or not data.get("last_name"):
+        return jsonify({"error": "email, password, first_name and last_name are required"}), 400
+
+    if User.query.filter_by(email=data["email"]).first():
+        return jsonify({"error": "Email already exists"}), 400
+
+    hashed_password = generate_password_hash(data["password"])
+    user = User(email=data["email"], password_hash=hashed_password,
+                first_name=data["first_name"], last_name=data["last_name"])
+    db.session.add(user)
+    db.session.commit()
+    return jsonify({"message": "User registered successfully"}), 201
+
+
+@app.route("/api/login", methods=["POST"])
+def login():
+    data = request.json
+    if not data.get("email") or not data.get("password"):
+        return jsonify({"error": "email and password required"}), 400
+
+    user = User.query.filter_by(email=data["email"]).first()
+    user = user.to_dict()
+    if not user or not check_password_hash(user['password_hash'], data["password"]):
+        return jsonify({"error": "Invalid email or password"}), 401
+
+    token = generate_jwt(str(user['id']))
+    return jsonify({"token": token, "user": user})
+
+
 @app.route('/api/health', methods=['GET'])
+@jwt_required
 def health_check():
     """Health check endpoint"""
     return jsonify({'status': 'healthy', 'message': 'Case Management API is running'})
