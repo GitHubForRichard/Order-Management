@@ -35,6 +35,23 @@ services:
       - ./backend:/app
       - ./backend/migrations:/app/migrations
 
+  localstack:
+    image: localstack/localstack:latest
+    container_name: localstack
+    ports:
+      - "4566:4566"
+      - "4510-4559:4510-4559"
+    environment:
+      - SERVICES=s3,sqs,sns,lambda
+      - DEBUG=1
+      - DATA_DIR=/var/lib/localstack/data
+      - AWS_ACCESS_KEY_ID=test
+      - AWS_SECRET_ACCESS_KEY=test
+      - AWS_DEFAULT_REGION=us-east-1
+    volumes:
+      - localstack_data:/var/lib/localstack
+      - /var/run/docker.sock:/var/run/docker.sock
+
   # TODO: Need to fix hot-reload when changes locally
   # frontend:
   #   build: ./frontend
@@ -47,3 +64,4 @@ services:
   #     - /app/node_modules # avoid overwriting node_modules with empty volume
 volumes:
   pgdata:
+  localstack_data:
