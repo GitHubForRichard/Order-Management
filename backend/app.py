@@ -169,33 +169,44 @@ def get_shipstation_info(tracking_number):
 
 @app.route("/api/files/<case_id>", methods=["POST"])
 def upload_file(case_id):
-    if "file" not in request.files:
-        return jsonify({"error": "No file part found"}), 400
+    if "files" not in request.files:
+        return jsonify({"error": "No files part found"}), 400
 
-    file = request.files["file"]
-    if file.filename == "":
-        return jsonify({"error": "No selected file found"}), 400
+    files = request.files.getlist("files")
+    if not files:
+        return jsonify({"error": "No files content found"}), 400
 
     case = Case.query.get(case_id)
     if not case:
         return jsonify({"error": f"No case found with the provided case_id {case_id}"}), 404
 
+    uploaded_files_info = []
+
     try:
-        file_name = upload_file_to_s3(file)
+        for file in files:
+            file_name = upload_file_to_s3(file)
 
-        # Save metadata in DB
-        new_file = File(
-            case_id=case_id,
-            name=file.filename,
-            bucket_name=S3_BUCKET,
-            s3_key=file_name,
-            created_at=datetime.now(timezone.utc),
-        )
+            # Save metadata in DB
+            new_file = File(
+                case_id=case_id,
+                name=file.filename,
+                bucket_name=S3_BUCKET,
+                s3_key=file_name,
+                created_at=datetime.now(timezone.utc),
+            )
 
-        db.session.add(new_file)
-        db.session.commit()
+            db.session.add(new_file)
+            db.session.commit()
 
-        return jsonify({"message": "File uploaded", "id": str(new_file.id)}), 200
+            uploaded_files_info.append({
+                "id": str(new_file.id),
+                "name": new_file.name,
+            })
+
+        return jsonify({
+            "message": "Files uploaded",
+            "files": uploaded_files_info
+        }), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
@@ -206,7 +217,12 @@ def get_file(case_id):
     if not files:
         return jsonify({"error": f"No files found for the provided case_id {case_id}"}), 404
 
-    return jsonify({"urls": [get_presigned_url(file.to_dict()["s3_key"]) for file in files]}), 200
+    file_dict = [file.to_dict() for file in files]
+
+    for file in file_dict:
+        file["url"] = get_presigned_url(file["s3_key"])
+
+    return jsonify({"files": file_dict}), 200
 
 
 @app.route('/api/health', methods=['GET'])

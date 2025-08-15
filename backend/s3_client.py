@@ -36,7 +36,7 @@ def ensure_bucket_exists():
 
 def upload_file_to_s3(file_obj):
     """Upload file object to S3 and return file URL."""
-    file_name = f"{file_obj.filename}_{datetime.now().strftime('%Y%m%d%H%M%S')}"
+    file_name = f"{datetime.now().strftime('%Y%m%d%H%M%S')}_{file_obj.filename}"
     file_name = sanitize_file_name(file_name)
     print('file_name', file_name)
     ensure_bucket_exists()
