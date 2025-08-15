@@ -1,64 +1,46 @@
-import React from "react";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
+import { AuthProvider, useAuth } from "./hooks/useAuth";
+import HomePage from "pages/HomePage/HomePage";
+import LoginPage from "./pages/LoginPage/LoginPage";
+import RegisterPage from "./pages/RegisterPage/RegisterPage";
+
 import "./App.css";
 
-import { CASE_FORM_ACTION_TYPES } from "./constants";
+// Protected Route Component
+const PrivateRoute = ({ children }: { children }) => {
+  const { token, loading } = useAuth();
 
-import CaseForm from "./components/CaseForm/CaseForm";
+  if (loading) {
+    return <div>Loading...</div>;
+  }
 
-function App() {
-  const [loggedInUser, setLoggedInUser] = React.useState(null);
+  return token ? <>{children}</> : <Navigate to="/login" replace />;
+};
 
-  const [currentPage, setCurrentPage] = React.useState(
-    CASE_FORM_ACTION_TYPES.NEW
-  );
-
+const App = () => {
   return (
-    <div className="App">
-      <div className="header">
-        <img src="/logo_company.jpg" alt="Logo" className="logo" />
-        <h2 className="title">Customer Services</h2>
-        <div className="spacer" />
-      </div>
-      <div className="user-info-banner">
-        Logged in: <strong>{loggedInUser}</strong>
-      </div>
-      <div
-        style={{
-          display: "flex",
-          marginLeft: "40px",
-          gap: "5px",
-          marginBottom: "5px",
-        }}
-      >
-        <div
-          className={`tab ${
-            currentPage === CASE_FORM_ACTION_TYPES.NEW ? "active" : ""
-          }`}
-          onClick={() => {
-            setCurrentPage(CASE_FORM_ACTION_TYPES.NEW);
-          }}
-        >
-          New Case
-        </div>
-        <div
-          className={`tab ${
-            currentPage === CASE_FORM_ACTION_TYPES.EXIST ? "active" : ""
-          }`}
-          onClick={() => {
-            setCurrentPage(CASE_FORM_ACTION_TYPES.EXIST);
-          }}
-        >
-          Exist Case
-        </div>
-      </div>
-      {currentPage === CASE_FORM_ACTION_TYPES.NEW && (
-        <CaseForm actionType={CASE_FORM_ACTION_TYPES.NEW} />
-      )}
-      {currentPage === CASE_FORM_ACTION_TYPES.EXIST && (
-        <CaseForm actionType={CASE_FORM_ACTION_TYPES.EXIST} />
-      )}
-    </div>
+    <AuthProvider>
+      <Router>
+        <Routes>
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
+          <Route
+            path="/"
+            element={
+              <PrivateRoute>
+                <HomePage />
+              </PrivateRoute>
+            }
+          />
+        </Routes>
+      </Router>
+    </AuthProvider>
   );
-}
+};
 
 export default App;

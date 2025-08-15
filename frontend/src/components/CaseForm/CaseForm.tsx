@@ -1,8 +1,8 @@
 import React from "react";
-import axios from "axios";
 import { useForm, FormProvider } from "react-hook-form";
-
 import { Button } from "@mui/material";
+
+import api from "../../api";
 
 import CustomerList from "../CustomerList";
 import OrderHistory from "../OrderHistory";
@@ -60,8 +60,8 @@ const CaseForm = ({ actionType }) => {
 
   // useEffect to get customers
   React.useEffect(() => {
-    axios
-      .get("http://localhost:5001/api/customers")
+    api
+      .get("customers")
       .then((response) => {
         const fetchedCustomers = response.data;
         setCustomers(fetchedCustomers);
@@ -73,8 +73,8 @@ const CaseForm = ({ actionType }) => {
 
   // useEffect for getting cases
   React.useEffect(() => {
-    axios
-      .get("http://localhost:5001/api/cases")
+    api
+      .get("cases")
       .then((response) => {
         const fetchedCases = response.data;
         setCases(fetchedCases);
@@ -94,15 +94,11 @@ const CaseForm = ({ actionType }) => {
     });
 
     try {
-      const response = await axios.post(
-        `http://localhost:5001/api/files/${caseId}`,
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
+      const response = await api.post(`files/${caseId}`, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
     } catch (error) {
       console.error("Error uploading files:", error);
     }
@@ -112,16 +108,13 @@ const CaseForm = ({ actionType }) => {
     try {
       let customerId = null;
       if (!selectedCustomer) {
-        const postCustomerResponse = await axios.post(
-          "http://localhost:5001/api/customers",
-          data
-        );
+        const postCustomerResponse = await api.post("customers", data);
         setCustomers((prev) => [...prev, postCustomerResponse.data.customer]);
         customerId = postCustomerResponse.data.customer.id;
       } else {
         customerId = selectedCustomer.id;
-        const updateCustomerResponse = await axios.put(
-          `http://localhost:5001/api/customers/${customerId}`,
+        const updateCustomerResponse = await api.put(
+          `customers/${customerId}`,
           data
         );
         setCustomers((prev) =>
@@ -133,22 +126,17 @@ const CaseForm = ({ actionType }) => {
         );
       }
 
-      const casePostResponse = await axios.post(
-        "http://localhost:5001/api/cases",
-        {
-          ...data,
-          customer_id: customerId,
-        }
-      );
+      const casePostResponse = await api.post("cases", {
+        ...data,
+        customer_id: customerId,
+      });
 
       const newCase = casePostResponse.data.case;
       if (data.attachments) {
         await uploadAttachmentsToCase(data.attachments, newCase.id);
       }
 
-      const casesGetResponse = await axios.get(
-        "http://localhost:5001/api/cases"
-      );
+      const casesGetResponse = await api.get("cases");
       setCases(casesGetResponse.data);
       methods.reset(defaultValues);
     } catch (error) {
@@ -158,13 +146,8 @@ const CaseForm = ({ actionType }) => {
 
   const onFormUpdate = async (data: any) => {
     try {
-      await axios.put(
-        `http://localhost:5001/api/cases/${selectedCase.id}`,
-        data
-      );
-      const casesGetResponse = await axios.get(
-        "http://localhost:5001/api/cases"
-      );
+      await api.put(`cases/${selectedCase.id}`, data);
+      const casesGetResponse = await api.get("cases");
       setCases(casesGetResponse.data);
       methods.reset(defaultValues);
     } catch (error) {

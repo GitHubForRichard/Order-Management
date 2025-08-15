@@ -10,6 +10,7 @@ import {
   TableHead,
   TableRow,
 } from "@mui/material";
+import api from "../api";
 
 const ShipStationTracks = ({ trackingNumber }) => {
   const [shipStationTracks, setShipStationTracks] = React.useState<any[]>([]);
@@ -19,9 +20,7 @@ const ShipStationTracks = ({ trackingNumber }) => {
       // Fetch ShipStation tracking information
       const fetchTrackingInfo = async () => {
         try {
-          const response = await axios.get(
-            `http://localhost:5001/api/shipstation/${trackingNumber}`
-          );
+          const response = await api.get(`shipstation/${trackingNumber}`);
           setShipStationTracks(response.data.shipments || []);
         } catch (error) {
           console.error("Error fetching ShipStation tracking info:", error);
