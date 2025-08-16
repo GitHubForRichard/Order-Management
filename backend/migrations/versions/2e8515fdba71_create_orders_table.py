@@ -40,6 +40,8 @@ def upgrade():
                     sa.Column('return_status', sa.String(
                         length=50), nullable=True),
                     sa.Column('created_at', sa.DateTime(), nullable=False),
+                    sa.Column('created_by', sa.UUID(), sa.ForeignKey(
+                        'users.id'), nullable=False),
                     sa.Column('updated_at', sa.DateTime(), nullable=True),
                     sa.PrimaryKeyConstraint('id')
                     )

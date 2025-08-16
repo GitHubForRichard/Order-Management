@@ -28,7 +28,14 @@ const CaseList = ({ cases, onRowDoubleClicked }) => {
       sortable: false,
       width: 160,
     },
-    { field: "loggedInUser", headerName: "Recorded By", width: 130 },
+    {
+      field: "created_by",
+      headerName: "Recorded By",
+      width: 130,
+      valueGetter: (_, row) =>
+        row.created_by &&
+        `${row.created_by.first_name || ""} ${row.created_by.last_name || ""}`,
+    },
     {
       field: "created_at",
       headerName: "Created Date",
