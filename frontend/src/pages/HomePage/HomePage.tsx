@@ -4,6 +4,7 @@ import { CASE_FORM_ACTION_TYPES } from "../../constants";
 
 import CaseForm from "components/CaseForm/CaseForm";
 import { useAuth } from "../../hooks/useAuth";
+import "./HomePage.css";
 
 function HomePage() {
   const { user, setAuth } = useAuth();

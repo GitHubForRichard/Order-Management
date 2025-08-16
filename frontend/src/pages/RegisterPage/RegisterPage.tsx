@@ -73,7 +73,7 @@ const RegisterPage = () => {
         <p style={{ marginTop: "12px", fontSize: "0.9rem" }}>
           Already have an account?{" "}
           <span
-            style={{ color: "#007bff", cursor: "pointer" }}
+            style={{ color: "#f0f2f5ff", cursor: "pointer" }}
             onClick={() => navigate("/login")}
           >
             Login
