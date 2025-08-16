@@ -28,12 +28,17 @@ migrate = Migrate(app, db)
 @jwt_required
 def get_cases():
     """Get all cases"""
-    cases = db.session.query(Case, Customer).join(
-        Customer, Case.customer_id == Customer.id).all()
+    cases = (
+        db.session.query(Case, Customer, User)
+        .join(Customer, Case.customer_id == Customer.id)
+        .join(User, Case.created_by == User.id)
+        .all()
+    )
     result = []
-    for case, customer in cases:
+    for case, customer, user in cases:
         case_dict = case.to_dict()
         case_dict['customer'] = customer.to_dict()
+        case_dict['created_by'] = user.to_dict()
         result.append(case_dict)
     return jsonify(result)
 
@@ -43,6 +48,7 @@ def get_cases():
 def create_case():
     """Create a new case"""
     data = request.get_json()
+    user = request.user
 
     try:
         # Create a new Case instance
@@ -60,6 +66,7 @@ def create_case():
             action=data.get('action'),
             tracking=data.get('tracking'),
             return_status=data.get('return_status'),
+            created_by=user.id,
             created_at=datetime.now(timezone.utc)
         )
 
@@ -101,8 +108,19 @@ def update_case(case_id):
 @jwt_required
 def get_customers():
     """Get all customers"""
-    customers = Customer.query.all()
-    return jsonify([customer.to_dict() for customer in customers])
+    customers = (
+        db.session.query(Customer, User)
+        .join(User, Customer.created_by == User.id)
+        .all()
+    )
+
+    result = []
+    for customer, user in customers:
+        customer_dict = customer.to_dict()
+        customer_dict['created_by'] = user.to_dict()
+        result.append(customer_dict)
+
+    return jsonify(result)
 
 
 @app.route('/api/customers', methods=['POST'])
@@ -110,6 +128,7 @@ def get_customers():
 def create_customer():
     """Create a new customer"""
     data = request.get_json()
+    user = request.user
 
     try:
         # Create a new Customer instance
@@ -125,6 +144,7 @@ def create_customer():
             zip_code=data.get('zip_code'),
             state=data.get('state'),
             country=data.get('country'),
+            created_by=user.id,
             created_at=datetime.now(timezone.utc)
         )
 

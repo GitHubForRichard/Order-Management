@@ -29,6 +29,8 @@ class Customer(db.Model):
     state = Column(String(100), nullable=True)
     zip_code = Column(String(20), nullable=True)
     country = Column(String(100), nullable=True)
+    created_by = Column(UUID(as_uuid=True), ForeignKey(
+        'users.id'), nullable=False)
     created_at = Column(DateTime, nullable=False,
                         default=lambda: datetime.now(timezone.utc))
     updated_at = Column(DateTime, nullable=True)
@@ -49,6 +51,7 @@ class Customer(db.Model):
             'state': self.state,
             'zip_code': self.zip_code,
             'country': self.country,
+            'created_by': str(self.created_by) if self.created_by else None,
             'created_at': self.created_at.isoformat() if self.created_at else None,
             'updated_at': self.updated_at.isoformat() if self.updated_at else None
         }
@@ -71,6 +74,8 @@ class Case(db.Model):
     action = Column(Text, nullable=True)
     tracking = Column(String(100), nullable=True)
     return_status = Column(String(50), nullable=True)
+    created_by = Column(UUID(as_uuid=True), ForeignKey(
+        'users.id'), nullable=False)
     created_at = Column(DateTime, nullable=False,
                         default=lambda: datetime.now(timezone.utc))
     updated_at = Column(DateTime, nullable=True)
@@ -93,6 +98,7 @@ class Case(db.Model):
             'action': self.action,
             'tracking': self.tracking,
             'return_status': self.return_status,
+            'created_by': str(self.created_by) if self.created_by else None,
             'created_at': self.created_at.isoformat() if self.created_at else None,
             'updated_at': self.updated_at.isoformat() if self.updated_at else None
         }
