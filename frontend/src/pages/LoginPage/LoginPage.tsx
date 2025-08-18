@@ -51,10 +51,10 @@ const LoginPage = () => {
             Login
           </button>
         </form>
-        <p style={{ marginTop: "12px", fontSize: "0.9rem" }}>
+        <p style={{ marginTop: "30px", fontSize: "0.9rem" }}>
           Don't have an account?{" "}
           <span
-            style={{ color: "#f0f3f7ff", cursor: "pointer" }}
+            style={{ color: "#0c3f81ff", cursor: "pointer" }}
             onClick={() => navigate("/register")}
           >
             Register

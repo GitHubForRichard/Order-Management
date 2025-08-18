@@ -1,6 +1,6 @@
 body {
   font-family: Arial, sans-serif;
-  background: linear-gradient(135deg, #007bff, #00c6ff);
+  background: linear-gradient(135deg, #fbc2eb, #a6c1ee);
   margin: 0;
 }
 
@@ -12,32 +12,33 @@ body {
 }
 
 .login-card {
-  background: rgb(247, 244, 244);
+  background: rgba(255, 255, 255, 0.95);
   padding: 40px;
   border-radius: 12px;
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
   width: 320px;
   text-align: center;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* centers logo and everything inside */
 }
 
-.login-logo {
-  height: 70px;
-  margin-bottom: 20px;
-}
 
 .login-title {
   margin-bottom: 20px;
-  color: #333;
+  color: #0f0f0f;
   font-size: 1.6rem;
 }
 
 .login-card input {
   width: 100%;
-  padding: 10px;
+  padding: 10px 14px; /* top/bottom = 10px, left/right = 14px */
   margin: 8px 0;
   border: 1px solid #ddd;
   border-radius: 6px;
   font-size: 14px;
+  box-sizing: border-box; /* ensures padding doesn’t break width */
 }
 
 .login-btn {
@@ -50,14 +51,15 @@ body {
   font-size: 15px;
   cursor: pointer;
   transition: background 0.3s;
+  margin-top: 18px; /* ✅ space from inputs */
 }
 
 .login-btn:hover {
   background: #0056b3;
 }
 .logo {
-  width: 150px;
+  width: 250px;
   height: auto;
   display: block;
-  margin: 0 auto 16px;
+  margin: 0 auto 0px;
 }

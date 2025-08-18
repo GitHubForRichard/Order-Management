@@ -35,7 +35,7 @@ const RegisterPage = () => {
   return (
     <div className="login-container">
       <div className="login-card">
-        <img src="/logo.png" alt="Logo" className="login-logo" />
+        <img src="/logo_company.jpg" alt="Logo" className="logo" />
         <h2 className="login-title">Register</h2>
         <form onSubmit={handleSubmit}>
           <input
@@ -70,10 +70,10 @@ const RegisterPage = () => {
             Register
           </button>
         </form>
-        <p style={{ marginTop: "12px", fontSize: "0.9rem" }}>
+        <p style={{ marginTop: "30px", fontSize: "0.9rem" }}>
           Already have an account?{" "}
           <span
-            style={{ color: "#f0f2f5ff", cursor: "pointer" }}
+            style={{ color: "#082f69ff", cursor: "pointer" }}
             onClick={() => navigate("/login")}
           >
             Login
