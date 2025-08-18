@@ -91,7 +91,7 @@ const NewCaseForm = () => {
     });
 
     try {
-      const response = await api.post(`files/${caseId}`, formData, {
+      await api.post(`files/${caseId}`, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
