@@ -14,7 +14,7 @@ import {
   CASE_FORM_ACTION_TYPES,
   PHONE_COUNTRY_CODES,
 } from "../../../constants";
-import { defaultValues } from "../CaseForm";
+import { defaultValues } from "../NewCaseForm";
 
 const CustomerInfo = ({
   caseFormActionType,
@@ -50,18 +50,24 @@ const CustomerInfo = ({
         </Typography>
       )}
 
-      <Typography variant="h5" gutterBottom sx={{ mb: 3, 
-        color: "#3d79bdff",       // modern blue color (Material UI primary)
-        fontWeight: 500,         // medium weight
-        letterSpacing: "0.5px",  // subtle spacing
-        textTransform: "capitalize", // optional, modern look
-        borderBottom: "1px solid #31609eff",
-        display: "inline-block", // makes the line match text width
-        fontStyle: "normal",}}>
+      <Typography
+        variant="h5"
+        gutterBottom
+        sx={{
+          mb: 3,
+          color: "#3d79bdff", // modern blue color (Material UI primary)
+          fontWeight: 500, // medium weight
+          letterSpacing: "0.5px", // subtle spacing
+          textTransform: "capitalize", // optional, modern look
+          borderBottom: "1px solid #31609eff",
+          display: "inline-block", // makes the line match text width
+          fontStyle: "normal",
+        }}
+      >
         Customer Info
       </Typography>
-      
-      <Stack direction="row" spacing={2} >
+
+      <Stack direction="row" spacing={2}>
         <Controller
           name="first_name"
           control={control}
@@ -75,7 +81,7 @@ const CustomerInfo = ({
               error={!!errors.first_name}
               size="small"
               margin="normal"
-              sx={{ width: '260px' }}
+              sx={{ width: "260px" }}
             />
           )}
         />
@@ -88,7 +94,7 @@ const CustomerInfo = ({
               label="MID"
               variant="outlined"
               margin="normal"
-              sx={{ width: '100px' }}
+              sx={{ width: "100px" }}
               size="small"
             />
           )}
@@ -111,26 +117,35 @@ const CustomerInfo = ({
             />
           )}
         />
-
       </Stack>
-      <Stack direction="row" spacing={2} flexWrap="wrap" mt={3} mb={4} >
+      <Stack direction="row" spacing={2} flexWrap="wrap" mt={3} mb={4}>
         <Controller
           name="phone_code"
           control={control}
           rules={{ required: "Phone code is required" }}
           render={({ field, fieldState }) => (
-            <FormControl required margin="normal" size="small" sx={{ width: '70px' }} >
-              <InputLabel id="phone-code-label" sx={{ fontSize: '0.6rem' }}>Code</InputLabel>
+            <FormControl
+              required
+              margin="normal"
+              size="small"
+              sx={{ width: "70px" }}
+            >
+              <InputLabel id="phone-code-label" sx={{ fontSize: "0.6rem" }}>
+                Code
+              </InputLabel>
               <Select
                 {...field}
                 labelId="phone-code-label"
                 label="Phone Code"
                 error={!!fieldState.error}
                 renderValue={(selected) => selected} // only show the code
-
               >
                 {PHONE_COUNTRY_CODES.map((s) => (
-                  <MenuItem key={s.code} value={s.code} sx={{ fontSize: "0.8rem" }} >
+                  <MenuItem
+                    key={s.code}
+                    value={s.code}
+                    sx={{ fontSize: "0.8rem" }}
+                  >
                     {s.code} {s.name}
                   </MenuItem>
                 ))}
@@ -155,8 +170,7 @@ const CustomerInfo = ({
             />
           )}
         />
-      
-      
+
         <Controller
           name="email"
           control={control}
@@ -176,7 +190,7 @@ const CustomerInfo = ({
               error={!!errors.email}
               margin="normal"
               size="small"
-              sx={{ flex: 1 }} 
+              sx={{ flex: 1 }}
             />
           )}
         />

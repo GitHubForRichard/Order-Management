@@ -7,7 +7,6 @@ import api from "../../api";
 import CustomerList from "../CustomerList";
 import OrderHistory from "../OrderHistory";
 import ProductDetail from "../ProductDetail";
-import ShipStationTracks from "../ShipStationTracks";
 import CustomerInfo from "./components/CustomerInfo";
 import AddressInfo from "./components/AddressInfo";
 import OrderInfo from "./components/OrderInfo";
@@ -17,7 +16,6 @@ import CaseDetail from "./components/CaseDetail";
 import { CASE_FORM_ACTION_TYPES } from "../../constants";
 
 import { Customer } from "@/types/customer";
-import CaseList from "../CaseList";
 import Attachments from "./Attachments";
 
 export const defaultValues = {
@@ -47,13 +45,12 @@ export const defaultValues = {
   attachments: [],
 };
 
-const CaseForm = ({ actionType }) => {
+const NewCaseForm = () => {
   const methods = useForm({
     defaultValues,
   });
 
   const [cases, setCases] = React.useState<any[]>([]);
-  const [selectedCase, setSelectedCase] = React.useState<any | null>(null);
   const [customers, setCustomers] = React.useState<Customer[]>([]);
   const [selectedCustomer, setSelectedCustomer] =
     React.useState<Customer | null>(null);
@@ -144,36 +141,6 @@ const CaseForm = ({ actionType }) => {
     }
   };
 
-  const onFormUpdate = async (data: any) => {
-    try {
-      await api.put(`cases/${selectedCase.id}`, data);
-      const casesGetResponse = await api.get("cases");
-      setCases(casesGetResponse.data);
-      methods.reset(defaultValues);
-    } catch (error) {
-      console.error("There was an error updating the case!", error);
-    }
-  };
-
-  const handleCaseRowSelect = (row) => {
-    setSelectedCase(row);
-    console.log("row", row);
-    methods.reset({
-      ...row,
-      first_name: row.customer.first_name,
-      last_name: row.customer.last_name,
-      mid: row.customer.mid,
-      phone_code: row.customer.phone_code,
-      phone_number: row.customer.phone_number,
-      email: row.customer.email,
-      street: row.customer.street,
-      city: row.customer.city,
-      zip_code: row.customer.zip_code,
-      state: row.customer.state,
-      country: row.customer.country,
-    });
-  };
-
   const handleCustomerRowSelect = (row) => {
     setSelectedCustomer(row);
     methods.reset({
@@ -193,22 +160,13 @@ const CaseForm = ({ actionType }) => {
 
   return (
     <FormProvider {...methods}>
-      <form
-        onSubmit={methods.handleSubmit(
-          actionType === CASE_FORM_ACTION_TYPES.NEW
-            ? onFormCreate
-            : onFormUpdate
-        )}
-      >
-        {actionType === CASE_FORM_ACTION_TYPES.EXIST && (
-          <CaseList cases={cases} onRowDoubleClicked={handleCaseRowSelect} />
-        )}
+      <form onSubmit={methods.handleSubmit(onFormCreate)}>
         <div className="form-container">
           <div className="form-left">
             <div className="form-row">
               <div className="form-section-card half-width">
                 <CustomerInfo
-                  caseFormActionType={actionType}
+                  caseFormActionType={CASE_FORM_ACTION_TYPES.NEW}
                   selectedCustomer={selectedCustomer}
                   setSelectedCustomer={setSelectedCustomer}
                 />
@@ -216,28 +174,22 @@ const CaseForm = ({ actionType }) => {
               </div>
 
               <div className="form-section-card half-width">
-                <OrderInfo caseFormActionType={actionType} />
+                <OrderInfo caseFormActionType={CASE_FORM_ACTION_TYPES.NEW} />
                 <ExtraInfo />
               </div>
             </div>
             <div className="form-container">
               <div className="form-left search-case">
-                {actionType === CASE_FORM_ACTION_TYPES.NEW ? (
-                  <CustomerList
-                    customers={customers}
-                    onRowDoubleClicked={handleCustomerRowSelect}
-                  />
-                ) : (
-                  <ShipStationTracks trackingNumber={selectedCase?.tracking} />
-                )}
+                <CustomerList
+                  customers={customers}
+                  onRowDoubleClicked={handleCustomerRowSelect}
+                />
               </div>
               <div className="form-left ship-product">
-                {actionType === CASE_FORM_ACTION_TYPES.NEW && (
-                  <OrderHistory
-                    cases={cases}
-                    customer_id={selectedCustomer?.id}
-                  />
-                )}
+                <OrderHistory
+                  cases={cases}
+                  customer_id={selectedCustomer?.id}
+                />
                 <ProductDetail />
               </div>
             </div>
@@ -250,15 +202,13 @@ const CaseForm = ({ actionType }) => {
 
               <div className="action-buttons">
                 <Button type="submit" variant="contained">
-                  {actionType === CASE_FORM_ACTION_TYPES.NEW
-                    ? "Create New"
-                    : "Update"}
+                  Create New
                 </Button>
               </div>
             </div>
             <Attachments
-              caseFormActionType={actionType}
-              selectedCase={selectedCase}
+              caseFormActionType={CASE_FORM_ACTION_TYPES.NEW}
+              selectedCase={null}
             />
           </div>
         </div>
@@ -267,4 +217,4 @@ const CaseForm = ({ actionType }) => {
   );
 };
 
-export default CaseForm;
+export default NewCaseForm;
