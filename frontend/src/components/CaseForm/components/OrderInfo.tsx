@@ -73,8 +73,8 @@ const CaseInfo = ({ caseFormActionType }) => {
                 <MenuItem value="">
                   <em>None</em>
                 </MenuItem>
-                <MenuItem value="Amazon">Amazon US</MenuItem>
-                <MenuItem value="Amazon">Amazon CA</MenuItem>
+                <MenuItem value="Amazon US">Amazon US</MenuItem>
+                <MenuItem value="Amazon CA">Amazon CA</MenuItem>
                 <MenuItem value="eBay">eBay</MenuItem>
                 <MenuItem value="Shopify">Shopify</MenuItem>
                 <MenuItem value="Home Depot">Home Depot</MenuItem>
@@ -82,7 +82,7 @@ const CaseInfo = ({ caseFormActionType }) => {
                 <MenuItem value="Craiglist">Craiglist</MenuItem>
                 <MenuItem value="Shein">Shein</MenuItem>
                 <MenuItem value="TikTok">TikTok</MenuItem>
-                <MenuItem value="WooCommerce">TikTok</MenuItem>
+                <MenuItem value="WooCommerce">WooCommerce</MenuItem>
 
               </Select>
             )}

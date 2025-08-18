@@ -1,63 +1,42 @@
-body {
-  font-family: Arial, sans-serif;
-  background: linear-gradient(135deg, #007bff, #00c6ff);
-  margin: 0;
-}
-
-.login-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-}
-
-.login-card {
-  background: rgb(247, 244, 244);
-  padding: 40px;
-  border-radius: 12px;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-  width: 320px;
-  text-align: center;
-}
-
-.login-logo {
-  height: 70px;
-  margin-bottom: 20px;
-}
-
-.login-title {
-  margin-bottom: 20px;
-  color: #333;
-  font-size: 1.6rem;
-}
-
-.login-card input {
-  width: 100%;
-  padding: 10px;
-  margin: 8px 0;
-  border: 1px solid #ddd;
-  border-radius: 6px;
-  font-size: 14px;
-}
-
-.login-btn {
-  width: 100%;
-  padding: 10px;
-  background: #5a5ab6;
-  border: none;
-  border-radius: 6px;
-  color: white;
-  font-size: 15px;
-  cursor: pointer;
-  transition: background 0.3s;
-}
-
-.login-btn:hover {
-  background: #0056b3;
-}
 .logo {
   width: 150px;
   height: auto;
   display: block;
   margin: 0 auto 16px;
+  border: none;      /* remove any border */
+  background: none;  /* ensure no background */
+  outline: none;
+}
+.title {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%); /* true center */
+  margin: 0;
+  font-family: 'Baloo 2', 'Comic Neue', cursive;
+  font-size: 3.6rem;
+  font-weight: 700;
+  color: #f8f9fa;
+  background: linear-gradient(90deg, #a969dd, #ff7eb3); /* warm gradient text */
+  -webkit-text-fill-color: transparent;
+}
+.App {
+  min-height: 100vh;
+  background-color: #f8f9fa; /* light background */
+  display: flex;
+  flex-direction: column;
+}
+
+.form-section-card {
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  margin-bottom: 20px;
+}
+.header {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center; /* centers the title */
+  padding: 10px 20px;
 }
