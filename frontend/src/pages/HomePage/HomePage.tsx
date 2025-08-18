@@ -2,8 +2,10 @@ import React from "react";
 
 import { CASE_FORM_ACTION_TYPES } from "../../constants";
 
-import CaseForm from "components/CaseForm/CaseForm";
-import { useAuth } from "../../hooks/useAuth";
+import NewCaseForm from "components/CaseForm/NewCaseForm";
+import ExistCaseForm from "components/CaseForm/ExistCaseForm";
+
+import { useAuth } from "hooks/useAuth";
 import "./HomePage.css";
 
 function HomePage() {
@@ -62,12 +64,8 @@ function HomePage() {
             Exist Case
           </div>
         </div>
-        {currentPage === CASE_FORM_ACTION_TYPES.NEW && (
-          <CaseForm actionType={CASE_FORM_ACTION_TYPES.NEW} />
-        )}
-        {currentPage === CASE_FORM_ACTION_TYPES.EXIST && (
-          <CaseForm actionType={CASE_FORM_ACTION_TYPES.EXIST} />
-        )}
+        {currentPage === CASE_FORM_ACTION_TYPES.NEW && <NewCaseForm />}
+        {currentPage === CASE_FORM_ACTION_TYPES.EXIST && <ExistCaseForm />}
       </>
     </div>
   );
