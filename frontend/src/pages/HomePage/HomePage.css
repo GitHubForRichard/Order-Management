@@ -1,5 +1,5 @@
 .logo {
-  width: 150px;
+  width: 250px;
   height: auto;
   display: block;
   margin: 0 auto 16px;
@@ -16,7 +16,7 @@
   font-size: 3.6rem;
   font-weight: 700;
   color: #f8f9fa;
-  background: linear-gradient(90deg, #a969dd, #ff7eb3); /* warm gradient text */
+  background: linear-gradient(90deg, #671fb9, #ff7eb3); /* warm gradient text */
   -webkit-text-fill-color: transparent;
 }
 .App {

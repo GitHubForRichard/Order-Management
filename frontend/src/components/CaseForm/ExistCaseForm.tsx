@@ -94,7 +94,10 @@ const ExistCaseForm = () => {
                 <ShipStationTracks trackingNumber={selectedCase?.tracking} />
               </div>
               <div className="form-left ship-product">
-                <ProductDetail />
+                <Attachments
+                caseFormActionType={CASE_FORM_ACTION_TYPES.EXIST}
+                selectedCase={selectedCase}
+                />
               </div>
             </div>
           </div>
@@ -110,10 +113,7 @@ const ExistCaseForm = () => {
                 </Button>
               </div>
             </div>
-            <Attachments
-              caseFormActionType={CASE_FORM_ACTION_TYPES.EXIST}
-              selectedCase={selectedCase}
-            />
+
           </div>
         </div>
       </form>

@@ -5,18 +5,18 @@ const OrderHistory = ({ cases, customer_id }) => {
     {
       field: "sales_order",
       headerName: "Sales Order",
-      width: 160,
+      width: 250,
     },
     {
       field: "model_number",
       headerName: "Model Number",
-      width: 160,
+      width: 460,
     },
     {
       field: "date",
       headerName: "Case Date",
       sortable: false,
-      width: 160,
+      width: 200,
       valueGetter: (_, row) => `${new Date(row.date).toLocaleDateString()}`,
     },
   ];

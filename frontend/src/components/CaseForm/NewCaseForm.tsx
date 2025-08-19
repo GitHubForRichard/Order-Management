@@ -35,7 +35,7 @@ export const defaultValues = {
   state: "",
   country: "",
   assign: "",
-  status: "Pending",
+  status: "",
   serial: "",
   solution: "",
   action: "",
