@@ -13,6 +13,11 @@ const OrderHistory = ({ cases, customer_id }) => {
       width: 460,
     },
     {
+      field: "quantity",
+      headerName: "Quantity",
+      width: 460,
+    },
+    {
       field: "date",
       headerName: "Case Date",
       sortable: false,

@@ -5,6 +5,7 @@ const ProductDetail = () => {
 
   const productDetail = {
     description: "",
+    inventory_available: "",
   };
 
   return (
@@ -23,6 +24,7 @@ const ProductDetail = () => {
         <div className="product-detail-content">
           <div className="product-description">
             <p>{productDetail.description}</p>
+            <p>{productDetail.inventory_available}</p>
           </div>
         </div>
       ) : (
