@@ -13,25 +13,31 @@ const CaseList = ({ cases, onRowDoubleClicked }) => {
       field: "case_number",
       headerName: "Case Number",
       sortable: false,
-      width: 150,
+      width: 120,
     },
     {
       field: "sales_order",
       headerName: "Sales Order",
       sortable: false,
-      width: 150,
+      width: 120,
     },
-    { field: "issues", headerName: "Issues", width: 600 },
+    { field: "issues", headerName: "Issues", width: 520 },
     {
       field: "status",
       headerName: "Status",
+      sortable: false,
+      width: 180,
+    },
+    {
+      field: "assign_to",
+      headerName: "Assign to",
       sortable: false,
       width: 160,
     },
     {
       field: "created_by",
       headerName: "Recorded By",
-      width: 170,
+      width: 160,
       valueGetter: (_, row) =>
         row.created_by &&
         `${row.created_by.first_name || ""} ${row.created_by.last_name || ""}`,
@@ -39,7 +45,7 @@ const CaseList = ({ cases, onRowDoubleClicked }) => {
     {
       field: "created_at",
       headerName: "Created Date",
-      width: 170,
+      width: 160,
       valueGetter: (_, row) =>
         row.created_at &&
         `${new Date(row.created_at).toLocaleDateString()} ${new Date(
@@ -49,7 +55,7 @@ const CaseList = ({ cases, onRowDoubleClicked }) => {
     {
       field: "updated_at",
       headerName: "Last Updated",
-      width: 170,
+      width: 160,
       valueGetter: (_, row) =>
         row.updated_at &&
         `${new Date(row.updated_at).toLocaleDateString()} ${new Date(
