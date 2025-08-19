@@ -20,6 +20,7 @@ const CustomerInfo = ({
   caseFormActionType,
   selectedCustomer,
   setSelectedCustomer,
+  disabled = false,
 }) => {
   const {
     control,
@@ -69,6 +70,7 @@ const CustomerInfo = ({
 
       <Stack direction="row" spacing={2}>
         <Controller
+          disabled={disabled}
           name="first_name"
           control={control}
           rules={{ required: "First name is required" }}
@@ -86,6 +88,7 @@ const CustomerInfo = ({
           )}
         />
         <Controller
+          disabled={disabled}
           name="mid"
           control={control}
           render={({ field }) => (
@@ -101,6 +104,7 @@ const CustomerInfo = ({
         />
 
         <Controller
+          disabled={disabled}
           name="last_name"
           control={control}
           rules={{ required: "Last name is required" }}
@@ -120,6 +124,7 @@ const CustomerInfo = ({
       </Stack>
       <Stack direction="row" spacing={2} flexWrap="wrap" mt={3} mb={4}>
         <Controller
+          disabled={disabled}
           name="phone_code"
           control={control}
           rules={{ required: "Phone code is required" }}
@@ -155,6 +160,7 @@ const CustomerInfo = ({
         />
 
         <Controller
+          disabled={disabled}
           name="phone_number"
           control={control}
           rules={{ required: "Phone number is required" }}
@@ -172,6 +178,7 @@ const CustomerInfo = ({
         />
 
         <Controller
+          disabled={disabled}
           name="email"
           control={control}
           rules={{

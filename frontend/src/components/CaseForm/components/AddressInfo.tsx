@@ -11,27 +11,34 @@ import {
 
 import { CANADA_PROVINCES, COUNTRIES, US_STATES } from "../../../constants";
 
-const AddressInfo = () => {
+const AddressInfo = ({ disabled = false }) => {
   const { control, watch } = useFormContext();
 
   const country = watch("country");
 
   return (
     <div>
-      <Typography variant="h5" gutterBottom sx={{ mb: 3, 
-        color: "#3d79bdff",       // modern blue color (Material UI primary)
-        fontWeight: 500,         // medium weight
-        letterSpacing: "0.5px",  // subtle spacing
-        textTransform: "capitalize", // optional, modern look
-        borderBottom: "1px solid #31609eff",
-        display: "inline-block", // makes the line match text width
-        fontStyle: "normal",}}>
+      <Typography
+        variant="h5"
+        gutterBottom
+        sx={{
+          mb: 3,
+          color: "#3d79bdff", // modern blue color (Material UI primary)
+          fontWeight: 500, // medium weight
+          letterSpacing: "0.5px", // subtle spacing
+          textTransform: "capitalize", // optional, modern look
+          borderBottom: "1px solid #31609eff",
+          display: "inline-block", // makes the line match text width
+          fontStyle: "normal",
+        }}
+      >
         Address Info
       </Typography>
 
-      <Stack direction="row" spacing={2} >
+      <Stack direction="row" spacing={2}>
         {/* Street */}
         <Controller
+          disabled={disabled}
           name="street"
           control={control}
           rules={{ required: "Street is required" }}
@@ -45,13 +52,14 @@ const AddressInfo = () => {
               helperText={fieldState.error ? fieldState.error.message : null}
               margin="normal"
               size="small"
-              sx={{ width: '400px' }}
+              sx={{ width: "400px" }}
             />
           )}
         />
 
         {/* City */}
         <Controller
+          disabled={disabled}
           name="city"
           control={control}
           rules={{ required: "City is required" }}
@@ -70,12 +78,18 @@ const AddressInfo = () => {
           )}
         />
       </Stack>
-        
+
       <Stack direction="row" spacing={2} flexWrap="wrap" mt={3} mb={4}>
         {/* Country */}
-        <FormControl required margin="normal" size="small" sx={{ width: '200px' }}>
+        <FormControl
+          required
+          margin="normal"
+          size="small"
+          sx={{ width: "200px" }}
+        >
           <InputLabel id="country-label">Country</InputLabel>
           <Controller
+            disabled={disabled}
             name="country"
             control={control}
             rules={{ required: "Country is required" }}
@@ -99,9 +113,15 @@ const AddressInfo = () => {
 
         {/* State / Province */}
         {country === "USA" || country === "Canada" ? (
-          <FormControl required margin="normal" size="small" sx={{ width: '250px' }}>
+          <FormControl
+            required
+            margin="normal"
+            size="small"
+            sx={{ width: "250px" }}
+          >
             <InputLabel id="state-label">State / Province</InputLabel>
             <Controller
+              disabled={disabled}
               name="state"
               control={control}
               rules={{ required: "State/Province is required" }}
@@ -113,17 +133,20 @@ const AddressInfo = () => {
                   label="State / Province"
                   error={!!fieldState.error}
                 >
-                  {(country === "USA" ? US_STATES : CANADA_PROVINCES).map((s) => (
-                    <MenuItem key={s.abbreviation} value={s.abbreviation}>
-                      {s.name}
-                    </MenuItem>
-                  ))}
+                  {(country === "USA" ? US_STATES : CANADA_PROVINCES).map(
+                    (s) => (
+                      <MenuItem key={s.abbreviation} value={s.abbreviation}>
+                        {s.name}
+                      </MenuItem>
+                    )
+                  )}
                 </Select>
               )}
             />
           </FormControl>
         ) : (
           <Controller
+            disabled={disabled}
             name="state"
             control={control}
             rules={{ required: "State/Province is required" }}
@@ -138,32 +161,31 @@ const AddressInfo = () => {
                 helperText={fieldState.error ? fieldState.error.message : null}
                 margin="normal"
                 size="small"
-                sx={{ width: '250px' }}
+                sx={{ width: "250px" }}
               />
             )}
           />
         )}
-          {/* Zip Code */}
-          <Controller
-            name="zip_code"
-            control={control}
-            rules={{ required: "Zip Code is required" }}
-            render={({ field, fieldState }) => (
-              <TextField
-                {...field}
-                label="Zip Code"
-                variant="outlined"
-                required
-                error={!!fieldState.error}
-                helperText={fieldState.error ? fieldState.error.message : null}
-                margin="normal"
-                sx={{ flex: 1 }} 
-                size="small"
-              />
-            )}
-          />
-        
-      
+        {/* Zip Code */}
+        <Controller
+          disabled={disabled}
+          name="zip_code"
+          control={control}
+          rules={{ required: "Zip Code is required" }}
+          render={({ field, fieldState }) => (
+            <TextField
+              {...field}
+              label="Zip Code"
+              variant="outlined"
+              required
+              error={!!fieldState.error}
+              helperText={fieldState.error ? fieldState.error.message : null}
+              margin="normal"
+              sx={{ flex: 1 }}
+              size="small"
+            />
+          )}
+        />
       </Stack>
     </div>
   );

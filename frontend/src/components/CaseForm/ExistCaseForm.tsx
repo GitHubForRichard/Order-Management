@@ -80,13 +80,17 @@ const ExistCaseForm = () => {
                   caseFormActionType={CASE_FORM_ACTION_TYPES.EXIST}
                   selectedCustomer={null}
                   setSelectedCustomer={() => {}}
+                  disabled={!selectedCase}
                 />
-                <AddressInfo />
+                <AddressInfo disabled={!selectedCase} />
               </div>
 
               <div className="form-section-card half-width">
-                <OrderInfo caseFormActionType={CASE_FORM_ACTION_TYPES.EXIST} />
-                <ExtraInfo />
+                <OrderInfo
+                  caseFormActionType={CASE_FORM_ACTION_TYPES.EXIST}
+                  disabled={!selectedCase}
+                />
+                <ExtraInfo disabled={!selectedCase} />
               </div>
             </div>
             <div className="form-container">

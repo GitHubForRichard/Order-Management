@@ -26,24 +26,31 @@ const ASSIGNEES = [
   "Alexandra Geronimo",
 ];
 
-const CaseInfo = ({ caseFormActionType }) => {
+const CaseInfo = ({ caseFormActionType, disabled = false }) => {
   const { control } = useFormContext();
 
   return (
     <div>
-      <Typography variant="h5" gutterBottom sx={{ mb: 3, 
-        color: "#3d79bdff",       // modern blue color (Material UI primary)
-        fontWeight: 500,         // medium weight
-        letterSpacing: "0.5px",  // subtle spacing
-        textTransform: "capitalize", // optional, modern look
-        borderBottom: "1px solid #31609eff",
-        display: "inline-block", // makes the line match text width
-        fontStyle: "normal",}}>
+      <Typography
+        variant="h5"
+        gutterBottom
+        sx={{
+          mb: 3,
+          color: "#3d79bdff", // modern blue color (Material UI primary)
+          fontWeight: 500, // medium weight
+          letterSpacing: "0.5px", // subtle spacing
+          textTransform: "capitalize", // optional, modern look
+          borderBottom: "1px solid #31609eff",
+          display: "inline-block", // makes the line match text width
+          fontStyle: "normal",
+        }}
+      >
         Order Info
       </Typography>
-      
-      <Stack direction="row" spacing={2} >
+
+      <Stack direction="row" spacing={2}>
         <Controller
+          disabled={disabled}
           name="sales_order"
           control={control}
           render={({ field }) => (
@@ -53,14 +60,15 @@ const CaseInfo = ({ caseFormActionType }) => {
               variant="outlined"
               margin="normal"
               size="small"
-              sx={{ width: '250px' }}
+              sx={{ width: "250px" }}
             />
           )}
         />
 
-        <FormControl margin="normal" size= "small" sx={{ flex: 1 }} >
+        <FormControl margin="normal" size="small" sx={{ flex: 1 }}>
           <InputLabel id="status-label">Market Place</InputLabel>
           <Controller
+            disabled={disabled}
             name="Market Place"
             control={control}
             render={({ field }) => (
@@ -83,16 +91,16 @@ const CaseInfo = ({ caseFormActionType }) => {
                 <MenuItem value="Shein">Shein</MenuItem>
                 <MenuItem value="TikTok">TikTok</MenuItem>
                 <MenuItem value="WooCommerce">WooCommerce</MenuItem>
-
               </Select>
             )}
           />
         </FormControl>
       </Stack>
       <Stack direction="row" spacing={2} flexWrap="wrap" mt={3} mb={4}>
-        <FormControl  margin="normal" size= "small" sx={{ width: '350px' }}>
+        <FormControl margin="normal" size="small" sx={{ width: "350px" }}>
           <InputLabel id="assign-label">Assign to</InputLabel>
           <Controller
+            disabled={disabled}
             name="assign"
             control={control}
             render={({ field }) => (
@@ -115,9 +123,10 @@ const CaseInfo = ({ caseFormActionType }) => {
           />
         </FormControl>
 
-        <FormControl margin="normal" size= "small" sx={{ flex: 1 }}>
+        <FormControl margin="normal" size="small" sx={{ flex: 1 }}>
           <InputLabel id="status-label">Status</InputLabel>
           <Controller
+            disabled={disabled}
             name="status"
             control={control}
             render={({ field }) => (
@@ -140,6 +149,7 @@ const CaseInfo = ({ caseFormActionType }) => {
 
         {caseFormActionType === CASE_FORM_ACTION_TYPES.EXIST && (
           <Controller
+            disabled={disabled}
             name="case_number"
             control={control}
             render={({ field }) => (
@@ -150,9 +160,8 @@ const CaseInfo = ({ caseFormActionType }) => {
                 variant="outlined"
                 margin="normal"
                 InputLabelProps={{ shrink: true }}
-                sx={{ flex: 1 }} 
+                sx={{ flex: 1 }}
                 size="small"
-
               />
             )}
           />
