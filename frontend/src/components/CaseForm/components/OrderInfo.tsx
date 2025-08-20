@@ -53,9 +53,11 @@ const CaseInfo = ({ caseFormActionType, disabled = false }) => {
           disabled={disabled}
           name="sales_order"
           control={control}
+          rules={{ required: "Sales Order is required" }}
           render={({ field }) => (
             <TextField
               {...field}
+              required
               label="Sales Order"
               variant="outlined"
               margin="normal"
@@ -84,28 +86,33 @@ const CaseInfo = ({ caseFormActionType, disabled = false }) => {
                 <MenuItem value="Amazon US">Amazon US</MenuItem>
                 <MenuItem value="Amazon CA">Amazon CA</MenuItem>
                 <MenuItem value="eBay">eBay</MenuItem>
+                <MenuItem value="Wayfair">Wayfair</MenuItem>
                 <MenuItem value="Shopify">Shopify</MenuItem>
                 <MenuItem value="Home Depot">Home Depot</MenuItem>
                 <MenuItem value="Walmart">Walmart</MenuItem>
                 <MenuItem value="Craiglist">Craiglist</MenuItem>
                 <MenuItem value="Shein">Shein</MenuItem>
                 <MenuItem value="TikTok">TikTok</MenuItem>
+                <MenuItem value="Lowe's">Lowe's</MenuItem>
                 <MenuItem value="WooCommerce">WooCommerce</MenuItem>
+                <MenuItem value="Others">Others</MenuItem>
               </Select>
             )}
           />
         </FormControl>
       </Stack>
       <Stack direction="row" spacing={2} flexWrap="wrap" mt={3} mb={4}>
-        <FormControl margin="normal" size="small" sx={{ width: "350px" }}>
+        <FormControl margin="normal" size="small" sx={{ width: "350px" }} required>
           <InputLabel id="assign-label">Assign to</InputLabel>
           <Controller
             disabled={disabled}
             name="assign"
             control={control}
+            rules={{ required: "Assign is required" }}
             render={({ field }) => (
               <Select
                 {...field}
+                
                 labelId="assign-label"
                 label="Assign to"
                 variant="outlined"
@@ -123,15 +130,17 @@ const CaseInfo = ({ caseFormActionType, disabled = false }) => {
           />
         </FormControl>
 
-        <FormControl margin="normal" size="small" sx={{ flex: 1 }}>
+        <FormControl margin="normal" size="small" sx={{ flex: 1 }} required>
           <InputLabel id="status-label">Status</InputLabel>
           <Controller
             disabled={disabled}
             name="status"
             control={control}
+            rules={{ required: "Status is required" }}
             render={({ field }) => (
               <Select
                 {...field}
+                
                 labelId="status-label"
                 label="Status"
                 variant="outlined"

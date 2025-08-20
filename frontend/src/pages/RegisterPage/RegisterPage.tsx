@@ -81,7 +81,7 @@ const RegisterPage = () => {
             <img
               src="/logo_company.jpg"
               alt="Logo"
-              style={{ width: "250px", height: "auto" }}
+              style={{ width: "250px", height: "auto", border: "none", boxShadow: "none",outline: "none" }}
             />
           </Box>
 

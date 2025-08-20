@@ -5,7 +5,7 @@ const CustomerList = ({ customers, onRowDoubleClicked }) => {
     {
       field: "fullName",
       headerName: "Full name",
-      width: 200,
+      width: 160,
       valueGetter: (_, row) => `${row.first_name || ""} ${row.last_name || ""}`,
     },
 
@@ -13,16 +13,16 @@ const CustomerList = ({ customers, onRowDoubleClicked }) => {
       field: "phoneNumber",
       headerName: "Phone number",
       sortable: false,
-      width: 160,
+      width: 150,
       valueGetter: (_, row) =>
         `${row.phone_code || ""} ${row.phone_number || ""}`,
     },
-    { field: "email", headerName: "Email", width: 250 },
+    { field: "email", headerName: "Email", width: 230 },
     {
       field: "address",
       headerName: "Address",
       sortable: false,
-      width: 300,
+      width: 320,
       valueGetter: (_, row) =>
         `${row.street || ""}, ${row.city || ""}, ${row.state || ""}, ${
           row.country || ""
@@ -31,7 +31,7 @@ const CustomerList = ({ customers, onRowDoubleClicked }) => {
     {
       field: "created_by",
       headerName: "Recorded By",
-      width: 160,
+      width: 150,
       valueGetter: (_, row) =>
         row.created_by &&
         `${row.created_by.first_name || ""} ${row.created_by.last_name || ""}`,
@@ -39,7 +39,7 @@ const CustomerList = ({ customers, onRowDoubleClicked }) => {
     {
       field: "created_at",
       headerName: "Created Date",
-      width: 160,
+      width: 180,
       valueGetter: (_, row) =>
         row.created_at &&
         `${new Date(row.created_at).toLocaleDateString()} ${new Date(
@@ -49,7 +49,7 @@ const CustomerList = ({ customers, onRowDoubleClicked }) => {
     {
       field: "updated_at",
       headerName: "Last Updated",
-      width: 160,
+      width: 180,
       valueGetter: (_, row) =>
         row.updated_at &&
         `${new Date(row.updated_at).toLocaleDateString()} ${new Date(

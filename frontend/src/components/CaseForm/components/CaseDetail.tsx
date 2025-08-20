@@ -28,11 +28,12 @@ const CaseDetail = () => {
       </Typography>
 
       <Stack spacing={2}>
-        <FormControl fullWidth margin="normal" variant="outlined" size="small">
+        <FormControl fullWidth margin="normal" variant="outlined" size="small" required>
           <InputLabel id="model-number-label">Model</InputLabel>
           <Controller
             name="model_number"
             control={control}
+            rules={{ required: "Model Name is required" }}
             render={({ field }) => (
               <Select {...field} labelId="model-number-label" label="Model">
                 <MenuItem value="">
@@ -66,9 +67,11 @@ const CaseDetail = () => {
         <Controller
           name="issues"
           control={control}
+          rules={{ required: "Issues is required" }}
           render={({ field }) => (
             <TextField
               {...field}
+              required
               label="Issues"
               variant="outlined"
               fullWidth
