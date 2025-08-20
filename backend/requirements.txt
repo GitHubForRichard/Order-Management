@@ -9,3 +9,5 @@ psycopg2-binary==2.9.9
 boto3==1.38.0
 Werkzeug==2.3.8
 PyJWT==2.8.0
+numpy==1.26.1
+pandas==2.1.1

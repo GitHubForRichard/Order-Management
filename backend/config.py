@@ -13,3 +13,6 @@ S3_BUCKET = os.getenv("S3_BUCKET")
 
 # auth
 JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY")
+
+# CSV file paths
+PRODUCT_CSV_FILE_PATH = os.getenv("PRODUCT_CSV_FILE_PATH")

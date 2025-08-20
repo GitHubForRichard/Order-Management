@@ -1,4 +1,5 @@
 import requests
+import pandas as pd
 import uuid
 
 from datetime import datetime, timezone
@@ -10,7 +11,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 from auth import generate_jwt, jwt_required
 from constants import DB_HOST, DB_NAME, DB_PASSWORD, DB_PORT, DB_USER
-from config import S3_BUCKET, SHIP_STATION_API_KEY, SHIP_STATION_API_SECRET
+from config import PRODUCT_CSV_FILE_PATH, S3_BUCKET, SHIP_STATION_API_KEY, SHIP_STATION_API_SECRET
 from models import Customer, db, Case, File, User
 from s3_client import get_presigned_url, upload_file_to_s3
 
@@ -289,8 +290,18 @@ def login():
     return jsonify({"token": token, "user": user})
 
 
-@app.route('/api/health', methods=['GET'])
+@app.route('/api/model-numbers', methods=['GET'])
 @jwt_required
+def get_model_numbers():
+    model_numbers = []
+    if PRODUCT_CSV_FILE_PATH:
+        df = pd.read_csv(PRODUCT_CSV_FILE_PATH, skiprows=4)
+        model_numbers = df.iloc[:, 0].dropna().tolist()
+
+    return jsonify({"model_numbers": model_numbers})
+
+
+@app.route('/api/health', methods=['GET'])
 def health_check():
     """Health check endpoint"""
     return jsonify({'status': 'healthy', 'message': 'Case Management API is running'})
