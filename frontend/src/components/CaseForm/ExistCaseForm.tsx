@@ -4,7 +4,6 @@ import { Button } from "@mui/material";
 
 import api from "../../api";
 
-import ProductDetail from "../ProductDetail";
 import ShipStationTracks from "../ShipStationTracks";
 import CustomerInfo from "./components/CustomerInfo";
 import AddressInfo from "./components/AddressInfo";
@@ -99,8 +98,8 @@ const ExistCaseForm = () => {
               </div>
               <div className="form-left ship-product">
                 <Attachments
-                caseFormActionType={CASE_FORM_ACTION_TYPES.EXIST}
-                selectedCase={selectedCase}
+                  caseFormActionType={CASE_FORM_ACTION_TYPES.EXIST}
+                  selectedCase={selectedCase}
                 />
               </div>
             </div>
@@ -117,7 +116,6 @@ const ExistCaseForm = () => {
                 </Button>
               </div>
             </div>
-
           </div>
         </div>
       </form>
