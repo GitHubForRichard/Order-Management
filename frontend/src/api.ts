@@ -7,7 +7,7 @@ export const setAuthToken = (token: string | null) => {
 };
 
 const api = axios.create({
-  baseURL: "http://localhost:5001/api",
+  baseURL: process.env.REACT_APP_API_HOST || "http://localhost:5001/api",
 });
 
 api.interceptors.request.use((config) => {
