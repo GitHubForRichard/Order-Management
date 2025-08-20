@@ -12,6 +12,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from auth import generate_jwt, jwt_required
 from constants import DB_HOST, DB_NAME, DB_PASSWORD, DB_PORT, DB_USER
 from config import PRODUCT_CSV_FILE_PATH, S3_BUCKET, SHIP_STATION_API_KEY, SHIP_STATION_API_SECRET
+from utils import to_snake_case
 from models import Customer, db, Case, File, User
 from s3_client import get_presigned_url, upload_file_to_s3
 
@@ -299,6 +300,23 @@ def get_model_numbers():
         model_numbers = df.iloc[:, 0].dropna().tolist()
 
     return jsonify({"model_numbers": model_numbers})
+
+
+@app.route("/api/products", methods=["GET"])
+@jwt_required
+def get_products():
+    records = []
+    if PRODUCT_CSV_FILE_PATH:
+        df = pd.read_csv(
+            PRODUCT_CSV_FILE_PATH,
+            skiprows=3,
+            skipfooter=1,  # Skip the last row containing the report date
+            engine='python'
+        )
+        df.columns = [to_snake_case(col) for col in df.columns]
+        records = df.to_dict(orient="records")
+
+    return jsonify({"products": records})
 
 
 @app.route('/api/health', methods=['GET'])
