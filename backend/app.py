@@ -89,9 +89,11 @@ def update_case(case_id):
     if not case:
         return jsonify({'error': 'Case not found'}), 404
 
+    immutable_fields = {"id", "created_by", "created_at"}
+
     data = request.get_json()
     for field, value in data.items():
-        if hasattr(case, field):
+        if hasattr(case, field) and field not in immutable_fields:
             setattr(case, field, value)
 
     setattr(case, 'updated_at', datetime.now(timezone.utc))
@@ -168,8 +170,11 @@ def update_customer(customer_id):
         return jsonify({'error': 'Customer not found'}), 404
 
     data = request.get_json()
+
+    immutable_fields = {"id", "created_by", "created_at"}
+
     for field, value in data.items():
-        if hasattr(customer, field):
+        if hasattr(customer, field) and field not in immutable_fields:
             setattr(customer, field, value)
 
     setattr(customer, 'updated_at', datetime.now(timezone.utc))
@@ -243,8 +248,6 @@ def upload_file(case_id):
 @jwt_required
 def get_file(case_id):
     files = File.query.filter_by(case_id=case_id).all()
-    if not files:
-        return jsonify({"error": f"No files found for the provided case_id {case_id}"}), 404
 
     file_dict = [file.to_dict() for file in files]
 

@@ -51,7 +51,6 @@ const ExistCaseForm = () => {
 
   const handleCaseRowSelect = (row) => {
     setSelectedCase(row);
-    console.log("row", row);
     methods.reset({
       ...row,
       first_name: row.customer.first_name,
