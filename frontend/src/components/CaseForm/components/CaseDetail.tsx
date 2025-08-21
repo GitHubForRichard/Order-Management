@@ -69,7 +69,7 @@ const CaseDetail = () => {
                 disablePortal
                 options={modelNumberOptions}
                 value={field.value || null}
-                onChange={(_, newValue) => field.onChange(newValue.value)}
+                onChange={(_, newValue) => field.onChange(newValue?.value)}
                 renderInput={(params) => (
                   <TextField {...params} label="Model Numbers" />
                 )}

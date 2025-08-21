@@ -23,9 +23,11 @@
   margin-bottom: 20px;
 }
 .header {
-  position: relative;
   display: flex;
   align-items: center;
-  justify-content: center; /* centers the title */
-  padding: 10px 20px;
+  gap: 320px;
+  justify-content: center; /* centers children horizontally */
+  position: relative;
+  margin-bottom: 20px;
+  margin-top: 20px;
 }

@@ -506,7 +506,7 @@ img {
 .header {
   display: flex;
   align-items: center;
-  gap: 400px;
+  gap: 320px;
   justify-content: center; /* centers children horizontally */
   position: relative;
   margin-bottom: 20px;
@@ -514,12 +514,15 @@ img {
 }
 
 .logo {
-  margin-left: 40px;
-  height: 80px;
-  border: none; /* removes any border */
-  outline: none; /* removes outline if any */
-  box-shadow: none; /* removes shadow if it looks like a border */
+  width: 250px;
+  height: auto;
+  display: block;
+  margin: 0 auto 16px;
+  border: none;      /* remove any border */
+  background: none;  /* ensure no background */
+  outline: none;
 }
+
 
 .title {
   flex: 1;
@@ -537,4 +540,9 @@ img {
   -webkit-text-fill-color: transparent;
 
   padding: 2px 0;
+}
+.form-container.column {
+  display: flex;
+  flex-direction: column; /* stack children */
+  gap: 1rem;              /* space between items */
 }

@@ -1,5 +1,5 @@
+import { Box, Typography } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
-import { Typography } from "@mui/material";
 
 const CustomerList = ({ customers, onRowDoubleClicked }) => {
   const columns = [

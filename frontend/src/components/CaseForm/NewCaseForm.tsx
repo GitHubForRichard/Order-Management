@@ -50,7 +50,6 @@ const NewCaseForm = () => {
     defaultValues,
   });
 
-  const [cases, setCases] = React.useState<any[]>([]);
   const [customers, setCustomers] = React.useState<Customer[]>([]);
   const [selectedCustomer, setSelectedCustomer] =
     React.useState<Customer | null>(null);
@@ -65,19 +64,6 @@ const NewCaseForm = () => {
       })
       .catch((error) =>
         console.error("There was an error loading the customers!", error)
-      );
-  }, []);
-
-  // useEffect for getting cases
-  React.useEffect(() => {
-    api
-      .get("cases")
-      .then((response) => {
-        const fetchedCases = response.data;
-        setCases(fetchedCases);
-      })
-      .catch((error) =>
-        console.error("There was an error loading the cases!", error)
       );
   }, []);
 
@@ -132,9 +118,6 @@ const NewCaseForm = () => {
       if (data.attachments) {
         await uploadAttachmentsToCase(data.attachments, newCase.id);
       }
-
-      const casesGetResponse = await api.get("cases");
-      setCases(casesGetResponse.data);
       methods.reset(defaultValues);
     } catch (error) {
       console.error("There was an error creating the case!", error);
@@ -199,9 +182,8 @@ const NewCaseForm = () => {
               </div>
             </div>
           </div>
-
           {/* Right Column */}
-          <div className="form-right sticky-right">
+          <div className="form-right">
             <div className="form-section-card">
               <CaseDetail />
 
