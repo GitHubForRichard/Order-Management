@@ -11,7 +11,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 from auth import generate_jwt, jwt_required
 from constants import DB_HOST, DB_NAME, DB_PASSWORD, DB_PORT, DB_USER
-from config import PRODUCT_CSV_FILE_PATH, S3_BUCKET, SHIP_STATION_API_KEY, SHIP_STATION_API_SECRET
+from config import ORDER_HISTORY_CSV_FILE_PATH, PRODUCT_CSV_FILE_PATH, S3_BUCKET, SHIP_STATION_API_KEY, SHIP_STATION_API_SECRET
 from utils import to_snake_case
 from models import Customer, db, Case, File, User
 from s3_client import get_presigned_url, upload_file_to_s3
@@ -317,6 +317,33 @@ def get_products():
         records = df.to_dict(orient="records")
 
     return jsonify({"products": records})
+
+
+@app.route("/api/order-history/<ship_to_name>", methods=["GET"])
+@jwt_required
+def get_order_history(ship_to_name):
+    ship_to_name = ship_to_name.strip().lower()
+    records = []
+    if ORDER_HISTORY_CSV_FILE_PATH:
+        df = pd.read_csv(
+            ORDER_HISTORY_CSV_FILE_PATH,
+        )
+
+        # Only keep these columns
+        df = df[["SONum", "Date", "ShipToName",
+                 "ProductNumber", "ProductQuantity"]]
+
+       # Normalize the column values
+        df["ShipToName"] = df["ShipToName"].astype(
+            str).str.strip().str.lower()
+        if ship_to_name:
+            df = df[df["ShipToName"] == ship_to_name]
+
+        df.columns = [to_snake_case(col) for col in df.columns]
+
+        records = df.to_dict(orient="records")
+
+    return jsonify({"orders": records})
 
 
 @app.route('/api/health', methods=['GET'])

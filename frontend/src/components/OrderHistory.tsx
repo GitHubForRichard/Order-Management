@@ -1,36 +1,71 @@
+import React from "react";
 import { DataGrid } from "@mui/x-data-grid";
+import { Typography } from "@mui/material";
 
-const OrderHistory = ({ cases, customer_id }) => {
+import api from "../api";
+
+const OrderHistory = ({ customerName }) => {
+  const [orders, setOrders] = React.useState<any[]>([]);
+
+  // useEffect for getting products
+  React.useEffect(() => {
+    if (customerName) {
+      api
+        .get(`order-history/${customerName}`)
+        .then((response) => {
+          const fetchedProducts = response.data;
+          setOrders(fetchedProducts.orders);
+        })
+        .catch((error) =>
+          console.error("There was an error loading the orders!", error)
+        );
+    }
+  }, [customerName]);
+
+  console.log("Orders", orders);
+
   const columns = [
     {
-      field: "sales_order",
-      headerName: "Sales Order",
-      width: 250,
+      field: "product_number",
+      headerName: "Product Number",
+      width: 320,
     },
     {
-      field: "model_number",
-      headerName: "Model Number",
-      width: 460,
-    },
-    {
-      field: "quantity",
-      headerName: "Quantity",
-      width: 460,
+      field: "product_quantity",
+      headerName: "Product Quantity",
+      width: 160,
     },
     {
       field: "date",
-      headerName: "Case Date",
-      sortable: false,
-      width: 200,
-      valueGetter: (_, row) => `${new Date(row.date).toLocaleDateString()}`,
+      headerName: "Date",
+      width: 160,
+      valueGetter: (_, row) =>
+        row.date && new Date(row.date).toLocaleDateString(),
+    },
+    {
+      field: "s_o_num",
+      headerName: "SO Number",
+      width: 360,
+    },
+    {
+      field: "ship_to_name",
+      headerName: "Ship to Name",
+      width: 360,
     },
   ];
 
-  const historyCases = cases.filter(
-    (caseItem) => caseItem.customer.id === customer_id
+  return (
+    <>
+      <Typography variant="h4" gutterBottom>
+        Order History
+      </Typography>
+      <DataGrid
+        rows={orders}
+        columns={columns}
+        getRowId={(row) => row.s_o_num}
+      />
+    </>
   );
-
-  return <DataGrid rows={historyCases} columns={columns} />;
 };
 
 export default OrderHistory;
