@@ -1,3 +1,4 @@
+import { Typography } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 
 const CaseList = ({ cases, onRowDoubleClicked }) => {
@@ -65,13 +66,18 @@ const CaseList = ({ cases, onRowDoubleClicked }) => {
   ];
 
   return (
-    <DataGrid
-      rows={cases}
-      columns={columns}
-      onRowDoubleClick={(params) =>
-        onRowDoubleClicked && onRowDoubleClicked(params.row)
-      }
-    />
+    <>
+      <Typography variant="h4" gutterBottom>
+        Cases
+      </Typography>
+      <DataGrid
+        rows={cases}
+        columns={columns}
+        onRowDoubleClick={(params) =>
+          onRowDoubleClicked && onRowDoubleClicked(params.row)
+        }
+      />
+    </>
   );
 };
 

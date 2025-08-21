@@ -161,30 +161,9 @@ const NewCaseForm = () => {
                 <ExtraInfo />
               </div>
             </div>
-            <div className="form-container">
-              <div className="form-left search-case">
-                <CustomerList
-                  customers={customers}
-                  onRowDoubleClicked={handleCustomerRowSelect}
-                />
-              </div>
-              <div className="form-left ship-product">
-                <OrderHistory
-                  customerName={
-                    selectedCustomer
-                      ? selectedCustomer.first_name +
-                        " " +
-                        selectedCustomer.last_name
-                      : ""
-                  }
-                />
-                <ProductDetail />
-              </div>
-            </div>
           </div>
-
           {/* Right Column */}
-          <div className="form-right sticky-right">
+          <div className="form-right">
             <div className="form-section-card">
               <CaseDetail />
 
@@ -198,6 +177,24 @@ const NewCaseForm = () => {
               caseFormActionType={CASE_FORM_ACTION_TYPES.NEW}
               selectedCase={null}
             />
+          </div>
+        </div>
+        <div>
+          <CustomerList
+            customers={customers}
+            onRowDoubleClicked={handleCustomerRowSelect}
+          />
+        </div>
+        <div>
+          <OrderHistory
+            customerName={
+              selectedCustomer
+                ? selectedCustomer.first_name + " " + selectedCustomer.last_name
+                : ""
+            }
+          />
+          <div>
+            <ProductDetail />
           </div>
         </div>
       </form>

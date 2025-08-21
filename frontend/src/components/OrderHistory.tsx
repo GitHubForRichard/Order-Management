@@ -1,6 +1,6 @@
 import React from "react";
 import { DataGrid } from "@mui/x-data-grid";
-import { Typography } from "@mui/material";
+import { Box, Typography } from "@mui/material";
 
 import api from "../api";
 
@@ -55,7 +55,7 @@ const OrderHistory = ({ customerName }) => {
   ];
 
   return (
-    <>
+    <Box sx={{ width: "100%" }}>
       <Typography variant="h4" gutterBottom>
         Order History
       </Typography>
@@ -64,7 +64,7 @@ const OrderHistory = ({ customerName }) => {
         columns={columns}
         getRowId={(row) => row.s_o_num}
       />
-    </>
+    </Box>
   );
 };
 
