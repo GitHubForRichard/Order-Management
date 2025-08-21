@@ -178,7 +178,7 @@ const NewCaseForm = () => {
                 <ExtraInfo />
               </div>
             </div>
-            <div className="form-container">
+            <div className="form-container.column">
               <div className="form-left search-case">
                 <CustomerList
                   customers={customers}

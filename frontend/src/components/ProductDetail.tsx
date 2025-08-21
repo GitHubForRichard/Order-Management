@@ -16,50 +16,50 @@ const ProductDetail = () => {
     {
       field: "part",
       headerName: "Part",
-      width: 240,
+      width: 230,
     },
     {
       field: "description",
       headerName: "Description",
       sortable: false,
-      width: 300,
+      width: 500,
     },
     {
       field: "on_hand",
       headerName: "On Hand",
       sortable: false,
-      width: 160,
+      width: 80,
     },
     {
       field: "allocated",
       headerName: "Allocated",
       sortable: false,
-      width: 160,
+      width: 90,
     },
     {
       field: "available",
       headerName: "Available",
       sortable: false,
-      width: 160,
+      width: 90,
     },
     {
       field: "available_to_pick",
       headerName: "Available to Pick",
       sortable: false,
-      width: 160,
+      width: 120,
     },
 
     {
       field: "on_order",
       headerName: "On Order",
       sortable: false,
-      width: 160,
+      width: 90,
     },
     {
       field: "committed",
       headerName: "Committed",
       sortable: false,
-      width: 160,
+      width: 100,
     },
   ];
 

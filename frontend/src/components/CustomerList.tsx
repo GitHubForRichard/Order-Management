@@ -1,4 +1,5 @@
 import { DataGrid } from "@mui/x-data-grid";
+import { Typography } from "@mui/material";
 
 const CustomerList = ({ customers, onRowDoubleClicked }) => {
   const columns = [
@@ -59,13 +60,18 @@ const CustomerList = ({ customers, onRowDoubleClicked }) => {
   ];
 
   return (
-    <DataGrid
-      rows={customers}
-      columns={columns}
-      onRowDoubleClick={(params) =>
-        onRowDoubleClicked && onRowDoubleClicked(params.row)
-      }
-    />
+    <>
+      <Typography variant="h4" gutterBottom>
+        Customer List
+      </Typography>
+      <DataGrid
+        rows={customers}
+        columns={columns}
+        onRowDoubleClick={(params) =>
+          onRowDoubleClicked && onRowDoubleClicked(params.row)
+        }
+      />
+    </>
   );
 };
 

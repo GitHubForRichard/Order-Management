@@ -7,18 +7,7 @@
   background: none;  /* ensure no background */
   outline: none;
 }
-.title {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%); /* true center */
-  margin: 0;
-  font-family: 'Baloo 2', 'Comic Neue', cursive;
-  font-size: 3.6rem;
-  font-weight: 700;
-  color: #f8f9fa;
-  background: linear-gradient(90deg, #671fb9, #ff7eb3); /* warm gradient text */
-  -webkit-text-fill-color: transparent;
-}
+
 .App {
   min-height: 100vh;
   background-color: #f8f9fa; /* light background */
