@@ -2,7 +2,8 @@ import re
 
 
 def to_snake_case(s):
-    s = s.strip()  # remove leading/trailing spaces
-    s = s.replace("\n", " ")  # replace newlines with space
-    s = re.sub(r"\s+", "_", s)  # replace 1+ spaces with single underscore
+    s = s.strip()
+    s = s.replace("\n", " ")
+    s = re.sub(r'(?<!^)(?=[A-Z])', '_', s)
+    s = re.sub(r'\s+', '_', s)
     return s.lower()

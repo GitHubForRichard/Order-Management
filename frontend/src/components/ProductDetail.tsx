@@ -1,5 +1,6 @@
 import React from "react";
 import { DataGrid, GridPaginationModel } from "@mui/x-data-grid";
+import { Typography } from "@mui/material";
 
 import api from "../api";
 
@@ -76,13 +77,18 @@ const ProductDetail = () => {
   }, []);
 
   return (
-    <DataGrid
-      rows={products}
-      columns={columns}
-      getRowId={(row) => row.part}
-      paginationModel={paginationModel}
-      onPaginationModelChange={setPaginationModel}
-    />
+    <>
+      <Typography variant="h4" gutterBottom>
+        Product Details
+      </Typography>
+      <DataGrid
+        rows={products}
+        columns={columns}
+        getRowId={(row) => row.part}
+        paginationModel={paginationModel}
+        onPaginationModelChange={setPaginationModel}
+      />
+    </>
   );
 };
 

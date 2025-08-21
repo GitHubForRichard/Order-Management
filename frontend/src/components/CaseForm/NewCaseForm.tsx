@@ -187,8 +187,13 @@ const NewCaseForm = () => {
               </div>
               <div className="form-left ship-product">
                 <OrderHistory
-                  cases={cases}
-                  customer_id={selectedCustomer?.id}
+                  customerName={
+                    selectedCustomer
+                      ? selectedCustomer.first_name +
+                        " " +
+                        selectedCustomer.last_name
+                      : ""
+                  }
                 />
                 <ProductDetail />
               </div>
