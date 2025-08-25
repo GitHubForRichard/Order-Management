@@ -517,10 +517,11 @@ img {
   width: 250px;
   height: auto;
   display: block;
-  margin: 0 auto 16px;
+  margin: 0 auto 18px;
   border: none;      /* remove any border */
   background: none;  /* ensure no background */
   outline: none;
+  margin-left: 40px;
 }
 
 

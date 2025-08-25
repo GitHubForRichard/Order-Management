@@ -102,7 +102,7 @@ const CaseInfo = ({ caseFormActionType, disabled = false }) => {
         </FormControl>
       </Stack>
       <Stack direction="row" spacing={2} flexWrap="wrap" mt={3} mb={4}>
-        <FormControl margin="normal" size="small" sx={{ width: "350px" }} required>
+        <FormControl margin="normal" size="small" sx={{ width: "300px" }} required>
           <InputLabel id="assign-label">Assign to</InputLabel>
           <Controller
             disabled={disabled}
