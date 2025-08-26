@@ -153,3 +153,34 @@ class User(db.Model):
             'password_hash': self.password_hash,
             'created_at': self.created_at.isoformat() if self.created_at else None
         }
+
+
+class AuditLog(db.Model):
+    __tablename__ = "audit_log"
+
+    id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    action = db.Column(db.String(50), nullable=False)
+    entity = db.Column(db.String(255), nullable=False)
+    entity_id = db.Column(UUID(as_uuid=True), nullable=False)
+    field = db.Column(db.String(255), nullable=False)
+    old_value = db.Column(db.Text, nullable=True)
+    new_value = db.Column(db.Text, nullable=True)
+    created_by = db.Column(UUID(as_uuid=True), nullable=True)
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(
+        timezone.utc), nullable=False)
+
+    def __repr__(self):
+        return f'<AuditLog {self.id}>'
+
+    def to_dict(self):
+        return {
+            'id': str(self.id),
+            'action': self.action,
+            'entity': self.entity,
+            'entity_id': str(self.entity_id),
+            'field': self.field,
+            'old_value': self.old_value,
+            'new_value': self.new_value,
+            'created_by': str(self.created_by) if self.created_by else None,
+            'created_at': self.created_at.isoformat() if self.created_at else None
+        }
