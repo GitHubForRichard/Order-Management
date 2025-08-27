@@ -15,7 +15,7 @@ const CaseHistoryLog = ({ caseId }) => {
 
   React.useEffect(() => {
     if (caseId) {
-      // Fetch ShipStation tracking information
+      // Fetch audit logs information
       const fetchCaseHistory = async () => {
         try {
           const response = await api.get(`cases/history/${caseId}`);
