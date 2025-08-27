@@ -12,10 +12,10 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 from auth import generate_jwt, jwt_required
 from constants import AuditLogActions, DB_HOST, DB_NAME, DB_PASSWORD, DB_PORT, DB_USER
-from config import ORDER_HISTORY_CSV_FILE_PATH, PRODUCT_CSV_FILE_PATH, S3_BUCKET, SHIP_STATION_API_KEY, SHIP_STATION_API_SECRET
+from config import ORDER_HISTORY_CSV_FILE_PATH, PRODUCT_CSV_FILE_PATH, SHIP_STATION_API_KEY, SHIP_STATION_API_SECRET
 from utils import update_fields, to_snake_case
 from models import AuditLog, Customer, db, Case, File, User
-from s3_client import get_presigned_url, upload_file_to_s3
+from google_drive_client import upload_file_to_google_drive, get_web_view_link
 
 app = Flask(__name__)
 CORS(app)
@@ -242,14 +242,15 @@ def upload_file(case_id):
 
     try:
         for file in files:
-            file_name = upload_file_to_s3(file)
+            upload_response = upload_file_to_google_drive(file)
+
+            print('upload_response', upload_response)
 
             # Save metadata in DB
             new_file = File(
                 case_id=case_id,
-                name=file.filename,
-                bucket_name=S3_BUCKET,
-                s3_key=file_name,
+                name=upload_response.get("file_name", None),
+                drive_file_id=upload_response.get("file_id", None),
                 created_at=datetime.now(timezone.utc),
             )
 
@@ -261,10 +262,7 @@ def upload_file(case_id):
                 "name": new_file.name,
             })
 
-        return jsonify({
-            "message": "Files uploaded",
-            "files": uploaded_files_info
-        }), 200
+        return upload_response
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
@@ -277,7 +275,7 @@ def get_file(case_id):
     file_dict = [file.to_dict() for file in files]
 
     for file in file_dict:
-        file["url"] = get_presigned_url(file["s3_key"])
+        file["url"] = get_web_view_link(file["drive_file_id"])
 
     return jsonify({"files": file_dict}), 200
 

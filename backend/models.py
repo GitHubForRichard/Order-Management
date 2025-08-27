@@ -111,8 +111,7 @@ class File(db.Model):
     case_id = Column(UUID(as_uuid=True), ForeignKey(
         'cases.id'), nullable=False)
     name = Column(String, nullable=False)
-    bucket_name = Column(String, nullable=False)
-    s3_key = Column(String, nullable=False, unique=True)
+    drive_file_id = Column(String, nullable=False)
     created_at = Column(DateTime, default=lambda: datetime.now(
         timezone.utc), nullable=False)
 
@@ -124,8 +123,7 @@ class File(db.Model):
             'id': str(self.id),
             'case_id': str(self.case_id),
             'name': self.name,
-            'bucket_name': self.bucket_name,
-            's3_key': self.s3_key,
+            'drive_file_id': self.drive_file_id,
             'created_at': self.created_at.isoformat() if self.created_at else None
         }
 
