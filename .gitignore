@@ -36,3 +36,6 @@ build/
 .env.production.local
 coverage/
 .nyc_output/
+
+# Creds
+creds.json

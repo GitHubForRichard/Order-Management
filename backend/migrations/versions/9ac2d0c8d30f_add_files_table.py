@@ -25,8 +25,7 @@ def upgrade():
         sa.Column('case_id', sa.UUID(),
                   sa.ForeignKey('cases.id'), nullable=False),
         sa.Column('name', sa.String(), nullable=False),
-        sa.Column('bucket_name', sa.String(), nullable=False),
-        sa.Column('s3_key', sa.String(), nullable=False, unique=True),
+        sa.Column('drive_file_id', sa.String(), nullable=False),
         sa.Column('created_at', sa.DateTime(), nullable=False),
     )
 
