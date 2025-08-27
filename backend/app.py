@@ -7,13 +7,14 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 from flask_migrate import Migrate
 from requests.auth import HTTPBasicAuth
+from sqlalchemy import desc
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from auth import generate_jwt, jwt_required
-from constants import DB_HOST, DB_NAME, DB_PASSWORD, DB_PORT, DB_USER
+from constants import AuditLogActions, DB_HOST, DB_NAME, DB_PASSWORD, DB_PORT, DB_USER
 from config import ORDER_HISTORY_CSV_FILE_PATH, PRODUCT_CSV_FILE_PATH, S3_BUCKET, SHIP_STATION_API_KEY, SHIP_STATION_API_SECRET
-from utils import to_snake_case
-from models import Customer, db, Case, File, User
+from utils import update_fields, to_snake_case
+from models import AuditLog, Customer, db, Case, File, User
 from s3_client import get_presigned_url, upload_file_to_s3
 
 app = Flask(__name__)
@@ -91,12 +92,11 @@ def update_case(case_id):
     if not case:
         return jsonify({'error': 'Case not found'}), 404
 
-    immutable_fields = {"id", "created_by", "created_at"}
+    immutable_fields = {"id", "created_by", "created_at", "updated_at"}
 
     data = request.get_json()
-    for field, value in data.items():
-        if hasattr(case, field) and field not in immutable_fields:
-            setattr(case, field, value)
+    update_fields(case, data, AuditLogActions.UPDATED, request.user.id,
+                  immutable_fields=immutable_fields)
 
     setattr(case, 'updated_at', datetime.now(timezone.utc))
 
@@ -106,6 +106,29 @@ def update_case(case_id):
     except Exception as e:
         db.session.rollback()
         return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/cases/history/<case_id>', methods=['GET'])
+@jwt_required
+def get_case_history(case_id):
+    """Get audit log for the given case ID"""
+    audit_logs = (
+        db.session.query(AuditLog, Case, User)
+        .filter(AuditLog.entity == "cases")
+        .filter(AuditLog.entity_id == case_id)
+        .join(Case, AuditLog.entity_id == Case.id)
+        .join(User, Case.created_by == User.id)
+        .order_by(desc(AuditLog.created_at))
+        .all()
+    )
+    result = []
+    for audit_log, case, user in audit_logs:
+        audit_log_dict = audit_log.to_dict()
+        audit_log_dict['case'] = case.to_dict()
+        audit_log_dict['created_by'] = user.to_dict()
+        result.append(audit_log_dict)
+
+    return jsonify(result)
 
 
 @app.route('/api/customers', methods=['GET'])

@@ -16,6 +16,7 @@ import { CASE_FORM_ACTION_TYPES } from "../../constants";
 import CaseList from "../CaseList";
 import Attachments from "./Attachments";
 import { defaultValues } from "./NewCaseForm";
+import CaseHistoryLog from "../CaseHistoryLog";
 
 const ExistCaseForm = () => {
   const methods = useForm({
@@ -117,6 +118,7 @@ const ExistCaseForm = () => {
             </div>
           </div>
         </div>
+        <CaseHistoryLog caseId={selectedCase?.id} />
       </form>
     </FormProvider>
   );
