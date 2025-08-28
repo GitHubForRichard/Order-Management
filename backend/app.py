@@ -122,9 +122,13 @@ def update_case(case_id):
     if not case:
         return jsonify({'error': 'Case not found'}), 404
 
+    prev_assignee = case.to_dict().get('assign')
+
     immutable_fields = {"id", "created_by", "created_at", "updated_at"}
 
     data = request.get_json()
+    new_assignee = data.get('assign')
+
     update_fields(case, data, AuditLogActions.UPDATED, request.user.id,
                   immutable_fields=immutable_fields)
 
@@ -132,6 +136,15 @@ def update_case(case_id):
 
     try:
         db.session.commit()
+        # Send email when new assignee is assigned
+        if new_assignee is not None and new_assignee != prev_assignee:
+            body = f'Hi, \n\nThis is a notification that the case {case.case_number} has been assigned to you.'
+            send_email(
+                subject=f"Case Assigned: {case.case_number}",
+                recipients=[new_assignee],
+                body=body,
+                sender=app.config['MAIL_USERNAME']
+            )
         return jsonify({'case': case.to_dict()}), 200
     except Exception as e:
         db.session.rollback()
