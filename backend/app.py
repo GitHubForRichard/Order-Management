@@ -12,8 +12,13 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 from auth import generate_jwt, jwt_required
 from constants import AuditLogActions, DB_HOST, DB_NAME, DB_PASSWORD, DB_PORT, DB_USER
-from config import ORDER_HISTORY_CSV_FILE_PATH, PRODUCT_CSV_FILE_PATH, SHIP_STATION_API_KEY, SHIP_STATION_API_SECRET
-from utils import update_fields, to_snake_case
+from config import (
+    ORDER_HISTORY_CSV_FILE_PATH,
+    PRODUCT_CSV_FILE_PATH,
+    SHIP_STATION_API_KEY,
+    SHIP_STATION_API_SECRET
+)
+from utils import get_case_assignees, update_fields, to_snake_case
 from models import AuditLog, Customer, db, Case, File, User
 from google_drive_client import upload_file_to_google_drive, get_web_view_link
 
@@ -338,6 +343,13 @@ def get_products():
         records = df.to_dict(orient="records")
 
     return jsonify({"products": records})
+
+
+@app.route('/api/assignees', methods=['GET'])
+@jwt_required
+def get_assignees():
+    assignees = get_case_assignees()
+    return jsonify(assignees)
 
 
 @app.route("/api/order-history/<ship_to_name>", methods=["GET"])

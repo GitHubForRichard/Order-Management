@@ -10,24 +10,12 @@ import {
 } from "@mui/material";
 
 import { CASE_FORM_ACTION_TYPES } from "../../../constants";
-
-const ASSIGNEES = [
-  "Vincent Ma",
-  "James Tan",
-  "Jimmy Jiang",
-  "May Lau",
-  "Michael Liu",
-  "Elvis Chen",
-  "Nayeli Marquez",
-  "Maries Nguyen",
-  "Mariana Santamaria",
-  "Sheng Huang",
-  "Ivey Tam",
-  "Alexandra Geronimo",
-];
+import { useAssignees } from "../../../hooks/useAssignees";
 
 const CaseInfo = ({ caseFormActionType, disabled = false }) => {
   const { control } = useFormContext();
+
+  const { assignees } = useAssignees();
 
   return (
     <div>
@@ -102,7 +90,12 @@ const CaseInfo = ({ caseFormActionType, disabled = false }) => {
         </FormControl>
       </Stack>
       <Stack direction="row" spacing={2} flexWrap="wrap" mt={3} mb={4}>
-        <FormControl margin="normal" size="small" sx={{ width: "300px" }} required>
+        <FormControl
+          margin="normal"
+          size="small"
+          sx={{ width: "300px" }}
+          required
+        >
           <InputLabel id="assign-label">Assign to</InputLabel>
           <Controller
             disabled={disabled}
@@ -112,7 +105,6 @@ const CaseInfo = ({ caseFormActionType, disabled = false }) => {
             render={({ field }) => (
               <Select
                 {...field}
-                
                 labelId="assign-label"
                 label="Assign to"
                 variant="outlined"
@@ -120,8 +112,8 @@ const CaseInfo = ({ caseFormActionType, disabled = false }) => {
                 <MenuItem value="">
                   <em>None</em>
                 </MenuItem>
-                {ASSIGNEES.map((name) => (
-                  <MenuItem key={name} value={name}>
+                {assignees.map(({ name, email }) => (
+                  <MenuItem key={email} value={email}>
                     {name}
                   </MenuItem>
                 ))}
@@ -140,7 +132,6 @@ const CaseInfo = ({ caseFormActionType, disabled = false }) => {
             render={({ field }) => (
               <Select
                 {...field}
-                
                 labelId="status-label"
                 label="Status"
                 variant="outlined"

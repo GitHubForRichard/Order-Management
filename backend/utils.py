@@ -1,7 +1,10 @@
+import pandas as pd
 import re
 import uuid
 
 from datetime import datetime, timezone
+
+from config import EMPLOYEE_CSV_FILE_PATH
 from models import db, AuditLog
 
 
@@ -60,3 +63,19 @@ def update_fields(model_instance, updated_data, action, user_id, entity_name=Non
 
     if audit_logs:
         db.session.add_all(audit_logs)
+
+
+def get_case_assignees():
+    assignees = []
+    if EMPLOYEE_CSV_FILE_PATH:
+        df = pd.read_csv(EMPLOYEE_CSV_FILE_PATH)
+
+        # Ensure the CSV has the right headers
+        if "Employee Name" in df.columns and "Employee Email" in df.columns:
+            assignees = [
+                {"name": row["Employee Name"], "email": row["Employee Email"]}
+                for _, row in df.iterrows()
+                if pd.notna(row["Employee Name"]) and pd.notna(row["Employee Email"])
+            ]
+
+    return assignees

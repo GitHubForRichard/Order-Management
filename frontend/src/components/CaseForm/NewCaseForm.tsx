@@ -53,7 +53,6 @@ const NewCaseForm = () => {
   const [customers, setCustomers] = React.useState<Customer[]>([]);
   const [selectedCustomer, setSelectedCustomer] =
     React.useState<Customer | null>(null);
-
   // useEffect to get customers
   React.useEffect(() => {
     api
