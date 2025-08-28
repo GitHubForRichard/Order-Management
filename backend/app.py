@@ -74,7 +74,6 @@ def create_case():
     user = request.user
 
     try:
-        assignee = data.get('assign')
         # Create a new Case instance
         new_case = Case(
             id=str(uuid.uuid4()),
@@ -98,12 +97,15 @@ def create_case():
         db.session.add(new_case)
         db.session.commit()
 
-        if data.get('assign'):
-            body = f'Hi, \n\nThis is a notification that the case {new_case.case_number} has been assigned to you.'
+        assignee = new_case.assign
+        case_number = new_case.case_number
+
+        # Send email to assignee when a new case is created
+        if assignee:
+            body = f'Hi, \n\nThis is a notification that the case {case_number} has been assigned to you.'
             send_email(
-                subject=f"Case Assigned: {new_case.case_number}",
-                # recipients=[assignee],
-                recipients=["richard@kzkitchen.com"],
+                subject=f"Case Assigned: {case_number}",
+                recipients=[assignee],
                 body=body,
                 sender=app.config['MAIL_USERNAME']
             )
