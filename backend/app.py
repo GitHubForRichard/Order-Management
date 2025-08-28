@@ -12,16 +12,36 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 from auth import generate_jwt, jwt_required
 from constants import AuditLogActions, DB_HOST, DB_NAME, DB_PASSWORD, DB_PORT, DB_USER
-from config import ORDER_HISTORY_CSV_FILE_PATH, PRODUCT_CSV_FILE_PATH, SHIP_STATION_API_KEY, SHIP_STATION_API_SECRET
-from utils import update_fields, to_snake_case
+from config import (
+    MAIL_PASSWORD,
+    MAIL_PORT,
+    MAIL_SERVER,
+    MAIL_USE_TLS,
+    MAIL_USERNAME,
+    ORDER_HISTORY_CSV_FILE_PATH,
+    PRODUCT_CSV_FILE_PATH,
+    SHIP_STATION_API_KEY,
+    SHIP_STATION_API_SECRET
+)
+from emailer import init_mail, send_email
+from utils import get_case_assignees, update_fields, to_snake_case
 from models import AuditLog, Customer, db, Case, File, User
 from google_drive_client import upload_file_to_google_drive, get_web_view_link
 
 app = Flask(__name__)
 CORS(app)
 
-# or your DB
+# DB config
 app.config['SQLALCHEMY_DATABASE_URI'] = f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+
+# Email config
+app.config['MAIL_SERVER'] = MAIL_SERVER
+app.config['MAIL_PORT'] = MAIL_PORT
+app.config['MAIL_USE_TLS'] = MAIL_USE_TLS
+app.config['MAIL_USERNAME'] = MAIL_USERNAME
+app.config['MAIL_PASSWORD'] = MAIL_PASSWORD
+
+init_mail(app)
 
 db.init_app(app)
 migrate = Migrate(app, db)
@@ -62,7 +82,7 @@ def create_case():
             issues=data.get('issues'),
             case_number=f"TML{int(datetime.now().timestamp())}",
             sales_order=data.get('sales_order'),
-            assign=data.get('assign'),
+            assign=assignee,
             status=data.get('status', 'Pending'),
             serial=data.get('serial'),
             solution=data.get('solution'),
@@ -77,6 +97,18 @@ def create_case():
         db.session.add(new_case)
         db.session.commit()
 
+        assignee = new_case.assign
+        case_number = new_case.case_number
+
+        # Send email to assignee when a new case is created
+        if assignee:
+            body = f'Hi, \n\nThis is a notification that the case {case_number} has been assigned to you.'
+            send_email(
+                subject=f"Case Assigned: {case_number}",
+                recipients=[assignee],
+                body=body,
+                sender=app.config['MAIL_USERNAME']
+            )
         return jsonify({'case': new_case.to_dict()}), 201
 
     except Exception as e:
@@ -92,9 +124,13 @@ def update_case(case_id):
     if not case:
         return jsonify({'error': 'Case not found'}), 404
 
+    prev_assignee = case.to_dict().get('assign')
+
     immutable_fields = {"id", "created_by", "created_at", "updated_at"}
 
     data = request.get_json()
+    new_assignee = data.get('assign')
+
     update_fields(case, data, AuditLogActions.UPDATED, request.user.id,
                   immutable_fields=immutable_fields)
 
@@ -102,6 +138,15 @@ def update_case(case_id):
 
     try:
         db.session.commit()
+        # Send email when new assignee is assigned
+        if new_assignee is not None and new_assignee != prev_assignee:
+            body = f'Hi, \n\nThis is a notification that the case {case.case_number} has been assigned to you.'
+            send_email(
+                subject=f"Case Assigned: {case.case_number}",
+                recipients=[new_assignee],
+                body=body,
+                sender=app.config['MAIL_USERNAME']
+            )
         return jsonify({'case': case.to_dict()}), 200
     except Exception as e:
         db.session.rollback()
@@ -338,6 +383,13 @@ def get_products():
         records = df.to_dict(orient="records")
 
     return jsonify({"products": records})
+
+
+@app.route('/api/assignees', methods=['GET'])
+@jwt_required
+def get_assignees():
+    assignees = get_case_assignees()
+    return jsonify(assignees)
 
 
 @app.route("/api/order-history/<ship_to_name>", methods=["GET"])

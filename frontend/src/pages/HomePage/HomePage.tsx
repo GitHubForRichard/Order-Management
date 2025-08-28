@@ -25,7 +25,11 @@ function HomePage() {
           <img src="/logo_company.jpg" alt="Logo" className="logo" />
           <h2 className="title">Customer Services</h2>
           <div className="spacer" />
-          <button onClick={handleLogout} style={{ marginLeft: "auto" }} color="error" >
+          <button
+            onClick={handleLogout}
+            style={{ marginLeft: "auto" }}
+            color="error"
+          >
             Logout
           </button>
         </div>

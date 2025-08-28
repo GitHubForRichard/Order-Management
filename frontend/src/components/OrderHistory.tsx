@@ -22,8 +22,6 @@ const OrderHistory = ({ customerName }) => {
     }
   }, [customerName]);
 
-  console.log("Orders", orders);
-
   const columns = [
     {
       field: "product_number",
