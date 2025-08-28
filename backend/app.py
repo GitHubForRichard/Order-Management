@@ -13,11 +13,17 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from auth import generate_jwt, jwt_required
 from constants import AuditLogActions, DB_HOST, DB_NAME, DB_PASSWORD, DB_PORT, DB_USER
 from config import (
+    MAIL_PASSWORD,
+    MAIL_PORT,
+    MAIL_SERVER,
+    MAIL_USE_TLS,
+    MAIL_USERNAME,
     ORDER_HISTORY_CSV_FILE_PATH,
     PRODUCT_CSV_FILE_PATH,
     SHIP_STATION_API_KEY,
     SHIP_STATION_API_SECRET
 )
+from emailer import init_mail, send_email
 from utils import get_case_assignees, update_fields, to_snake_case
 from models import AuditLog, Customer, db, Case, File, User
 from google_drive_client import upload_file_to_google_drive, get_web_view_link
@@ -25,8 +31,17 @@ from google_drive_client import upload_file_to_google_drive, get_web_view_link
 app = Flask(__name__)
 CORS(app)
 
-# or your DB
+# DB config
 app.config['SQLALCHEMY_DATABASE_URI'] = f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+
+# Email config
+app.config['MAIL_SERVER'] = MAIL_SERVER
+app.config['MAIL_PORT'] = MAIL_PORT
+app.config['MAIL_USE_TLS'] = MAIL_USE_TLS
+app.config['MAIL_USERNAME'] = MAIL_USERNAME
+app.config['MAIL_PASSWORD'] = MAIL_PASSWORD
+
+init_mail(app)
 
 db.init_app(app)
 migrate = Migrate(app, db)
@@ -59,6 +74,7 @@ def create_case():
     user = request.user
 
     try:
+        assignee = data.get('assign')
         # Create a new Case instance
         new_case = Case(
             id=str(uuid.uuid4()),
@@ -67,7 +83,7 @@ def create_case():
             issues=data.get('issues'),
             case_number=f"TML{int(datetime.now().timestamp())}",
             sales_order=data.get('sales_order'),
-            assign=data.get('assign'),
+            assign=assignee,
             status=data.get('status', 'Pending'),
             serial=data.get('serial'),
             solution=data.get('solution'),
@@ -82,6 +98,15 @@ def create_case():
         db.session.add(new_case)
         db.session.commit()
 
+        if data.get('assign'):
+            body = f'Hi, \n\nThis is a notification that the case {new_case.case_number} has been assigned to you.'
+            send_email(
+                subject=f"Case Assigned: {new_case.case_number}",
+                # recipients=[assignee],
+                recipients=["richard@kzkitchen.com"],
+                body=body,
+                sender=app.config['MAIL_USERNAME']
+            )
         return jsonify({'case': new_case.to_dict()}), 201
 
     except Exception as e:
