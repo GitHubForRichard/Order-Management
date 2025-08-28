@@ -74,6 +74,7 @@ def create_case():
     user = request.user
 
     try:
+        assignee = data.get('assign')
         # Create a new Case instance
         new_case = Case(
             id=str(uuid.uuid4()),
@@ -97,7 +98,6 @@ def create_case():
         db.session.add(new_case)
         db.session.commit()
 
-        assignee = new_case.assign
         case_number = new_case.case_number
 
         # Send email to assignee when a new case is created
