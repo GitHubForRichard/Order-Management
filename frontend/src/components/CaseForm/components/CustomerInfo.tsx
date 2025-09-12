@@ -89,7 +89,7 @@ const CustomerInfo = ({
         />
         <Controller
           disabled={disabled}
-          name="mid"
+          name="middle_name"
           control={control}
           render={({ field }) => (
             <TextField

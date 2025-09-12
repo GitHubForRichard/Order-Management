@@ -80,11 +80,7 @@ const Attachments = ({ caseFormActionType, selectedCase }) => {
               </>
             )}
           />
-          <VisuallyHiddenInput
-            type="file"
-            onChange={(event) => console.log(event.target.files)}
-            multiple
-          />
+          <VisuallyHiddenInput type="file" multiple />
         </>
       )}
       {caseFormActionType === CASE_FORM_ACTION_TYPES.EXIST && (
