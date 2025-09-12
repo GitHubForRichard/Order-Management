@@ -87,6 +87,12 @@ const ProductDetail = () => {
         getRowId={(row) => row.part}
         paginationModel={paginationModel}
         onPaginationModelChange={setPaginationModel}
+        sx={{
+          "& .MuiDataGrid-columnHeader": {
+            backgroundColor: "black",
+            color: "white",
+          },
+        }}
       />
     </>
   );

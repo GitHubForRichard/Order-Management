@@ -74,6 +74,12 @@ const OrderHistory = ({ customerName, purchaseOrder }) => {
         rows={filteredOrders}
         columns={columns}
         getRowId={(row) => row.s_o_num}
+        sx={{
+          "& .MuiDataGrid-columnHeader": {
+            backgroundColor: "black",
+            color: "white",
+          },
+        }}
       />
     </Box>
   );
