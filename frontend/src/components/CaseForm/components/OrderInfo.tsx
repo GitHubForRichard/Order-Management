@@ -50,7 +50,25 @@ const CaseInfo = ({ caseFormActionType, disabled = false }) => {
               variant="outlined"
               margin="normal"
               size="small"
-              sx={{ width: "250px" }}
+              sx={{ width: "200px" }}
+            />
+          )}
+        />
+
+        <Controller
+          disabled={disabled}
+          name="purchase_order"
+          control={control}
+          rules={{ required: "Purchase Order is required" }}
+          render={({ field }) => (
+            <TextField
+              {...field}
+              required
+              label="Purchase Order"
+              variant="outlined"
+              margin="normal"
+              size="small"
+              sx={{ width: "200px" }}
             />
           )}
         />
@@ -59,13 +77,13 @@ const CaseInfo = ({ caseFormActionType, disabled = false }) => {
           <InputLabel id="status-label">Market Place</InputLabel>
           <Controller
             disabled={disabled}
-            name="Market Place"
+            name="market_place"
             control={control}
             render={({ field }) => (
               <Select
                 {...field}
                 labelId="market_place-label"
-                label="market_place"
+                label="Market Place"
                 variant="outlined"
               >
                 <MenuItem value="">

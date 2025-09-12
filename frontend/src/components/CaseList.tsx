@@ -76,6 +76,12 @@ const CaseList = ({ cases, onRowDoubleClicked }) => {
         onRowDoubleClick={(params) =>
           onRowDoubleClicked && onRowDoubleClicked(params.row)
         }
+        sx={{
+          "& .MuiDataGrid-columnHeader": {
+            backgroundColor: "black",
+            color: "white",
+          },
+        }}
       />
     </>
   );

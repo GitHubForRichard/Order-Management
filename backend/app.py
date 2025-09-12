@@ -83,6 +83,8 @@ def create_case():
             issues=data.get('issues'),
             case_number=f"TML{int(datetime.now().timestamp())}",
             sales_order=data.get('sales_order'),
+            purchase_order=data.get('purchase_order'),
+            market_place=data.get('market_place'),
             assign=assignee,
             status=data.get('status', 'Pending'),
             serial=data.get('serial'),
@@ -207,6 +209,7 @@ def create_customer():
         new_customer = Customer(
             id=str(uuid.uuid4()),
             first_name=data['first_name'],
+            middle_name=data['middle_name'],
             last_name=data['last_name'],
             email=data['email'],
             phone_code=data.get('phone_code'),
@@ -403,7 +406,7 @@ def get_order_history(ship_to_name):
         )
 
         # Only keep these columns
-        df = df[["SONum", "Date", "ShipToName",
+        df = df[["SONum", "PONum", "Date", "ShipToName",
                  "ProductNumber", "ProductQuantity"]]
 
        # Normalize the column values

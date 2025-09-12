@@ -23,6 +23,8 @@ def upgrade():
                               default=sa.text('uuid_generate_v4()')),
                     sa.Column('first_name', sa.String(
                         length=100), nullable=False),
+                    sa.Column('middle_name', sa.String(
+                        length=100), nullable=False),
                     sa.Column('last_name', sa.String(
                         length=100), nullable=False),
                     sa.Column('phone_code', sa.String(

@@ -20,6 +20,7 @@ class Customer(db.Model):
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     first_name = Column(String(100), nullable=False)
+    middle_name = Column(String(100), nullable=False)
     last_name = Column(String(100), nullable=False)
     email = Column(String(100), nullable=False)
     phone_code = Column(String(10), nullable=True)
@@ -42,6 +43,7 @@ class Customer(db.Model):
         return {
             'id': str(self.id),
             'first_name': self.first_name,
+            'middle_name': self.middle_name,
             'last_name': self.last_name,
             'email': self.email,
             'phone_code': self.phone_code,
@@ -67,6 +69,8 @@ class Case(db.Model):
     issues = Column(Text, nullable=True)
     case_number = Column(String(50), nullable=True)
     sales_order = Column(String(50), nullable=True)
+    purchase_order = Column(String(50), nullable=True)
+    market_place = Column(String(50), nullable=True)
     assign = Column(String(100), nullable=True)
     status = Column(String(50), nullable=True)
     serial = Column(String(100), nullable=True)
@@ -91,6 +95,8 @@ class Case(db.Model):
             'issues': self.issues,
             'case_number': self.case_number,
             'sales_order': self.sales_order,
+            'purchase_order': self.purchase_order,
+            'market_place': self.market_place,
             'assign': self.assign,
             'status': self.status,
             'serial': self.serial,

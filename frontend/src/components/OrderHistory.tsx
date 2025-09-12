@@ -4,7 +4,7 @@ import { Box, Typography } from "@mui/material";
 
 import api from "../api";
 
-const OrderHistory = ({ customerName }) => {
+const OrderHistory = ({ customerName, purchaseOrder }) => {
   const [orders, setOrders] = React.useState<any[]>([]);
 
   // useEffect for getting products
@@ -21,6 +21,14 @@ const OrderHistory = ({ customerName }) => {
         );
     }
   }, [customerName]);
+
+  const filteredOrders = orders.filter((order) => {
+    if (purchaseOrder) {
+      return order.p_o_num.toLowerCase().includes(purchaseOrder.toLowerCase());
+    } else {
+      return true;
+    }
+  });
 
   const columns = [
     {
@@ -43,7 +51,12 @@ const OrderHistory = ({ customerName }) => {
     {
       field: "s_o_num",
       headerName: "SO Number",
-      width: 360,
+      width: 180,
+    },
+    {
+      field: "p_o_num",
+      headerName: "PO Number",
+      width: 180,
     },
     {
       field: "ship_to_name",
@@ -58,9 +71,15 @@ const OrderHistory = ({ customerName }) => {
         Order History
       </Typography>
       <DataGrid
-        rows={orders}
+        rows={filteredOrders}
         columns={columns}
         getRowId={(row) => row.s_o_num}
+        sx={{
+          "& .MuiDataGrid-columnHeader": {
+            backgroundColor: "black",
+            color: "white",
+          },
+        }}
       />
     </Box>
   );

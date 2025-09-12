@@ -1,5 +1,5 @@
 import React from "react";
-import { useForm, FormProvider } from "react-hook-form";
+import { FormProvider, useForm, useWatch } from "react-hook-form";
 import { Button } from "@mui/material";
 
 import api from "../../api";
@@ -20,8 +20,8 @@ import Attachments from "./Attachments";
 
 export const defaultValues = {
   first_name: "",
+  middle_name: "",
   last_name: "",
-  mid: "",
   email: "",
   phone_code: "",
   phone_number: "",
@@ -29,6 +29,8 @@ export const defaultValues = {
   issues: "",
   case_number: "",
   sales_order: "",
+  purchase_order: "",
+  market_place: "",
   street: "",
   city: "",
   zip_code: "",
@@ -53,6 +55,12 @@ const NewCaseForm = () => {
   const [customers, setCustomers] = React.useState<Customer[]>([]);
   const [selectedCustomer, setSelectedCustomer] =
     React.useState<Customer | null>(null);
+
+  const purchaseOrderWatch = useWatch({
+    control: methods.control,
+    name: "purchase_order",
+  });
+
   // useEffect to get customers
   React.useEffect(() => {
     api
@@ -128,7 +136,7 @@ const NewCaseForm = () => {
     methods.reset({
       first_name: row.first_name,
       last_name: row.last_name,
-      mid: row.mid,
+      middle_name: row.middle_name,
       phone_code: row.phone_code,
       phone_number: row.phone_number,
       email: row.email,
@@ -176,6 +184,7 @@ const NewCaseForm = () => {
                         selectedCustomer.last_name
                       : ""
                   }
+                  purchaseOrder={purchaseOrderWatch}
                 />
                 <ProductDetail />
               </div>

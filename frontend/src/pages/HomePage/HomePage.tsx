@@ -65,7 +65,7 @@ function HomePage() {
               setCurrentPage(CASE_FORM_ACTION_TYPES.EXIST);
             }}
           >
-            Exist Case
+            Existing Case
           </div>
         </div>
         {currentPage === CASE_FORM_ACTION_TYPES.NEW && <NewCaseForm />}

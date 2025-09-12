@@ -1,5 +1,5 @@
 import React from "react";
-import { useForm, FormProvider } from "react-hook-form";
+import { FormProvider, useForm } from "react-hook-form";
 import { Button } from "@mui/material";
 
 import api from "../../api";
@@ -56,7 +56,7 @@ const ExistCaseForm = () => {
       ...row,
       first_name: row.customer.first_name,
       last_name: row.customer.last_name,
-      mid: row.customer.mid,
+      middle_name: row.customer.middle_name,
       phone_code: row.customer.phone_code,
       phone_number: row.customer.phone_number,
       email: row.customer.email,

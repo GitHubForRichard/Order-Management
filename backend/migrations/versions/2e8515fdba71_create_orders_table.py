@@ -30,6 +30,10 @@ def upgrade():
                         length=50), nullable=True),
                     sa.Column('sales_order', sa.String(
                         length=50), nullable=True),
+                    sa.Column('purchase_order', sa.String(
+                        length=50), nullable=True),
+                    sa.Column('market_place', sa.String(
+                        length=50), nullable=True),
                     sa.Column('assign', sa.String(length=100), nullable=True),
                     sa.Column('status', sa.String(length=50), nullable=True),
                     sa.Column('serial', sa.String(length=100), nullable=True),
