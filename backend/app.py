@@ -146,7 +146,7 @@ def update_case(case_id):
                 body = f'Hi, \n\nThis is a notification that the case {case.case_number} has been assigned to you.'
                 send_email(
                     subject=f"Case Assigned: {case.case_number}",
-                    recipients=['richard14942003@gmail.com'],
+                    recipients=[new_assignee],
                     body=body,
                     sender=app.config['MAIL_USERNAME']
                 )
@@ -155,7 +155,7 @@ def update_case(case_id):
                 body = f'Hi, \n\nThis is a notification that the case {case.case_number} has been updated.'
                 send_email(
                     subject=f"Case Updated: {case.case_number}",
-                    recipients=['richard14942003@gmail.com'],
+                    recipients=[new_assignee],
                     body=body,
                     sender=app.config['MAIL_USERNAME']
                 )
