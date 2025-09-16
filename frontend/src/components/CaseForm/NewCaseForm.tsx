@@ -201,10 +201,7 @@ const NewCaseForm = () => {
                 </Button>
               </div>
             </div>
-            <Attachments
-              caseFormActionType={CASE_FORM_ACTION_TYPES.NEW}
-              selectedCase={null}
-            />
+            <Attachments selectedCase={null} />
           </div>
         </div>
       </form>

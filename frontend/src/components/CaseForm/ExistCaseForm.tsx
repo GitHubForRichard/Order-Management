@@ -25,6 +25,7 @@ const ExistCaseForm = () => {
 
   const [cases, setCases] = React.useState<any[]>([]);
   const [selectedCase, setSelectedCase] = React.useState<any | null>(null);
+  const [filesToRemove, setFilesToRemove] = React.useState<string[]>([]);
 
   // useEffect for getting cases
   React.useEffect(() => {
@@ -42,6 +43,22 @@ const ExistCaseForm = () => {
   const onFormUpdate = async (data: any) => {
     try {
       await api.put(`cases/${selectedCase.id}`, data);
+
+      const attachmentsField = methods.getValues("attachments");
+      if (filesToRemove.length > 0 || attachmentsField?.length > 0) {
+        const formData = new FormData();
+
+        filesToRemove.forEach((id) => formData.append("remove[]", id));
+        attachmentsField?.forEach((file: File) => formData.append("add", file));
+
+        await api.put(`files/${selectedCase.id}`, formData, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
+
+        setFilesToRemove([]);
+        methods.setValue("attachments", []);
+      }
+
       const casesGetResponse = await api.get("cases");
       setCases(casesGetResponse.data);
       methods.reset(defaultValues);
@@ -98,8 +115,9 @@ const ExistCaseForm = () => {
               </div>
               <div className="form-left ship-product">
                 <Attachments
-                  caseFormActionType={CASE_FORM_ACTION_TYPES.EXIST}
                   selectedCase={selectedCase}
+                  filesToRemove={filesToRemove}
+                  setFilesToRemove={setFilesToRemove}
                 />
               </div>
             </div>
