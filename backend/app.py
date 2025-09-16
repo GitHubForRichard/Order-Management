@@ -292,8 +292,6 @@ def upload_file(case_id):
         for file in files:
             upload_response = upload_file_to_google_drive(file)
 
-            print('upload_response', upload_response)
-
             # Save metadata in DB
             new_file = File(
                 case_id=case_id,
@@ -315,10 +313,53 @@ def upload_file(case_id):
         return jsonify({"error": str(e)}), 500
 
 
+@app.route("/api/files/<case_id>", methods=["PUT"])
+@jwt_required
+def update_images(case_id):
+    removed_ids = request.form.getlist("remove[]")
+    new_files = request.files.getlist("add")
+
+    # Remove selected files
+    for id in removed_ids:
+        file = db.session.get(File, id)
+        if file:
+            file.deleted_at = datetime.now(timezone.utc)
+            db.session.add(file)
+
+    # Add new files
+    added_ids = []
+    for file in new_files:
+        upload_response = upload_file_to_google_drive(file)
+
+        # Save metadata in DB
+        new_file = File(
+            case_id=case_id,
+            name=upload_response.get("file_name", None),
+            drive_file_id=upload_response.get("file_id", None),
+            created_at=datetime.now(timezone.utc),
+        )
+
+        db.session.add(new_file)
+        db.session.flush()
+        added_ids.append(new_file.id)
+
+    db.session.commit()
+
+    return jsonify({
+        "removed": removed_ids,
+        "added": added_ids
+    }), 200
+
+
 @app.route('/api/files/<case_id>', methods=['GET'])
 @jwt_required
 def get_file(case_id):
-    files = File.query.filter_by(case_id=case_id).all()
+    files = (
+        File.query
+        .filter_by(case_id=case_id)
+        .filter(File.deleted_at.is_(None))
+        .all()
+    )
 
     file_dict = [file.to_dict() for file in files]
 

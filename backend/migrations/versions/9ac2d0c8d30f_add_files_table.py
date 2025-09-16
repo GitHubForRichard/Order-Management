@@ -27,6 +27,7 @@ def upgrade():
         sa.Column('name', sa.String(), nullable=False),
         sa.Column('drive_file_id', sa.String(), nullable=False),
         sa.Column('created_at', sa.DateTime(), nullable=False),
+        sa.Column('deleted_at', sa.DateTime(), nullable=True),
     )
 
     # ### end Alembic commands ###

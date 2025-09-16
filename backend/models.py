@@ -120,6 +120,7 @@ class File(db.Model):
     drive_file_id = Column(String, nullable=False)
     created_at = Column(DateTime, default=lambda: datetime.now(
         timezone.utc), nullable=False)
+    deleted_at = Column(DateTime, nullable=True)
 
     def __repr__(self):
         return f'<File {self.id}>'
@@ -130,7 +131,8 @@ class File(db.Model):
             'case_id': str(self.case_id),
             'name': self.name,
             'drive_file_id': self.drive_file_id,
-            'created_at': self.created_at.isoformat() if self.created_at else None
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'deleted_at': self.deleted_at.isoformat() if self.deleted_at else None
         }
 
 
