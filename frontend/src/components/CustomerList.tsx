@@ -67,6 +67,11 @@ const CustomerList = ({ customers, onRowDoubleClicked }) => {
       <DataGrid
         rows={customers}
         columns={columns}
+        initialState={{
+          pagination: {
+            paginationModel: { pageSize: 25, page: 0 },
+          },
+        }}
         onRowDoubleClick={(params) =>
           onRowDoubleClicked && onRowDoubleClicked(params.row)
         }

@@ -4,23 +4,21 @@ import { Box, Typography } from "@mui/material";
 
 import api from "../api";
 
-const OrderHistory = ({ customerName, purchaseOrder }) => {
+const OrderHistory = ({ purchaseOrder }) => {
   const [orders, setOrders] = React.useState<any[]>([]);
 
   // useEffect for getting products
   React.useEffect(() => {
-    if (customerName) {
-      api
-        .get(`order-history/${customerName}`)
-        .then((response) => {
-          const fetchedProducts = response.data;
-          setOrders(fetchedProducts.orders);
-        })
-        .catch((error) =>
-          console.error("There was an error loading the orders!", error)
-        );
-    }
-  }, [customerName]);
+    api
+      .get("order-history")
+      .then((response) => {
+        const fetchedProducts = response.data;
+        setOrders(fetchedProducts.orders);
+      })
+      .catch((error) =>
+        console.error("There was an error loading the orders!", error)
+      );
+  }, []);
 
   const filteredOrders = orders.filter((order) => {
     if (purchaseOrder) {
@@ -73,6 +71,11 @@ const OrderHistory = ({ customerName, purchaseOrder }) => {
       <DataGrid
         rows={filteredOrders}
         columns={columns}
+        initialState={{
+          pagination: {
+            paginationModel: { pageSize: 25, page: 0 },
+          },
+        }}
         getRowId={(row) => row.s_o_num}
         sx={{
           "& .MuiDataGrid-columnHeader": {
