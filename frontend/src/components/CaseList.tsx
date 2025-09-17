@@ -73,6 +73,11 @@ const CaseList = ({ cases, onRowDoubleClicked }) => {
       <DataGrid
         rows={cases}
         columns={columns}
+        initialState={{
+          pagination: {
+            paginationModel: { pageSize: 25, page: 0 },
+          },
+        }}
         onRowDoubleClick={(params) =>
           onRowDoubleClicked && onRowDoubleClicked(params.row)
         }

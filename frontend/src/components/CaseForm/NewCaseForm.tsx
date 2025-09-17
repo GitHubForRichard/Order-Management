@@ -176,16 +176,7 @@ const NewCaseForm = () => {
                 />
               </div>
               <div className="form-left ship-product">
-                <OrderHistory
-                  customerName={
-                    selectedCustomer
-                      ? selectedCustomer.first_name +
-                        " " +
-                        selectedCustomer.last_name
-                      : ""
-                  }
-                  purchaseOrder={purchaseOrderWatch}
-                />
+                <OrderHistory purchaseOrder={purchaseOrderWatch} />
                 <ProductDetail />
               </div>
             </div>

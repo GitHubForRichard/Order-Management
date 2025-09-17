@@ -447,10 +447,9 @@ def get_assignees():
     return jsonify(assignees)
 
 
-@app.route("/api/order-history/<ship_to_name>", methods=["GET"])
+@app.route("/api/order-history", methods=["GET"])
 @jwt_required
-def get_order_history(ship_to_name):
-    ship_to_name = ship_to_name.strip().lower()
+def get_order_history():
     records = []
     if ORDER_HISTORY_CSV_FILE_PATH:
         df = pd.read_csv(
@@ -460,12 +459,6 @@ def get_order_history(ship_to_name):
         # Only keep these columns
         df = df[["SONum", "PONum", "Date", "ShipToName",
                  "ProductNumber", "ProductQuantity"]]
-
-       # Normalize the column values
-        df["ShipToName"] = df["ShipToName"].astype(
-            str).str.strip().str.lower()
-        if ship_to_name:
-            df = df[df["ShipToName"] == ship_to_name]
 
         df.columns = [to_snake_case(col) for col in df.columns]
 
