@@ -80,6 +80,15 @@ const CustomerList = ({ customers, onRowDoubleClicked }) => {
             backgroundColor: "black",
             color: "white",
           },
+          "& .MuiDataGrid-iconButtonContainer": {
+            color: "white",
+          },
+          "& .MuiDataGrid-sortIcon": {
+            color: "white",
+          },
+          "& .MuiDataGrid-menuIconButton": {
+            color: "white",
+          },
         }}
       />
     </>
