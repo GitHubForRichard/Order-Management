@@ -31,7 +31,7 @@ def upgrade():
         sa.Column('created_by', sa.UUID(), sa.ForeignKey(
             'users.id'), nullable=False),
         sa.Column("created_at", sa.DateTime, nullable=False,
-                  server_default=sa.func.now()),
+                  server_default=sa.text('NOW()')),
     )
 
     # ### end Alembic commands ###

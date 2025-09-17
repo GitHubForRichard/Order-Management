@@ -21,12 +21,13 @@ def upgrade():
     op.create_table(
         'files',
         sa.Column('id', sa.UUID(), primary_key=True,
-                  default=sa.text('uuid_generate_v4()')),
+                  server_default=sa.text('uuid_generate_v4()')),
         sa.Column('case_id', sa.UUID(),
                   sa.ForeignKey('cases.id'), nullable=False),
         sa.Column('name', sa.String(), nullable=False),
         sa.Column('drive_file_id', sa.String(), nullable=False),
-        sa.Column('created_at', sa.DateTime(), nullable=False),
+        sa.Column('created_at', sa.DateTime(), nullable=False,
+                  server_default=sa.text('NOW()')),
         sa.Column('deleted_at', sa.DateTime(), nullable=True),
     )
 
