@@ -21,14 +21,14 @@ const ProductDetail = () => {
   const [loaded, setLoaded] = React.useState(false);
 
   const columns = [
-    { field: "part", headerName: "Part", width: 230 },
+    { field: "part", headerName: "Part", width: 250 },
     {
       field: "description",
       headerName: "Description",
       sortable: false,
-      width: 500,
+      width: 550,
     },
-    { field: "on_hand", headerName: "On Hand", sortable: false, width: 80 },
+    { field: "on_hand", headerName: "On Hand", sortable: false, width: 90 },
     { field: "allocated", headerName: "Allocated", sortable: false, width: 90 },
     { field: "available", headerName: "Available", sortable: false, width: 90 },
     {
