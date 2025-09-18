@@ -81,7 +81,7 @@ def create_case():
             customer_id=data['customer_id'],
             model_number=data['model_number'],
             issues=data.get('issues'),
-            case_number=f"TML{int(datetime.now().timestamp())}",
+            case_number=f"TLM{int(datetime.now().timestamp())}",
             sales_order=data.get('sales_order'),
             purchase_order=data.get('purchase_order'),
             market_place=data.get('market_place'),
