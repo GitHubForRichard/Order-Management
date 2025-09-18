@@ -163,13 +163,12 @@ const CustomerInfo = ({
           disabled={disabled}
           name="phone_number"
           control={control}
-          rules={{ required: "Phone number is required" }}
           render={({ field }) => (
             <TextField
               {...field}
               label="Phone Number"
               variant="outlined"
-              required
+
               error={!!errors.phone_number}
               margin="normal"
               size="small"
@@ -182,7 +181,6 @@ const CustomerInfo = ({
           name="email"
           control={control}
           rules={{
-            required: "Email is required",
             pattern: {
               value: /^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/,
               message: "Invalid email address",
@@ -193,7 +191,6 @@ const CustomerInfo = ({
               {...field}
               label="Email"
               variant="outlined"
-              required
               error={!!errors.email}
               margin="normal"
               size="small"
