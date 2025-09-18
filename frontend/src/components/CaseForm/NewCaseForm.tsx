@@ -169,14 +169,16 @@ const NewCaseForm = () => {
               </div>
             </div>
             <div className="form-container.column">
-              <div className="form-left search-case">
+              <div className="form-left">
                 <CustomerList
                   customers={customers}
                   onRowDoubleClicked={handleCustomerRowSelect}
                 />
               </div>
-              <div className="form-left ship-product">
+              <div className="form-left">
                 <OrderHistory purchaseOrder={purchaseOrderWatch} />
+              </div>
+              <div className="form-left">
                 <ProductDetail />
               </div>
             </div>

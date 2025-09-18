@@ -1,4 +1,10 @@
-import { Typography } from "@mui/material";
+import {
+  Typography,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
+} from "@mui/material";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { DataGrid } from "@mui/x-data-grid";
 
 const CustomerList = ({ customers, onRowDoubleClicked }) => {
@@ -9,7 +15,6 @@ const CustomerList = ({ customers, onRowDoubleClicked }) => {
       width: 160,
       valueGetter: (_, row) => `${row.first_name || ""} ${row.last_name || ""}`,
     },
-
     {
       field: "phoneNumber",
       headerName: "Phone number",
@@ -60,38 +65,44 @@ const CustomerList = ({ customers, onRowDoubleClicked }) => {
   ];
 
   return (
-    <>
-      <Typography variant="h4" gutterBottom>
-        Customer List
-      </Typography>
-      <DataGrid
-        rows={customers}
-        columns={columns}
-        initialState={{
-          pagination: {
-            paginationModel: { pageSize: 25, page: 0 },
-          },
-        }}
-        onRowDoubleClick={(params) =>
-          onRowDoubleClicked && onRowDoubleClicked(params.row)
-        }
-        sx={{
-          "& .MuiDataGrid-columnHeader": {
-            backgroundColor: "black",
-            color: "white",
-          },
-          "& .MuiDataGrid-iconButtonContainer": {
-            color: "white",
-          },
-          "& .MuiDataGrid-sortIcon": {
-            color: "white",
-          },
-          "& .MuiDataGrid-menuIconButton": {
-            color: "white",
-          },
-        }}
-      />
-    </>
+    <Accordion>
+      <AccordionSummary
+        expandIcon={<ExpandMoreIcon />}
+        aria-controls="customer-list-content"
+        id="customer-list-header"
+      >
+        <Typography variant="h6">Customer List</Typography>
+      </AccordionSummary>
+      <AccordionDetails>
+        <DataGrid
+          rows={customers}
+          columns={columns}
+          initialState={{
+            pagination: {
+              paginationModel: { pageSize: 25, page: 0 },
+            },
+          }}
+          onRowDoubleClick={(params) =>
+            onRowDoubleClicked && onRowDoubleClicked(params.row)
+          }
+          sx={{
+            "& .MuiDataGrid-columnHeader": {
+              backgroundColor: "black",
+              color: "white",
+            },
+            "& .MuiDataGrid-iconButtonContainer": {
+              color: "white",
+            },
+            "& .MuiDataGrid-sortIcon": {
+              color: "white",
+            },
+            "& .MuiDataGrid-menuIconButton": {
+              color: "white",
+            },
+          }}
+        />
+      </AccordionDetails>
+    </Accordion>
   );
 };
 
