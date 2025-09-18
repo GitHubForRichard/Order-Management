@@ -16,7 +16,7 @@ const Attachments: React.FC<AttachmentsProps> = ({
   filesToRemove,
   setFilesToRemove,
 }) => {
-  const { control, setValue, watch } = useFormContext();
+  const { control } = useFormContext();
 
   const [attachments, setAttachments] = React.useState<any[]>([]);
 
