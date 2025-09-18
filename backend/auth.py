@@ -7,7 +7,7 @@ from config import JWT_SECRET_KEY
 from models import User
 
 
-def generate_jwt(user_id: str, expires_in: int = 3600):
+def generate_jwt(user_id: str, expires_in: int = 3600 * 24):
     """Generate JWT token for a user"""
     now = datetime.now(timezone.utc)
     payload = {
