@@ -76,7 +76,7 @@ const OrderHistory = ({ purchaseOrder }) => {
             paginationModel: { pageSize: 25, page: 0 },
           },
         }}
-        getRowId={(row) => row.s_o_num}
+        getRowId={(row) => `${row.s_o_num}-${row.product_number}-${row.date}`}
         sx={{
           "& .MuiDataGrid-columnHeader": {
             backgroundColor: "black",
