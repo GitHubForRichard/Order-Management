@@ -179,13 +179,6 @@ const AddressInfo = ({ disabled = false }) => {
           disabled={disabled}
           name="zip_code"
           control={control}
-          rules={{
-            required: "Zip Code is required",
-            pattern: {
-              value: /^\d{5}$/, // only 5 digit numbers
-              message: "Zip Code must be 5 digits",
-            },
-          }}
           render={({ field, fieldState }) => (
             <TextField
               {...field}
