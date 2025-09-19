@@ -127,10 +127,8 @@ const CustomerInfo = ({
           disabled={disabled}
           name="phone_code"
           control={control}
-          rules={{ required: "Phone code is required" }}
           render={({ field, fieldState }) => (
             <FormControl
-              required
               margin="normal"
               size="small"
               sx={{ width: "70px" }}
@@ -163,12 +161,13 @@ const CustomerInfo = ({
           disabled={disabled}
           name="phone_number"
           control={control}
+          rules={{ required: "Phone Number is required" }}
           render={({ field }) => (
             <TextField
               {...field}
               label="Phone Number"
               variant="outlined"
-
+              required
               error={!!errors.phone_number}
               margin="normal"
               size="small"

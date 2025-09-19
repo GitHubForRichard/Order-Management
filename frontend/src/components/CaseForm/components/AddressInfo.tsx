@@ -67,13 +67,11 @@ const AddressInfo = ({ disabled = false }) => {
           disabled={disabled}
           name="street"
           control={control}
-          rules={{ required: "Street is required" }}
           render={({ field, fieldState }) => (
             <TextField
               {...field}
               label="Street"
               variant="outlined"
-              required
               error={!!fieldState.error}
               helperText={fieldState.error?.message || null}
               margin="normal"
@@ -88,13 +86,11 @@ const AddressInfo = ({ disabled = false }) => {
           disabled={disabled}
           name="city"
           control={control}
-          rules={{ required: "City is required" }}
           render={({ field, fieldState }) => (
             <TextField
               {...field}
               label="City"
               variant="outlined"
-              required
               error={!!fieldState.error}
               helperText={fieldState.error?.message || null}
               margin="normal"
@@ -107,18 +103,12 @@ const AddressInfo = ({ disabled = false }) => {
 
       <Stack direction="row" spacing={2} flexWrap="wrap" mt={3} mb={4}>
         {/* Country */}
-        <FormControl
-          required
-          margin="normal"
-          size="small"
-          sx={{ width: "200px" }}
-        >
+        <FormControl margin="normal" size="small" sx={{ width: "200px" }}>
           <InputLabel id="country-label">Country</InputLabel>
           <Controller
             disabled={disabled}
             name="country"
             control={control}
-            rules={{ required: "Country is required" }}
             defaultValue=""
             render={({ field, fieldState }) => (
               <Select
@@ -139,18 +129,12 @@ const AddressInfo = ({ disabled = false }) => {
 
         {/* State / Province */}
         {country === "USA" || country === "Canada" ? (
-          <FormControl
-            required
-            margin="normal"
-            size="small"
-            sx={{ width: "250px" }}
-          >
+          <FormControl margin="normal" size="small" sx={{ width: "250px" }}>
             <InputLabel id="state-label">State / Province</InputLabel>
             <Controller
               disabled={disabled}
               name="state"
               control={control}
-              rules={{ required: "State/Province is required" }}
               defaultValue=""
               render={({ field, fieldState }) => (
                 <Select
@@ -175,14 +159,12 @@ const AddressInfo = ({ disabled = false }) => {
             disabled={disabled}
             name="state"
             control={control}
-            rules={{ required: "State/Province is required" }}
             defaultValue=""
             render={({ field, fieldState }) => (
               <TextField
                 {...field}
                 label="State / Province"
                 variant="outlined"
-                required
                 error={!!fieldState.error}
                 helperText={fieldState.error?.message || null}
                 margin="normal"
@@ -210,7 +192,6 @@ const AddressInfo = ({ disabled = false }) => {
               {...field}
               label="Zip Code"
               variant="outlined"
-              required
               error={!!fieldState.error}
               helperText={fieldState.error?.message || null}
               margin="normal"
