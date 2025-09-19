@@ -29,7 +29,7 @@ const OrderHistory = ({ purchaseOrder }) => {
     },
     { field: "s_o_num", headerName: "SO Number", width: 180 },
     { field: "p_o_num", headerName: "PO Number", width: 180 },
-    { field: "ship_to_name", headerName: "Ship to Name", width: 360 },
+    { field: "ship_to_name", headerName: "Ship to Name", width: 380 },
   ];
 
   const filteredOrders = orders.filter((order) => {

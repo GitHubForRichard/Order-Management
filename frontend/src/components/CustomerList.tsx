@@ -12,7 +12,7 @@ const CustomerList = ({ customers, onRowDoubleClicked }) => {
     {
       field: "fullName",
       headerName: "Full name",
-      width: 160,
+      width: 180,
       valueGetter: (_, row) => `${row.first_name || ""} ${row.last_name || ""}`,
     },
     {
@@ -28,7 +28,7 @@ const CustomerList = ({ customers, onRowDoubleClicked }) => {
       field: "address",
       headerName: "Address",
       sortable: false,
-      width: 320,
+      width: 340,
       valueGetter: (_, row) =>
         `${row.street || ""}, ${row.city || ""}, ${row.state || ""}, ${
           row.country || ""
