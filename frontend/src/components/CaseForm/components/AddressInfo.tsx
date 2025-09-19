@@ -12,12 +12,11 @@ import {
 import { CANADA_PROVINCES, COUNTRIES, US_STATES } from "../../../constants";
 
 const AddressInfo = ({ disabled = false }) => {
-  const { control, watch } = useFormContext();
   const { control, watch, setValue } = useFormContext();
   const country = watch("country");
 
   // Fetch city/state from Zippopotam
-  const fetchCityState = async (zip) => {
+  const fetchCityState = async (zip: string) => {
     try {
       if (country !== "USA") return;
 
