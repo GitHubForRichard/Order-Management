@@ -50,6 +50,7 @@ export const defaultValues = {
 const NewCaseForm = () => {
   const methods = useForm({
     defaultValues,
+    mode: "onBlur",
   });
 
   const [customers, setCustomers] = React.useState<Customer[]>([]);

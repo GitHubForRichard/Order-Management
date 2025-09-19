@@ -13,8 +13,34 @@ import { CANADA_PROVINCES, COUNTRIES, US_STATES } from "../../../constants";
 
 const AddressInfo = ({ disabled = false }) => {
   const { control, watch } = useFormContext();
-
+  const { control, watch, setValue } = useFormContext();
   const country = watch("country");
+
+  // Fetch city/state from Zippopotam
+  const fetchCityState = async (zip) => {
+    try {
+      if (country !== "USA") return;
+
+      const res = await fetch(`https://api.zippopotam.us/us/${zip}`);
+      if (!res.ok) {
+        setValue("city", "", { shouldValidate: true });
+        setValue("state", "", {
+          shouldValidate: true,
+        });
+      }
+      const data = await res.json();
+
+      if (data?.places?.length > 0) {
+        const place = data.places[0];
+        setValue("city", place["place name"], { shouldValidate: true });
+        setValue("state", place["state abbreviation"], {
+          shouldValidate: true,
+        });
+      }
+    } catch (err) {
+      console.error("Failed to fetch city/state:", err);
+    }
+  };
 
   return (
     <div>
@@ -23,12 +49,12 @@ const AddressInfo = ({ disabled = false }) => {
         gutterBottom
         sx={{
           mb: 3,
-          color: "#3d79bdff", // modern blue color (Material UI primary)
-          fontWeight: 500, // medium weight
-          letterSpacing: "0.5px", // subtle spacing
-          textTransform: "capitalize", // optional, modern look
+          color: "#3d79bdff",
+          fontWeight: 500,
+          letterSpacing: "0.5px",
+          textTransform: "capitalize",
           borderBottom: "1px solid #31609eff",
-          display: "inline-block", // makes the line match text width
+          display: "inline-block",
           fontStyle: "normal",
         }}
       >
@@ -49,7 +75,7 @@ const AddressInfo = ({ disabled = false }) => {
               variant="outlined"
               required
               error={!!fieldState.error}
-              helperText={fieldState.error ? fieldState.error.message : null}
+              helperText={fieldState.error?.message || null}
               margin="normal"
               size="small"
               sx={{ width: "400px" }}
@@ -70,7 +96,7 @@ const AddressInfo = ({ disabled = false }) => {
               variant="outlined"
               required
               error={!!fieldState.error}
-              helperText={fieldState.error ? fieldState.error.message : null}
+              helperText={fieldState.error?.message || null}
               margin="normal"
               size="small"
               sx={{ flex: 1 }}
@@ -158,7 +184,7 @@ const AddressInfo = ({ disabled = false }) => {
                 variant="outlined"
                 required
                 error={!!fieldState.error}
-                helperText={fieldState.error ? fieldState.error.message : null}
+                helperText={fieldState.error?.message || null}
                 margin="normal"
                 size="small"
                 sx={{ width: "250px" }}
@@ -166,12 +192,19 @@ const AddressInfo = ({ disabled = false }) => {
             )}
           />
         )}
+
         {/* Zip Code */}
         <Controller
           disabled={disabled}
           name="zip_code"
           control={control}
-          rules={{ required: "Zip Code is required" }}
+          rules={{
+            required: "Zip Code is required",
+            pattern: {
+              value: /^\d{5}$/, // only 5 digit numbers
+              message: "Zip Code must be 5 digits",
+            },
+          }}
           render={({ field, fieldState }) => (
             <TextField
               {...field}
@@ -179,10 +212,18 @@ const AddressInfo = ({ disabled = false }) => {
               variant="outlined"
               required
               error={!!fieldState.error}
-              helperText={fieldState.error ? fieldState.error.message : null}
+              helperText={fieldState.error?.message || null}
               margin="normal"
               sx={{ flex: 1 }}
               size="small"
+              onBlur={(e) => {
+                field.onBlur();
+                const zipCode = e.target.value;
+                // Only fetch if valid 5-digit zip code
+                if (/^\d{5}$/.test(zipCode)) {
+                  fetchCityState(zipCode);
+                }
+              }}
             />
           )}
         />

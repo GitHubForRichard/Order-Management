@@ -21,6 +21,7 @@ import CaseHistoryLog from "../CaseHistoryLog";
 const ExistCaseForm = () => {
   const methods = useForm({
     defaultValues,
+    mode: "onBlur",
   });
 
   const [cases, setCases] = React.useState<any[]>([]);
