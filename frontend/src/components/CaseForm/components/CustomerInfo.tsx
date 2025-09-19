@@ -42,11 +42,11 @@ const CustomerInfo = ({
                   setSelectedCustomer(null);
                 }}
               >
-                New Customer
+                Clear
               </Button>
             </>
           ) : (
-            "New Customer"
+            "Clear"
           )}
         </Typography>
       )}
