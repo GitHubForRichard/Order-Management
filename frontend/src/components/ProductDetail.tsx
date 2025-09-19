@@ -10,7 +10,7 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 
 import api from "../api";
 
-const ProductDetail = () => {
+const ProductDetail = ({ modelNumber }) => {
   const [products, setProducts] = React.useState<any[]>([]);
   const [paginationModel, setPaginationModel] =
     React.useState<GridPaginationModel>({
@@ -62,6 +62,13 @@ const ProductDetail = () => {
     }
   }, [expanded, loaded]);
 
+  const filteredProducts = products.filter((product) => {
+    if (modelNumber) {
+      return product.part.toLowerCase().includes(modelNumber.toLowerCase());
+    }
+    return true;
+  });
+
   return (
     <Accordion
       expanded={expanded}
@@ -77,7 +84,7 @@ const ProductDetail = () => {
       <AccordionDetails>
         {loaded ? (
           <DataGrid
-            rows={products}
+            rows={filteredProducts}
             columns={columns}
             getRowId={(row) => row.part}
             paginationModel={paginationModel}

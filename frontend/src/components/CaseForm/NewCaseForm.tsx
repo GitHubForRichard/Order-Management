@@ -60,6 +60,10 @@ const NewCaseForm = () => {
     control: methods.control,
     name: "purchase_order",
   });
+  const modelNumberWatch = useWatch({
+    control: methods.control,
+    name: "model_number",
+  });
 
   // useEffect to get customers
   React.useEffect(() => {
@@ -179,7 +183,7 @@ const NewCaseForm = () => {
                 <OrderHistory purchaseOrder={purchaseOrderWatch} />
               </div>
               <div className="form-left">
-                <ProductDetail />
+                <ProductDetail modelNumber={modelNumberWatch} />
               </div>
             </div>
           </div>
