@@ -146,6 +146,7 @@ class User(db.Model):
     last_name = Column(String(100), nullable=False)
     created_at = Column(DateTime, default=lambda: datetime.now(
         timezone.utc), nullable=False)
+    role = Column(String(50), nullable=False, default="employee")
 
     def __repr__(self):
         return f'<User {self.id}>'
@@ -157,7 +158,8 @@ class User(db.Model):
             'first_name': self.first_name,
             'last_name': self.last_name,
             'password_hash': self.password_hash,
-            'created_at': self.created_at.isoformat() if self.created_at else None
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'role': self.role
         }
 
 
@@ -189,4 +191,46 @@ class AuditLog(db.Model):
             'new_value': self.new_value,
             'created_by': str(self.created_by) if self.created_by else None,
             'created_at': self.created_at.isoformat() if self.created_at else None
+        }
+
+class Leave(db.Model):
+    __tablename__ = "leaves"
+
+    id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+
+    type = db.Column(db.String, nullable=False)
+    start_date = db.Column(db.Date, nullable=False)
+    end_date = db.Column(db.Date, nullable=False)
+    hours = db.Column(db.Float, nullable=False)
+    status = db.Column(db.String, default="Pending")
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
+    created_by = Column(UUID(as_uuid=True), ForeignKey('users.id'), nullable=False)
+    updated_at = db.Column(db.DateTime, onupdate=lambda: datetime.now(timezone.utc))
+
+    def to_dict(self):
+        return {
+            "id": str(self.id),
+            "type": self.type,
+            "start_date": self.start_date.isoformat(),
+            "end_date": self.end_date.isoformat(),
+            "hours": self.hours,
+            "status": self.status,
+            "created_at": self.created_at.isoformat() if self.created_at else None,
+            "created_by": str(self.created_by),
+            "updated_at": self.updated_at.isoformat() if self.updated_at else None,
+        }
+    
+
+class UserLeaveHours(db.Model):
+    __tablename__ = "user_leave_hours"
+
+    id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    user_id = Column(UUID(as_uuid=True), ForeignKey('users.id'), nullable=False)
+    remaining_hours = db.Column(db.Float, nullable=False, default=0.0)
+
+    def to_dict(self):
+        return {
+            "id": str(self.id),
+            "user_id": str(self.user_id),
+            "remaining_hours": self.remaining_hours
         }

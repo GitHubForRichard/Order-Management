@@ -25,7 +25,7 @@ from config import (
 )
 from emailer import init_mail, send_email
 from utils import get_case_assignees, update_fields, to_snake_case
-from models import AuditLog, Customer, db, Case, File, User
+from models import AuditLog, Customer, Leave, UserLeaveHours, db, Case, File, User
 from google_drive_client import upload_file_to_google_drive, get_web_view_link
 
 app = Flask(__name__)
@@ -466,6 +466,127 @@ def get_order_history():
 
     return jsonify({"orders": records})
 
+
+@app.route("/api/leaves", methods=["GET"])
+@jwt_required
+def get_leaves():
+    """Get leave requests for the current user, or all if manager"""
+    user_id = request.user.id
+    user = User.query.get(user_id)
+
+    if user.role == "manager":
+        # Return all leave records for managers
+        leave_list = Leave.query.order_by(Leave.start_date.desc()).all()
+    else:
+        # Return only the current user's leave records
+        leave_list = Leave.query.filter_by(created_by=user_id).order_by(Leave.start_date.desc()).all()
+
+    # Add user name to each leave
+    result = []
+    for leave in leave_list:
+        leave_user = User.query.get(leave.created_by)
+        user_hours = UserLeaveHours.query.filter_by(user_id=leave.created_by).first()
+
+        leave_dict = leave.to_dict()
+        leave_dict["created_by"] = {
+            "id": leave.created_by,
+            "first_name": leave_user.first_name,
+            "last_name": leave_user.last_name,
+            "remaining_hours": user_hours.remaining_hours if user_hours else 0
+        }
+
+        result.append(leave_dict)
+
+    return jsonify(result), 200
+
+
+@app.route("/api/leaves", methods=["POST"])
+@jwt_required
+def create_leave():
+    """Create a new leave request"""
+    user_id = request.user.id
+    data = request.get_json()
+
+    type = data.get("type")
+    start_date = data.get("start_date")
+    end_date = data.get("end_date")
+    hours = data.get("hours")
+
+    if not start_date or not end_date or hours is None:
+        return jsonify({"error": "start_date, end_date, and hours are required"}), 400
+
+    try:
+        start = datetime.fromisoformat(start_date).date()
+        end = datetime.fromisoformat(end_date).date()
+    except ValueError:
+        return jsonify({"error": "Invalid date format, expected YYYY-MM-DD"}), 400
+
+    if start > end:
+        return jsonify({"error": "start_date cannot be later than end_date"}), 400
+    
+    new_leave = Leave(
+        type=type,
+        created_by=user_id,
+        start_date=start,
+        end_date=end,
+        hours=hours,
+        status="Pending"
+    )
+
+    try:
+        db.session.add(new_leave)
+        db.session.commit()
+        return jsonify(new_leave.to_dict()), 201
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/leaves/<leave_id>/action", methods=["PATCH"])
+@jwt_required
+def leave_action(leave_id):
+    data = request.get_json()
+    action = data.get("action")
+    if action not in ("approve", "reject"):
+        return jsonify({"error": "Invalid action"}), 400
+
+    leave = Leave.query.get_or_404(leave_id)
+
+    if action == "approve":
+        leave.status = "Approved"
+        if leave.type == "Paid":
+            # Fetch user leave remaining hours
+            leave_user_id = leave.created_by
+            user_leave_hours = UserLeaveHours.query.filter_by(user_id=leave_user_id).first()
+            if not user_leave_hours:
+                return jsonify({"error": f"User PTO record not found for User ID {leave_user_id}"}), 404
+            # Check if user has enough PTO
+            elif user_leave_hours.remaining_hours < leave.hours:
+                return jsonify({"error": "Insufficient PTO hours for User ID {user_id}: Requesting {hours}, Remaining {user_pto.remaining_hours}"}), 400
+            else:
+                user_leave_hours.remaining_hours -= leave.hours
+    else:
+        leave.status = "Rejected"
+
+    db.session.commit()
+    return jsonify({"success": True, "leave": leave.to_dict()}), 200
+
+@app.route("/api/leaves/remaining", methods=["GET"])
+@jwt_required
+def get_remaining_leave_hours():
+    """Get the remaining PTO hours for the current user"""
+    user_id = request.user.id
+
+    # Fetch from the UserPTO table
+    user_leave_hour = UserLeaveHours.query.filter_by(user_id=user_id).first()
+
+    if not user_leave_hour:
+        return jsonify({"error": f"User Leave Hour record not found for User ID {user_id}"}), 404
+
+    return jsonify({
+        "user_id": user_leave_hour.user_id,
+        "remaining_hours": user_leave_hour.remaining_hours
+    }), 200
 
 @app.route('/api/health', methods=['GET'])
 def health_check():

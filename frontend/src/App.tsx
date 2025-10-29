@@ -10,6 +10,7 @@ import LoginPage from "./pages/LoginPage/LoginPage";
 import RegisterPage from "./pages/RegisterPage/RegisterPage";
 
 import "./App.css";
+import LeavePage from "./pages/LeavePage/LeavePage";
 
 // Protected Route Component
 const PrivateRoute = ({ children }: { children }) => {
@@ -34,6 +35,14 @@ const App = () => {
             element={
               <PrivateRoute>
                 <HomePage />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/leaves"
+            element={
+              <PrivateRoute>
+                <LeavePage />
               </PrivateRoute>
             }
           />
