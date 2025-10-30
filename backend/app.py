@@ -4,6 +4,7 @@ import uuid
 
 from datetime import datetime, timezone
 from flask import Flask, request, jsonify
+from flask_apscheduler import APScheduler
 from flask_cors import CORS
 from flask_migrate import Migrate
 from requests.auth import HTTPBasicAuth
@@ -23,10 +24,14 @@ from config import (
     SHIP_STATION_API_KEY,
     SHIP_STATION_API_SECRET
 )
+from cron_jobs.grant_annual_pto import grant_annual_pto
 from emailer import init_mail, send_email
 from utils import get_case_assignees, update_fields, to_snake_case
 from models import AuditLog, Customer, Leave, UserLeaveHours, db, Case, File, User
 from google_drive_client import upload_file_to_google_drive, get_web_view_link
+
+class Config:
+    SCHEDULER_API_ENABLED = True
 
 app = Flask(__name__)
 CORS(app)
@@ -45,6 +50,21 @@ init_mail(app)
 
 db.init_app(app)
 migrate = Migrate(app, db)
+
+app.config.from_object(Config)
+scheduler = APScheduler()
+scheduler.init_app(app)
+scheduler.start()
+
+scheduler.add_job(
+    id="grant_annual_pto",
+    func=lambda: grant_annual_pto(app),
+    trigger="cron",
+    hour=14,
+    minute=30
+)
+
+scheduler.get_job("grant_annual_pto").modify(next_run_time=datetime.now())
 
 
 @app.route('/api/cases', methods=['GET'])
