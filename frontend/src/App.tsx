@@ -11,6 +11,7 @@ import RegisterPage from "./pages/RegisterPage/RegisterPage";
 
 import "./App.css";
 import LeavePage from "./pages/LeavePage/LeavePage";
+import UserPage from "./pages/UserPage/UserPage";
 
 // Protected Route Component
 const PrivateRoute = ({ children }: { children }) => {
@@ -43,6 +44,14 @@ const App = () => {
             element={
               <PrivateRoute>
                 <LeavePage />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/users"
+            element={
+              <PrivateRoute>
+                <UserPage />
               </PrivateRoute>
             }
           />

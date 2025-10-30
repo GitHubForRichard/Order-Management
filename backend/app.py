@@ -588,6 +588,38 @@ def get_remaining_leave_hours():
         "remaining_hours": user_leave_hour.remaining_hours
     }), 200
 
+@app.route('/api/users', methods=['GET'])
+@jwt_required
+def get_users():
+    users = User.query.all()
+    return jsonify([user.to_dict() for user in users])
+
+
+@app.route('/api/users/<user_id>', methods=['PUT'])
+@jwt_required
+def update_user(user_id):
+    """Update an existing user"""
+    user = User.query.get(user_id)
+    if not user:
+        return jsonify({'error': 'User not found'}), 404
+
+    immutable_fields = {"id", "created_at", "password_hash"}
+
+    data = request.get_json()
+
+    update_fields(user, data, AuditLogActions.UPDATED, request.user.id,
+                  immutable_fields=immutable_fields)
+
+
+    try:
+        db.session.commit()
+
+        return jsonify({'user': user.to_dict()}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
+
+
 @app.route('/api/health', methods=['GET'])
 def health_check():
     """Health check endpoint"""

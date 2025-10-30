@@ -146,6 +146,7 @@ class User(db.Model):
     last_name = Column(String(100), nullable=False)
     created_at = Column(DateTime, default=lambda: datetime.now(
         timezone.utc), nullable=False)
+    join_date = Column(db.Date, default=lambda: datetime.now(timezone.utc), nullable=True)
     role = Column(String(50), nullable=False, default="employee")
 
     def __repr__(self):
@@ -159,7 +160,8 @@ class User(db.Model):
             'last_name': self.last_name,
             'password_hash': self.password_hash,
             'created_at': self.created_at.isoformat() if self.created_at else None,
-            'role': self.role
+            'join_date': self.join_date.isoformat() if self.join_date else None,
+            'role': self.role,
         }
 
 
