@@ -1,38 +1,19 @@
 import * as React from "react";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
-import {
-  Button,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  TextField,
-} from "@mui/material";
+import { Button } from "@mui/material";
 import { User } from "@/types/customer";
-import api from "../../api";
+import EditUserDialog from "./EditUserDialog";
 
 const UserList = ({ users }) => {
-  const [openDialog, setOpenDialog] = React.useState(false);
+  const [isEditUserDialogShown, setIsEditUserDialogShown] =
+    React.useState(false);
   const [editingUser, setEditingUser] = React.useState<User | null>(null);
-  const [newJoinDate, setNewJoinDate] = React.useState("");
 
   const handleEditClick = (user: User) => {
     setEditingUser(user);
-    setNewJoinDate(user.join_date?.slice(0, 10) || "");
-    setOpenDialog(true);
+    setIsEditUserDialogShown(true);
   };
 
-  const handleSave = () => {
-    if (editingUser) {
-      api.put(`/users/${editingUser.id}`, {
-        join_date: newJoinDate,
-      });
-    }
-    setOpenDialog(false);
-    setEditingUser(null);
-  };
-
-  console.log(users);
   const columns: GridColDef[] = [
     {
       field: "name",
@@ -60,7 +41,7 @@ const UserList = ({ users }) => {
       headerName: "Actions",
       renderCell: (params) => (
         <Button
-          variant="outlined"
+          variant="contained"
           size="small"
           onClick={() => handleEditClick(params.row)}
         >
@@ -85,24 +66,12 @@ const UserList = ({ users }) => {
           },
         }}
       />
-      <Dialog open={openDialog} onClose={() => setOpenDialog(false)}>
-        <DialogTitle>Edit Join Date</DialogTitle>
-        <DialogContent>
-          <TextField
-            label="Join Date"
-            type="date"
-            value={newJoinDate}
-            onChange={(e) => setNewJoinDate(e.target.value)}
-            InputLabelProps={{ shrink: true }}
-          />
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setOpenDialog(false)}>Cancel</Button>
-          <Button onClick={handleSave} variant="contained" color="primary">
-            Save
-          </Button>
-        </DialogActions>
-      </Dialog>
+      <EditUserDialog
+        isShown={isEditUserDialogShown}
+        setIsShown={setIsEditUserDialogShown}
+        editingUser={editingUser}
+        setEditingUser={setEditingUser}
+      />
     </>
   );
 };
