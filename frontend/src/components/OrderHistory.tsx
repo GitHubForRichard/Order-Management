@@ -19,7 +19,7 @@ const OrderHistory = ({ purchaseOrder }) => {
     React.useState<GridPaginationModel>({ page: 0, pageSize: 25 });
 
   // Make sure only four characters are used to filter order history
-  const canOrderHistoryFilter = purchaseOrder.length >= 4;
+  const canOrderHistoryFilter = purchaseOrder?.length >= 4;
 
   const columns = [
     { field: "product_number", headerName: "Product Number", width: 320 },
