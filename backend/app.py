@@ -92,6 +92,7 @@ def create_case():
             action=data.get('action'),
             tracking=data.get('tracking'),
             return_status=data.get('return_status'),
+            return_for_service=data.get('return_for_service', False),
             created_by=user.id,
             created_at=datetime.now(timezone.utc)
         )
