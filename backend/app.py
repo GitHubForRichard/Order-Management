@@ -616,6 +616,14 @@ def get_users():
     return jsonify([user.to_dict() for user in users])
 
 
+@app.route('/api/users/<user_id>', methods=['GET'])
+@jwt_required
+def get_user(user_id):
+    user = User.query.filter_by(id=user_id).first()
+    if not user:
+        return jsonify({"error": "User not found"}), 404
+    return jsonify(user.to_dict())
+
 @app.route('/api/users/<user_id>', methods=['PUT'])
 @jwt_required
 def update_user(user_id):
