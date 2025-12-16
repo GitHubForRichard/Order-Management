@@ -81,6 +81,16 @@ const LeavePage: React.FC = () => {
 
       <Box mt={2} mb={4}>
         <Typography variant="h6">PTO Information</Typography>
+        <Button
+          variant="contained"
+          size="large"
+          onClick={() => {
+            api.post("/run-pto");
+            window.location.reload();
+          }}
+        >
+          Run Backend PTO
+        </Button>
 
         <Grid container spacing={2} mt={1}>
           {/* PTO Balance */}

@@ -24,7 +24,7 @@ from config import (
     SHIP_STATION_API_KEY,
     SHIP_STATION_API_SECRET
 )
-from cron_jobs.grant_annual_pto import grant_annual_pto
+from cron_jobs.grant_monthly_pto import grant_monthly_pto
 from emailer import init_mail, send_email
 from utils import get_case_assignees, update_fields, to_snake_case
 from models import AuditLog, Customer, Leave, UserLeaveHours, db, Case, File, User
@@ -56,15 +56,16 @@ scheduler = APScheduler()
 scheduler.init_app(app)
 scheduler.start()
 
-scheduler.add_job(
-    id="grant_annual_pto",
-    func=lambda: grant_annual_pto(app),
-    trigger="cron",
-    hour=14,
-    minute=30
-)
+# TODO: Schedule the cronjob to run
+# scheduler.add_job(
+#     id="grant_monthly_pto",
+#     func=lambda: grant_monthly_pto(app),
+#     trigger="cron",
+#     hour=14,
+#     minute=30
+# )
 
-scheduler.get_job("grant_annual_pto").modify(next_run_time=datetime.now())
+# scheduler.get_job("grant_monthly_pto").modify(next_run_time=datetime.now())
 
 
 @app.route('/api/cases', methods=['GET'])
@@ -645,6 +646,13 @@ def health_check():
     """Health check endpoint"""
     return jsonify({'status': 'healthy', 'message': 'Case Management API is running'})
 
+@app.route('/api/run-pto', methods=['POST'])
+@jwt_required
+def run_pto():
+    """Endpoint to process backend PTO"""
+    # Implement your PTO processing logic here
+    grant_monthly_pto(app)
+    return jsonify({'success': True, 'message': 'PTO processed successfully'}), 200
 
 if __name__ == '__main__':
     app.run(debug=True, port=5001)
