@@ -1,7 +1,7 @@
 import React from "react";
 import { Box, Button, Typography, Paper, Grid } from "@mui/material";
 
-import { useAuth } from "hooks/useAuth";
+import { useCurrentUser } from "hooks/useCurrentUser";
 import api from "../../api";
 import LeaveList from "./LeaveList";
 import CreateLeaveDialog from "./CreateLeaveDialog";
@@ -22,9 +22,8 @@ export interface Leave {
   created_at: string;
 }
 
-
 const LeavePage: React.FC = () => {
-  const { user } = useAuth();
+  const { currentUser } = useCurrentUser();
 
   const [leaves, setLeaves] = React.useState<Leave[]>([]);
   const [remainingHours, setRemainingHours] = React.useState(0);
@@ -36,7 +35,6 @@ const LeavePage: React.FC = () => {
     end_date: "",
     hours: 0,
     leaveType: "Paid",
-
   });
 
   React.useEffect(() => {
@@ -77,7 +75,8 @@ const LeavePage: React.FC = () => {
   return (
     <Box p={4}>
       <Typography variant="h4" gutterBottom>
-        {`${user.first_name} ${user.last_name}`} Time Off Management
+        {`${currentUser?.first_name} ${currentUser?.last_name}`} Time Off
+        Management
       </Typography>
 
       <Box mt={2} mb={4}>
@@ -100,9 +99,7 @@ const LeavePage: React.FC = () => {
               <Typography variant="subtitle2" color="text.secondary">
                 Hire Date
               </Typography>
-              <Typography variant="h6">
-                12/10/2025
-              </Typography>
+              <Typography variant="h6">{currentUser?.join_date}</Typography>
             </Paper>
           </Grid>
 
@@ -112,9 +109,7 @@ const LeavePage: React.FC = () => {
               <Typography variant="subtitle2" color="text.secondary">
                 Accrual Rate
               </Typography>
-              <Typography variant="h6">
-                0.67 hours / month
-              </Typography>
+              <Typography variant="h6">0.67 hours / month</Typography>
             </Paper>
           </Grid>
         </Grid>
@@ -133,7 +128,7 @@ const LeavePage: React.FC = () => {
       <LeaveList
         leaves={leaves}
         handleLeaveAction={handleLeaveAction}
-        isManager={user.role === "manager"}
+        isManager={currentUser?.role === "manager"}
       />
 
       <CreateLeaveDialog
