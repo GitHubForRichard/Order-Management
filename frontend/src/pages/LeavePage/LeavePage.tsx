@@ -1,5 +1,5 @@
 import React from "react";
-import { Box, Button, Typography, Paper } from "@mui/material";
+import { Box, Button, Typography, Paper, Grid } from "@mui/material";
 
 import { useAuth } from "hooks/useAuth";
 import api from "../../api";
@@ -22,6 +22,7 @@ export interface Leave {
   created_at: string;
 }
 
+
 const LeavePage: React.FC = () => {
   const { user } = useAuth();
 
@@ -35,6 +36,7 @@ const LeavePage: React.FC = () => {
     end_date: "",
     hours: 0,
     leaveType: "Paid",
+
   });
 
   React.useEffect(() => {
@@ -79,10 +81,43 @@ const LeavePage: React.FC = () => {
       </Typography>
 
       <Box mt={2} mb={4}>
-        <Typography variant="h6">My PTO Balance</Typography>
-        <Paper sx={{ p: 2, mt: 1, minWidth: 150 }}>
-          <Typography variant="h5">{remainingHours} hours remaining</Typography>
-        </Paper>
+        <Typography variant="h6">PTO Information</Typography>
+
+        <Grid container spacing={2} mt={1}>
+          {/* PTO Balance */}
+          <Grid item xs={12} sm={4}>
+            <Paper sx={{ p: 2, minWidth: 150 }}>
+              <Typography variant="subtitle2" color="text.secondary">
+                PTO Balance
+              </Typography>
+              <Typography variant="h5">{remainingHours} hours</Typography>
+            </Paper>
+          </Grid>
+
+          {/* Hire Date */}
+          <Grid item xs={12} sm={4}>
+            <Paper sx={{ p: 2 }}>
+              <Typography variant="subtitle2" color="text.secondary">
+                Hire Date
+              </Typography>
+              <Typography variant="h6">
+                12/10/2025
+              </Typography>
+            </Paper>
+          </Grid>
+
+          {/* Accrual Rate */}
+          <Grid item xs={12} sm={4}>
+            <Paper sx={{ p: 2 }}>
+              <Typography variant="subtitle2" color="text.secondary">
+                Accrual Rate
+              </Typography>
+              <Typography variant="h6">
+                0.67 hours / month
+              </Typography>
+            </Paper>
+          </Grid>
+        </Grid>
       </Box>
 
       <Button

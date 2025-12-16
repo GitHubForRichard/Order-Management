@@ -17,23 +17,22 @@ const CreateLeaveDialog = ({
   setNewLeave,
   remainingHours,
 }) => {
-  const calculateHoursExcludingWeekends = (
-    startDate: string,
-    endDate: string
-  ) => {
+  const calculateHoursExcludingWeekends = (startDate: string, endDate: string) => {
+    if (!startDate || !endDate) return 0;
+
     const start = new Date(startDate);
     const end = new Date(endDate);
-    if (!start || !end) return 0;
 
-    // Zero out time for comparison
+    if (isNaN(start.getTime()) || isNaN(end.getTime())) return 0;
+    if (start > end) return 0;
+
     start.setHours(0, 0, 0, 0);
     end.setHours(0, 0, 0, 0);
 
-    if (start > end) return 0;
-
     let hours = 0;
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         
     for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
-      const dayOfWeek = d.getDay(); // 0 = Sunday, 6 = Saturday
+      const dayOfWeek = d.getDay();
       if (dayOfWeek !== 0 && dayOfWeek !== 6) {
         hours += 8;
       }
@@ -88,16 +87,20 @@ const CreateLeaveDialog = ({
         setIsShown(false);
       }}
     >
-      <DialogTitle>Apply for Time Off</DialogTitle>
+      <DialogTitle sx={{ fontSize: 22, fontWeight: 600,pb: 1 }}>Apply for Time Off</DialogTitle>
       <DialogContent
         sx={{
+ 
+          pt: 3,
           display: "flex",
           flexDirection: "column",
           gap: 2,
-          minWidth: 300,
+          minWidth: 320,
         }}
       >
         <TextField
+          fullWidth        
+          sx={{ mt: 1 }}   
           name="start_date"
           label="Start Date"
           type="date"
