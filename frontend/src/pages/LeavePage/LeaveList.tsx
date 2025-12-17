@@ -76,7 +76,6 @@ const LeaveList = ({ leaves, handleLeaveAction, isManager }) => {
 
   return (
     <DataGrid
-      autoHeight
       rows={leaves}
       columns={columns}
       initialState={{

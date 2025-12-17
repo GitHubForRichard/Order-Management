@@ -609,6 +609,13 @@ def get_remaining_leave_hours():
         "remaining_hours": user_leave_hour.remaining_hours
     }), 200
 
+@app.route('/api/leaves/history/remaining_hours/<user_id>', methods=['GET'])
+@jwt_required
+def get_user_remaining_hours(user_id):
+    audit_logs = AuditLog.query.filter_by(entity_id=user_id, entity=UserLeaveHours.__tablename__).order_by(desc(AuditLog.created_at)).all()
+    return jsonify([audit_log.to_dict() for audit_log in audit_logs]), 200
+
+
 @app.route('/api/users', methods=['GET'])
 @jwt_required
 def get_users():
@@ -647,7 +654,6 @@ def update_user(user_id):
     except Exception as e:
         db.session.rollback()
         return jsonify({'error': str(e)}), 500
-
 
 @app.route('/api/health', methods=['GET'])
 def health_check():

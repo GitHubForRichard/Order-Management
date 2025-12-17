@@ -5,6 +5,7 @@ import { useCurrentUser } from "hooks/useCurrentUser";
 import api from "../../api";
 import LeaveList from "./LeaveList";
 import CreateLeaveDialog from "./CreateLeaveDialog";
+import HoursHistory from "./HoursHistory";
 
 export interface Leave {
   id: number;
@@ -78,7 +79,6 @@ const LeavePage: React.FC = () => {
         {`${currentUser?.first_name} ${currentUser?.last_name}`} Time Off
         Management
       </Typography>
-
       <Box mt={2} mb={4}>
         <Typography variant="h6">PTO Information</Typography>
         <Button
@@ -93,9 +93,8 @@ const LeavePage: React.FC = () => {
         </Button>
 
         <Grid container spacing={2} mt={1}>
-          {/* PTO Balance */}
-          <Grid item xs={12} sm={4}>
-            <Paper sx={{ p: 2, minWidth: 150 }}>
+          <Grid item xs={12} sm={6}>
+            <Paper sx={{ p: 2 }}>
               <Typography variant="subtitle2" color="text.secondary">
                 PTO Balance
               </Typography>
@@ -103,8 +102,7 @@ const LeavePage: React.FC = () => {
             </Paper>
           </Grid>
 
-          {/* Hire Date */}
-          <Grid item xs={12} sm={4}>
+          <Grid item xs={12} sm={6}>
             <Paper sx={{ p: 2 }}>
               <Typography variant="subtitle2" color="text.secondary">
                 Hire Date
@@ -112,15 +110,21 @@ const LeavePage: React.FC = () => {
               <Typography variant="h6">{currentUser?.join_date}</Typography>
             </Paper>
           </Grid>
+        </Grid>
 
-          {/* Accrual Rate */}
-          <Grid item xs={12} sm={4}>
-            <Paper sx={{ p: 2 }}>
-              <Typography variant="subtitle2" color="text.secondary">
-                Accrual Rate
-              </Typography>
-              <Typography variant="h6">0.67 hours / month</Typography>
-            </Paper>
+        <Grid container spacing={2} mt={2}>
+          <Grid item xs={12} md={9}>
+            <Typography variant="h6">Leaves</Typography>
+            <LeaveList
+              leaves={leaves}
+              handleLeaveAction={handleLeaveAction}
+              isManager={currentUser?.role === "manager"}
+            />
+          </Grid>
+
+          <Grid item xs={12} md={3}>
+            <Typography variant="h6">History</Typography>
+            <HoursHistory />
           </Grid>
         </Grid>
       </Box>
@@ -134,12 +138,6 @@ const LeavePage: React.FC = () => {
       >
         Apply
       </Button>
-
-      <LeaveList
-        leaves={leaves}
-        handleLeaveAction={handleLeaveAction}
-        isManager={currentUser?.role === "manager"}
-      />
 
       <CreateLeaveDialog
         isShown={isCreateLeaveDialogShown}
