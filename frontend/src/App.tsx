@@ -13,6 +13,7 @@ import "./App.css";
 import LeavePage from "./pages/LeavePage/LeavePage";
 import UserPage from "./pages/UserPage/UserPage";
 import NavBar from "./NavBar";
+import NotFoundPage from "./pages/NotFoundPage/NotFoundPage";
 
 // Protected Route Component
 const PrivateRoute = ({ children }: { children }) => {
@@ -57,6 +58,7 @@ const App = () => {
               </PrivateRoute>
             }
           />
+          <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </Router>
     </AuthProvider>
