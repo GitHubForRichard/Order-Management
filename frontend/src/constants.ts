@@ -88,3 +88,13 @@ export const CASE_FORM_ACTION_TYPES = {
   NEW: "NEW",
   EXIST: "EXIST",
 };
+
+export const HOLIDAYS = {
+  "New Year's Day": "2026-01-01",
+  "Chinese New Year": "2026-02-17",
+  "Memorial Day": "2026-05-25",
+  "Independence Day": "2026-07-04",
+  "Labor Day": "2026-09-07",
+  "Thanksgiving Day": "2026-11-26",
+  "Christmas Day": "2026-12-25",
+};

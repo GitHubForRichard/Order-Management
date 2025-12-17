@@ -9,6 +9,7 @@ import {
 } from "@mui/material";
 
 import api from "../../api";
+import { HOLIDAYS } from "../../constants";
 
 const CreateLeaveDialog = ({
   isShown,
@@ -17,23 +18,30 @@ const CreateLeaveDialog = ({
   setNewLeave,
   remainingHours,
 }) => {
-  const calculateHoursExcludingWeekends = (startDate: string, endDate: string) => {
+  /**
+   * Calculate hours between a start date and an end date
+   * Excludes weekends and holidays (timezone-safe)
+   */
+  const calculateHours = (startDate: string, endDate: string) => {
     if (!startDate || !endDate) return 0;
 
-    const start = new Date(startDate);
-    const end = new Date(endDate);
+    // Force local midnight to avoid timezone issues
+    const start = new Date(startDate + "T00:00:00");
+    const end = new Date(endDate + "T00:00:00");
 
-    if (isNaN(start.getTime()) || isNaN(end.getTime())) return 0;
-    if (start > end) return 0;
-
-    start.setHours(0, 0, 0, 0);
-    end.setHours(0, 0, 0, 0);
+    if (isNaN(start.getTime()) || isNaN(end.getTime()) || start > end) return 0;
 
     let hours = 0;
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         
+
+    const holidaySet = new Set(Object.values(HOLIDAYS));
+
     for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
-      const dayOfWeek = d.getDay();
-      if (dayOfWeek !== 0 && dayOfWeek !== 6) {
+      const dayOfWeek = d.getDay(); // 0=Sun, 6=Sat
+      const dayStr = `${d.getFullYear()}-${(d.getMonth() + 1)
+        .toString()
+        .padStart(2, "0")}-${d.getDate().toString().padStart(2, "0")}`;
+
+      if (dayOfWeek !== 0 && dayOfWeek !== 6 && !holidaySet.has(dayStr)) {
         hours += 8;
       }
     }
@@ -45,8 +53,9 @@ const CreateLeaveDialog = ({
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = e.target;
+
     if (name === "start_date" || name === "end_date") {
-      const newHours = calculateHoursExcludingWeekends(
+      const newHours = calculateHours(
         name === "start_date" ? value : newLeave.start_date,
         name === "end_date" ? value : newLeave.end_date
       );
@@ -75,22 +84,17 @@ const CreateLeaveDialog = ({
     setIsShown(false);
   };
 
-  // Validate dates
   const start = newLeave.start_date ? new Date(newLeave.start_date) : null;
   const end = newLeave.end_date ? new Date(newLeave.end_date) : null;
   const invalidDates = start && end ? start > end : false;
 
   return (
-    <Dialog
-      open={isShown}
-      onClose={() => {
-        setIsShown(false);
-      }}
-    >
-      <DialogTitle sx={{ fontSize: 22, fontWeight: 600,pb: 1 }}>Apply for Time Off</DialogTitle>
+    <Dialog open={isShown} onClose={() => setIsShown(false)}>
+      <DialogTitle sx={{ fontSize: 22, fontWeight: 600, pb: 1 }}>
+        Apply for Time Off
+      </DialogTitle>
       <DialogContent
         sx={{
- 
           pt: 3,
           display: "flex",
           flexDirection: "column",
@@ -99,8 +103,7 @@ const CreateLeaveDialog = ({
         }}
       >
         <TextField
-          fullWidth        
-          sx={{ mt: 1 }}   
+          fullWidth
           name="start_date"
           label="Start Date"
           type="date"
@@ -112,8 +115,8 @@ const CreateLeaveDialog = ({
             invalidDates ? "Start date cannot be later than end date" : ""
           }
         />
-
         <TextField
+          fullWidth
           name="end_date"
           label="End Date"
           type="date"
@@ -121,11 +124,8 @@ const CreateLeaveDialog = ({
           value={newLeave.end_date}
           onChange={handleChange}
           error={!!invalidDates}
-          inputProps={{
-            min: newLeave.start_date || undefined,
-          }}
+          inputProps={{ min: newLeave.start_date || undefined }}
         />
-
         <TextField
           name="hours"
           label="Hours"
@@ -135,7 +135,6 @@ const CreateLeaveDialog = ({
           onChange={handleChange}
           inputProps={{ min: 0, max: remainingHours }}
         />
-
         <TextField
           select
           name="leaveType"
