@@ -12,6 +12,7 @@ import RegisterPage from "./pages/RegisterPage/RegisterPage";
 import "./App.css";
 import LeavePage from "./pages/LeavePage/LeavePage";
 import UserPage from "./pages/UserPage/UserPage";
+import NavBar from "./NavBar";
 
 // Protected Route Component
 const PrivateRoute = ({ children }: { children }) => {
@@ -28,6 +29,7 @@ const App = () => {
   return (
     <AuthProvider>
       <Router>
+        <NavBar />
         <Routes>
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
