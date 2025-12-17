@@ -1,5 +1,7 @@
 import uuid
 from datetime import date, datetime, timezone
+from calendar import monthrange
+from dateutil.relativedelta import relativedelta
 
 from constants import AuditLogActions
 from models import AuditLog, UserLeaveHours, db, User
@@ -30,20 +32,29 @@ CARRYOVER_CAP_BY_YEAR = {
     7: 7.0,
 }
 
+PROBATION_MONTHS = 3  # Skip accrual during first 3 months
 
-def calculate_years_worked(join_date: date, today: date) -> int:
-    """Accurate full years worked"""
-    years = today.year - join_date.year
-    if (today.month, today.day) < (join_date.month, join_date.day):
+
+def calculate_years_worked(start_date: date, today: date) -> int:
+    """Calculate full years worked from effective start date"""
+    years = today.year - start_date.year
+    if (today.month, today.day) < (start_date.month, start_date.day):
         years -= 1
     return max(years, 0)
 
 
+def is_monthly_anniversary(start_date: date, today: date) -> bool:
+    """Check if today is the employee's monthly PTO accrual date based on effective start date"""
+    day = start_date.day
+    last_day_of_month = monthrange(today.year, today.month)[1]
+    return today.day == min(day, last_day_of_month)
+
+
 def grant_monthly_pto(app):
-    """Grant PTO monthly with carryover reset at anniversary"""
+    """Grant PTO for employees based on effective start date after probation"""
     with app.app_context():
-        print("Granting monthly PTO...")
         today = date.today()
+        print(f"Running PTO accrual for {today}")
 
         users = User.query.all()
 
@@ -51,11 +62,24 @@ def grant_monthly_pto(app):
             if not user.join_date:
                 continue
 
-            user_name = f"{user.first_name} {user.last_name}"
-            years_worked = calculate_years_worked(user.join_date, today)
+            # Compute probation end date
+            probation_end = user.join_date + relativedelta(months=PROBATION_MONTHS)
 
-            # Monthly accrual hours
-            accrual_days = PTO_ACCRUAL_BY_YEARS.get(min(years_worked, 7))
+            # Skip users still in probation
+            if today < probation_end:
+                print(f"Skipping PTO for {user.first_name} {user.last_name} (still in probation)")
+                continue
+
+            # Treat probation_end as the effective start date
+            effective_start_date = probation_end
+            user_name = f"{user.first_name} {user.last_name}"
+            years_worked = calculate_years_worked(effective_start_date, today)
+
+            # Only grant PTO on monthly anniversary
+            if not is_monthly_anniversary(effective_start_date, today):
+                continue
+
+            accrual_days = PTO_ACCRUAL_BY_YEARS.get(min(years_worked, 7), 0)
             accrual_hours = accrual_days * HOURS_PER_DAY
 
             # Fetch or create PTO record
@@ -66,10 +90,9 @@ def grant_monthly_pto(app):
 
             prev_remaining_hours = user_leave_hours.remaining_hours
 
-            # Check if today is employee anniversary
-            anniversary = user.join_date.replace(year=today.year)
+            # Yearly carryover is based on effective start date
+            anniversary = effective_start_date.replace(year=today.year)
             if today == anniversary:
-                # Reset remaining PTO to carryover cap
                 carryover_days = CARRYOVER_CAP_BY_YEAR.get(min(years_worked, 7), 7)
                 carryover_hours = min(user_leave_hours.remaining_hours, carryover_days * HOURS_PER_DAY)
                 user_leave_hours.remaining_hours = carryover_hours
