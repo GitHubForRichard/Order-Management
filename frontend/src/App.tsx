@@ -14,6 +14,7 @@ import LeavePage from "./pages/LeavePage/LeavePage";
 import UserPage from "./pages/UserPage/UserPage";
 import NavBar from "./NavBar";
 import NotFoundPage from "./pages/NotFoundPage/NotFoundPage";
+import LeaveCalendarPage from "./pages/LeaveCalendarPage/LeaveCalendarPage";
 
 // Protected Route Component
 const PrivateRoute = ({ children }: { children }) => {
@@ -47,6 +48,14 @@ const App = () => {
             element={
               <PrivateRoute>
                 <LeavePage />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/calendar"
+            element={
+              <PrivateRoute>
+                <LeaveCalendarPage />
               </PrivateRoute>
             }
           />
