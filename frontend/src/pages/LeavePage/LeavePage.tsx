@@ -79,6 +79,15 @@ const LeavePage: React.FC = () => {
         {`${currentUser?.first_name} ${currentUser?.last_name}`} Time Off
         Management
       </Typography>
+      <Button
+        variant="contained"
+        color="primary"
+        onClick={() => {
+          setIsCreateLeaveDialogShown(true);
+        }}
+      >
+        Apply
+      </Button>
       <Box mt={2} mb={4}>
         <Typography variant="h6">PTO Information</Typography>
         <Button
@@ -128,16 +137,6 @@ const LeavePage: React.FC = () => {
           </Grid>
         </Grid>
       </Box>
-
-      <Button
-        variant="contained"
-        color="primary"
-        onClick={() => {
-          setIsCreateLeaveDialogShown(true);
-        }}
-      >
-        Apply
-      </Button>
 
       <CreateLeaveDialog
         isShown={isCreateLeaveDialogShown}
