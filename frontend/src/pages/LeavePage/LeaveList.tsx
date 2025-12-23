@@ -25,8 +25,24 @@ const LeaveList = ({ leaves, handleLeaveAction, isManager }) => {
         ).toLocaleTimeString()}`,
       flex: 1.5,
     },
-    { field: "start_date", headerName: "Start Date", flex: 1 },
-    { field: "end_date", headerName: "End Date", flex: 1 },
+    {
+      field: "start_date",
+      headerName: "Start Date",
+      flex: 1,
+      type: "date",
+      valueGetter: (_, row) => new Date(row.start_date),
+      renderCell: (params) =>
+        params.value ? params.value.toLocaleDateString() : "",
+    },
+    {
+      field: "end_date",
+      headerName: "End Date",
+      flex: 1,
+      type: "date",
+      valueGetter: (_, row) => new Date(row.end_date),
+      renderCell: (params) =>
+        params.value ? params.value.toLocaleDateString() : "",
+    },
     { field: "hours", headerName: "Hours", flex: 0.5 },
     { field: "status", headerName: "Status", flex: 0.5 },
   ];
