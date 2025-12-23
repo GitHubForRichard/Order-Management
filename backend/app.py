@@ -491,18 +491,33 @@ def get_order_history():
 @app.route("/api/leaves", methods=["GET"])
 @jwt_required
 def get_leaves():
-    """Get leave requests for the current user, or all if manager"""
+    """Get leave requests for the current user, optionally filtered by date range"""
     user_id = request.user.id
     user = User.query.get(user_id)
 
-    if user.role == "manager":
-        # Return all leave records for managers
-        leave_list = Leave.query.order_by(Leave.start_date.desc()).all()
-    else:
-        # Return only the current user's leave records
-        leave_list = Leave.query.filter_by(created_by=user_id).order_by(Leave.start_date.desc()).all()
+    # Get query parameters
+    start_date_str = request.args.get("start_date")
+    end_date_str = request.args.get("end_date")
 
-    # Add user name to each leave
+    # Convert query params to datetime objects if provided
+    start_date = datetime.fromisoformat(start_date_str) if start_date_str else None
+    end_date = datetime.fromisoformat(end_date_str) if end_date_str else None
+
+    # Build base query
+    if user.role == "manager":
+        query = Leave.query
+    else:
+        query = Leave.query.filter_by(created_by=user_id)
+
+    # Apply date filters if provided
+    if start_date:
+        query = query.filter(Leave.start_date >= start_date)
+    if end_date:
+        query = query.filter(Leave.end_date <= end_date)
+
+    leave_list = query.order_by(Leave.start_date.desc()).all()
+
+    # Add user info and remaining hours
     result = []
     for leave in leave_list:
         leave_user = User.query.get(leave.created_by)
