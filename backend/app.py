@@ -56,16 +56,13 @@ scheduler = APScheduler()
 scheduler.init_app(app)
 scheduler.start()
 
-# TODO: Schedule the cronjob to run
-# scheduler.add_job(
-#     id="grant_monthly_pto",
-#     func=lambda: grant_monthly_pto(app),
-#     trigger="cron",
-#     hour=14,
-#     minute=30
-# )
-
-# scheduler.get_job("grant_monthly_pto").modify(next_run_time=datetime.now())
+scheduler.add_job(
+    id="grant_monthly_pto",
+    func=lambda: grant_monthly_pto(app),
+    trigger="cron",
+    hour=0,
+    minute=0
+)
 
 
 @app.route('/api/cases', methods=['GET'])
