@@ -557,6 +557,14 @@ def create_leave():
     if start > end:
         return jsonify({"error": "start_date cannot be later than end_date"}), 400
     
+    # Validate PTO hours for Paid leaves before creating the leave
+    user_leave_hours = UserLeaveHours.query.filter_by(user_id=user_id).first()
+    if type == "Paid" and user_leave_hours:
+        if hours > user_leave_hours.remaining_hours:
+            return jsonify({"error": "Insufficient remaining PTO hours"}), 400
+        else:
+            user_leave_hours.remaining_hours -= hours
+
     new_leave = Leave(
         type=type,
         created_by=user_id,
@@ -580,25 +588,24 @@ def create_leave():
 def leave_action(leave_id):
     data = request.get_json()
     action = data.get("action")
-    if action not in ("approve", "reject"):
+    if action not in ("approve", "reject", "cancel"):
         return jsonify({"error": "Invalid action"}), 400
 
     leave = Leave.query.get_or_404(leave_id)
 
-    if action == "approve":
-        leave.status = "Approved"
+    if action == "cancel":
         if leave.type == "Paid":
             # Fetch user leave remaining hours
             leave_user_id = leave.created_by
             user_leave_hours = UserLeaveHours.query.filter_by(user_id=leave_user_id).first()
             if not user_leave_hours:
                 return jsonify({"error": f"User PTO record not found for User ID {leave_user_id}"}), 404
-            # Check if user has enough PTO
-            elif user_leave_hours.remaining_hours < leave.hours:
-                return jsonify({"error": "Insufficient PTO hours for User ID {user_id}: Requesting {hours}, Remaining {user_pto.remaining_hours}"}), 400
-            else:
-                user_leave_hours.remaining_hours -= leave.hours
-    else:
+            elif action == "cancel":
+                user_leave_hours.remaining_hours += leave.hours
+        leave.status = "Cancelled"
+    elif action == "approve":
+        leave.status = "Approved"
+    elif action == "reject":
         leave.status = "Rejected"
 
     db.session.commit()

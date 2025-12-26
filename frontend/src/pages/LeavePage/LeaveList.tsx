@@ -1,7 +1,10 @@
 import { DataGrid, GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
 import { Box, Button } from "@mui/material";
+import { useAuth } from "hooks/useAuth";
 
 const LeaveList = ({ leaves, handleLeaveAction, isManager }) => {
+  const { user } = useAuth();
+
   const columns: GridColDef[] = [
     {
       field: "requester",
@@ -48,47 +51,62 @@ const LeaveList = ({ leaves, handleLeaveAction, isManager }) => {
   ];
 
   if (isManager) {
-    columns.push(
-      {
-        field: "remaining_hours",
-        headerName: "Hours Remaining",
-        flex: 1,
-        valueGetter: (_, row) => row.created_by.remaining_hours,
-      },
-      {
-        field: "actions",
-        headerName: "Action",
-        flex: 1,
-        renderCell: (params: GridRenderCellParams) => {
-          const leave = params.row;
-          if (leave.status !== "Pending") return null;
-
-          return (
-            <Box display="flex" gap={1}>
-              <Button
-                variant="contained"
-                color="success"
-                size="small"
-                onClick={() =>
-                  handleLeaveAction(leave.id, "approve", leave.hours)
-                }
-              >
-                Approve
-              </Button>
-              <Button
-                variant="contained"
-                color="error"
-                size="small"
-                onClick={() => handleLeaveAction(leave.id, "reject")}
-              >
-                Reject
-              </Button>
-            </Box>
-          );
-        },
-      }
-    );
+    columns.push({
+      field: "remaining_hours",
+      headerName: "Hours Remaining",
+      flex: 1,
+      valueGetter: (_, row) => row.created_by.remaining_hours,
+    });
   }
+
+  columns.push({
+    field: "actions",
+    headerName: "Action",
+    flex: 1,
+    renderCell: (params: GridRenderCellParams) => {
+      const leave = params.row;
+      if (leave.status === "Pending") {
+        if (leave.created_by.id === user?.id) {
+          return (
+            <Button
+              variant="contained"
+              color="warning"
+              size="small"
+              onClick={() => handleLeaveAction(leave.id, "cancel", leave.hours)}
+            >
+              Cancel
+            </Button>
+          );
+        } else {
+          if (isManager) {
+            return (
+              <Box display="flex" gap={1}>
+                <Button
+                  variant="contained"
+                  color="success"
+                  size="small"
+                  onClick={() =>
+                    handleLeaveAction(leave.id, "approve", leave.hours)
+                  }
+                >
+                  Approve
+                </Button>
+                <Button
+                  variant="contained"
+                  color="error"
+                  size="small"
+                  onClick={() => handleLeaveAction(leave.id, "reject")}
+                >
+                  Reject
+                </Button>
+              </Box>
+            );
+          }
+        }
+      }
+      return null;
+    },
+  });
 
   return (
     <DataGrid

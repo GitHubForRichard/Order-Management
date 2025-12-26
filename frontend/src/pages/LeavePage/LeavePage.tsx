@@ -13,7 +13,7 @@ export interface Leave {
   start_date: string;
   end_date: string;
   hours: number;
-  status: "Pending" | "Approved" | "Rejected";
+  status: "Pending" | "Approved" | "Rejected" | "Cancelled";
   created_by: {
     id: string;
     first_name: string;
@@ -57,14 +57,25 @@ const LeavePage: React.FC = () => {
 
   const handleLeaveAction = async (
     leaveId: number,
-    action: "approve" | "reject"
+    action: "approve" | "reject" | "cancel"
   ) => {
     try {
       await api.patch(`leaves/${leaveId}/action`, { action });
+      let actionText = "";
+      if (action === "approve") {
+        actionText = "Approved";
+      } else if (action === "reject") {
+        actionText = "Rejected";
+      } else if (action === "cancel") {
+        actionText = "Cancelled";
+      }
       setLeaves((prev) =>
         prev.map((l) =>
           l.id === leaveId
-            ? { ...l, status: action === "approve" ? "Approved" : "Rejected" }
+            ? {
+                ...l,
+                status: actionText as Leave["status"],
+              }
             : l
         )
       );
