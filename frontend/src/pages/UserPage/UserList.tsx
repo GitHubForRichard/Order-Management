@@ -4,7 +4,7 @@ import { Button } from "@mui/material";
 import { User } from "@/types/customer";
 import EditUserDialog from "./EditUserDialog";
 
-const UserList = ({ users }) => {
+const UserList = ({ users, onUserUpdated }) => {
   const [isEditUserDialogShown, setIsEditUserDialogShown] =
     React.useState(false);
   const [editingUser, setEditingUser] = React.useState<User | null>(null);
@@ -71,6 +71,7 @@ const UserList = ({ users }) => {
         setIsShown={setIsEditUserDialogShown}
         editingUser={editingUser}
         setEditingUser={setEditingUser}
+        onUserUpdated={onUserUpdated}
       />
     </>
   );

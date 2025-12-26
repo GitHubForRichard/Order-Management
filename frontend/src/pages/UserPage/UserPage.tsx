@@ -21,7 +21,13 @@ const UserPage = () => {
     fetchUsers();
   }, []);
 
-  return <UserList users={users} />;
+  const handleUserUpdated = (updatedUser) => {
+    setUsers((prev) =>
+      prev.map((u) => (u.id === updatedUser.id ? updatedUser : u))
+    );
+  };
+
+  return <UserList users={users} onUserUpdated={handleUserUpdated} />;
 };
 
 export default UserPage;

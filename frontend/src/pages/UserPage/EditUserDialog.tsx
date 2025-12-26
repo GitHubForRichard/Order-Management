@@ -16,6 +16,7 @@ const EditUserDialog = ({
   setIsShown,
   editingUser,
   setEditingUser,
+  onUserUpdated,
 }) => {
   const [newJoinDate, setNewJoinDate] = React.useState("");
   const [role, setRole] = React.useState("employee");
@@ -42,6 +43,7 @@ const EditUserDialog = ({
 
     if (Object.keys(payload).length > 0) {
       await api.put(`/users/${editingUser.id}`, payload);
+      onUserUpdated({ ...editingUser, ...payload });
     }
 
     setIsShown(false);
