@@ -593,20 +593,21 @@ def leave_action(leave_id):
 
     leave = Leave.query.get_or_404(leave_id)
 
-    if action == "cancel":
+    if action == "cancel" or action == "reject":
         if leave.type == "Paid":
             # Fetch user leave remaining hours
             leave_user_id = leave.created_by
             user_leave_hours = UserLeaveHours.query.filter_by(user_id=leave_user_id).first()
             if not user_leave_hours:
                 return jsonify({"error": f"User PTO record not found for User ID {leave_user_id}"}), 404
-            elif action == "cancel":
+            else:
                 user_leave_hours.remaining_hours += leave.hours
-        leave.status = "Cancelled"
+            if action == "cancel":
+                leave.status = "Cancelled"
+            elif action == "reject":
+                leave.status = "Rejected"
     elif action == "approve":
         leave.status = "Approved"
-    elif action == "reject":
-        leave.status = "Rejected"
 
     db.session.commit()
     return jsonify({"success": True, "leave": leave.to_dict()}), 200
