@@ -40,7 +40,7 @@ const LeaveCalendarPage = () => {
 
   // Map leave records to calendar events
   const leaveEvents: Event[] = leaves
-    .filter(({ status }) => status !== "Rejected")
+    .filter(({ status }) => !["Rejected", "Cancelled"].includes(status))
     .map(
       ({
         created_by: createdBy,
@@ -68,8 +68,7 @@ const LeaveCalendarPage = () => {
     let backgroundColor = "blue"; // default color
     if (event.status === "Approved") {
       backgroundColor = "green";
-    }
-    if (event.status === "Pending") {
+    } else if (event.status === "Pending") {
       backgroundColor = "orange";
     }
 
