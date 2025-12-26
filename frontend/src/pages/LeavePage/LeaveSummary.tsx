@@ -43,13 +43,24 @@ const LeaveSummaryTable: React.FC<LeaveSummaryTableProps> = ({
             <TableCell align="right">Total Hours</TableCell>
           </TableRow>
         </TableHead>
+
         <TableBody>
-          {groupedLeaves.map((leave) => (
-            <TableRow key={leave.id}>
-              <TableCell>{leave.name}</TableCell>
-              <TableCell align="right">{leave.totalHours}</TableCell>
+          {groupedLeaves.length > 0 ? (
+            groupedLeaves.map((leave) => (
+              <TableRow key={leave.id}>
+                <TableCell>{leave.name}</TableCell>
+                <TableCell align="right">{leave.totalHours}</TableCell>
+              </TableRow>
+            ))
+          ) : (
+            <TableRow>
+              <TableCell colSpan={2} align="center">
+                <Typography variant="body2" color="text.secondary">
+                  No records found
+                </Typography>
+              </TableCell>
             </TableRow>
-          ))}
+          )}
         </TableBody>
       </Table>
     </TableContainer>
@@ -66,8 +77,16 @@ const LeaveSummary = () => {
   const [endDate, setEndDate] = React.useState(formatDate(lastDayOfMonth));
   const [leaves, setLeaves] = React.useState<any[]>([]);
 
+  const isDateRangeValid =
+    Boolean(startDate) &&
+    Boolean(endDate) &&
+    new Date(endDate) >= new Date(startDate);
+
   const fetchLeaves = async () => {
     try {
+      if (!isDateRangeValid) {
+        return;
+      }
       const response = await api.get(
         `leaves?start_date=${startDate}&end_date=${endDate}`
       );
@@ -101,7 +120,13 @@ const LeaveSummary = () => {
 
   return (
     <Box marginTop={4}>
-      <Box display="flex" gap={2} marginBottom={2} justifyContent="center">
+      <Box
+        display="flex"
+        gap={2}
+        marginBottom={2}
+        justifyContent="center"
+        alignItems="flex-start"
+      >
         <TextField
           label="Start Date"
           type="date"
@@ -115,8 +140,16 @@ const LeaveSummary = () => {
           value={endDate}
           onChange={(e) => setEndDate(e.target.value)}
           InputLabelProps={{ shrink: true }}
+          error={!isDateRangeValid}
+          helperText={
+            !isDateRangeValid ? "End date must be after start date" : ""
+          }
         />
-        <Button variant="contained" onClick={fetchLeaves}>
+        <Button
+          variant="contained"
+          onClick={fetchLeaves}
+          disabled={!isDateRangeValid}
+        >
           Filter
         </Button>
       </Box>
