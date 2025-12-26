@@ -1,11 +1,35 @@
+import React from "react";
+
 import { Link as RouterLink } from "react-router-dom";
+import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import PersonIcon from "@mui/icons-material/Person";
 import WorkOutlineIcon from "@mui/icons-material/WorkOutline";
-import { AppBar, Box, Button, Chip, Toolbar, Typography } from "@mui/material";
+import {
+  AppBar,
+  Box,
+  Button,
+  Chip,
+  Menu,
+  MenuItem,
+  Toolbar,
+  Typography,
+} from "@mui/material";
 import { useAuth } from "./hooks/useAuth";
 
 const NavBar = () => {
   const { user, setAuth } = useAuth();
+
+  const [leaveAnchorEl, setLeaveAnchorEl] = React.useState<null | HTMLElement>(
+    null
+  );
+
+  const openLeavesMenu = (event: React.MouseEvent<HTMLElement>) => {
+    setLeaveAnchorEl(event.currentTarget);
+  };
+
+  const closeLeavesMenu = () => {
+    setLeaveAnchorEl(null);
+  };
 
   const handleLogout = () => {
     setAuth(null, null);
@@ -20,15 +44,40 @@ const NavBar = () => {
           <Button color="inherit" component={RouterLink} to="/">
             Home
           </Button>
-          <Button color="inherit" component={RouterLink} to="/leaves">
+          <Button
+            color="inherit"
+            onClick={openLeavesMenu}
+            endIcon={<KeyboardArrowDownIcon />}
+          >
             Leaves
           </Button>
-          <Button color="inherit" component={RouterLink} to="/leaves/calendar">
-            Calendar
-          </Button>
-          <Button color="inherit" component={RouterLink} to="/leaves/summary">
-            Summary
-          </Button>
+          <Menu
+            anchorEl={leaveAnchorEl}
+            open={Boolean(leaveAnchorEl)}
+            onClose={closeLeavesMenu}
+          >
+            <MenuItem
+              component={RouterLink}
+              to="/leaves"
+              onClick={closeLeavesMenu}
+            >
+              List
+            </MenuItem>
+            <MenuItem
+              component={RouterLink}
+              to="/leaves/calendar"
+              onClick={closeLeavesMenu}
+            >
+              Calendar
+            </MenuItem>
+            <MenuItem
+              component={RouterLink}
+              to="/leaves/summary"
+              onClick={closeLeavesMenu}
+            >
+              Summary
+            </MenuItem>
+          </Menu>
           <Button color="inherit" component={RouterLink} to="/users">
             Users
           </Button>
