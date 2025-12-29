@@ -220,7 +220,7 @@ class Leave(db.Model):
             "type": self.type,
             "start_date": self.start_date.isoformat(),
             "end_date": self.end_date.isoformat(),
-            "hours": self.hours,
+            "hours": float(self.hours),
             "status": self.status,
             "created_at": self.created_at.isoformat() if self.created_at else None,
             "created_by": str(self.created_by),
