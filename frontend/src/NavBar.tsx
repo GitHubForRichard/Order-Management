@@ -8,7 +8,6 @@ import {
   AppBar,
   Box,
   Button,
-  Chip,
   Menu,
   MenuItem,
   Toolbar,
@@ -78,9 +77,11 @@ const NavBar = () => {
               Summary
             </MenuItem>
           </Menu>
-          <Button color="inherit" component={RouterLink} to="/users">
-            Users
-          </Button>
+          {user.role === "manager" && (
+            <Button color="inherit" component={RouterLink} to="/users">
+              Users
+            </Button>
+          )}
         </Box>
 
         <Box
