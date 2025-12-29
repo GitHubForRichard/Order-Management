@@ -28,7 +28,7 @@ const LeaveCalendarPage = () => {
     // Fetch leave records
     const fetchLeaves = async () => {
       try {
-        const response = await api.get(`leaves`);
+        const response = await api.get(`leaves?role=manager`);
         setLeaves(response.data || []);
       } catch (error) {
         console.error(`Error fetching leaves or remaining hours:`, error);
