@@ -107,7 +107,10 @@ def grant_monthly_pto(app):
                 print(f"Carryover applied for {user_name}: {carryover_hours:.2f} hours (anniversary)")
 
             # Add monthly accrual
-            user_leave_hours.remaining_hours += accrual_hours
+            user_leave_hours.remaining_hours = round(
+                user_leave_hours.remaining_hours + accrual_hours,
+                2
+            )
 
             print(
                 f"User {user_name}: +{accrual_hours:.2f} hours "
