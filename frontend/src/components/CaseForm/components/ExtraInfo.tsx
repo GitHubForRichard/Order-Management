@@ -1,11 +1,18 @@
 import { useFormContext, Controller } from "react-hook-form";
-import { TextField, Typography, Stack } from "@mui/material";
+import {
+  Box,
+  Checkbox,
+  FormControlLabel,
+  TextField,
+  Typography,
+  Stack,
+} from "@mui/material";
 
 const ExtraInfo = ({ disabled = false }) => {
   const { control } = useFormContext();
 
   return (
-    <div>
+    <Box>
       <Typography
         variant="h5"
         gutterBottom
@@ -56,7 +63,25 @@ const ExtraInfo = ({ disabled = false }) => {
           )}
         />
       </Stack>
-    </div>
+
+      <Controller
+        name="return_for_service"
+        control={control}
+        render={({ field }) => (
+          <FormControlLabel
+            control={
+              <Checkbox
+                {...field}
+                checked={!!field.value}
+                disabled={disabled}
+                onChange={(e) => field.onChange(e.target.checked)}
+              />
+            }
+            label="Return for Service"
+          />
+        )}
+      />
+    </Box>
   );
 };
 

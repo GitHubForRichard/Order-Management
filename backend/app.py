@@ -110,6 +110,7 @@ def create_case():
             action=data.get('action'),
             tracking=data.get('tracking'),
             return_status=data.get('return_status'),
+            return_for_service=data.get('return_for_service', False),
             created_by=user.id,
             created_at=datetime.now(timezone.utc)
         )
@@ -468,18 +469,20 @@ def get_assignees():
 @app.route("/api/order-history", methods=["GET"])
 @jwt_required
 def get_order_history():
+    search_term = request.args.get("search_term", "").strip()
     records = []
     if ORDER_HISTORY_CSV_FILE_PATH:
-        df = pd.read_csv(
-            ORDER_HISTORY_CSV_FILE_PATH,
-        )
+        df = pd.read_csv(ORDER_HISTORY_CSV_FILE_PATH)
 
         # Only keep these columns
         df = df[["SONum", "PONum", "Date", "ShipToName",
                  "ProductNumber", "ProductQuantity"]]
 
+        if search_term:
+            df = df[df["PONum"].astype(str).str.contains(search_term, case=False, na=False)]
+        
         df.columns = [to_snake_case(col) for col in df.columns]
-
+        
         records = df.to_dict(orient="records")
 
     return jsonify({"orders": records})

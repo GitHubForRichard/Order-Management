@@ -2,6 +2,7 @@ import uuid
 from datetime import datetime, timezone
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import (
+    Boolean,
     Column,
     String,
     Text,
@@ -78,6 +79,7 @@ class Case(db.Model):
     action = Column(Text, nullable=True)
     tracking = Column(String(100), nullable=True)
     return_status = Column(String(50), nullable=True)
+    return_for_service = Column(Boolean, nullable=False, default=False)
     created_by = Column(UUID(as_uuid=True), ForeignKey(
         'users.id'), nullable=False)
     created_at = Column(DateTime, nullable=False,
@@ -104,6 +106,7 @@ class Case(db.Model):
             'action': self.action,
             'tracking': self.tracking,
             'return_status': self.return_status,
+            'return_for_service': self.return_for_service,
             'created_by': str(self.created_by) if self.created_by else None,
             'created_at': self.created_at.isoformat() if self.created_at else None,
             'updated_at': self.updated_at.isoformat() if self.updated_at else None

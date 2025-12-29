@@ -44,6 +44,7 @@ export const defaultValues = {
   file_name: "",
   tracking: "",
   return_status: "",
+  return_for_service: false,
   attachments: [],
 };
 

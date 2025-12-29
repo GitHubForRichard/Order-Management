@@ -1,7 +1,33 @@
+import * as React from "react";
+import { useSearchParams } from "react-router-dom";
+
 import { Typography } from "@mui/material";
-import { DataGrid } from "@mui/x-data-grid";
+import { DataGrid, GridFilterModel } from "@mui/x-data-grid";
 
 const CaseList = ({ cases, onRowDoubleClicked }) => {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const existingStatusFilter = searchParams.get("status");
+  const existingAssignFilter = searchParams.get("assign");
+
+  const [filterModel, setFilterModel] = React.useState<GridFilterModel>(() => {
+    const items = [];
+    if (existingStatusFilter) {
+      items.push({
+        field: "status",
+        operator: "contains",
+        value: existingStatusFilter,
+      });
+    }
+    if (existingAssignFilter) {
+      items.push({
+        field: "assign",
+        operator: "contains",
+        value: existingAssignFilter,
+      });
+    }
+    return { items };
+  });
+
   const columns = [
     {
       field: "fullName",
@@ -65,6 +91,22 @@ const CaseList = ({ cases, onRowDoubleClicked }) => {
     },
   ];
 
+  const handleFilterModelChange = (newModel: GridFilterModel) => {
+    setFilterModel(newModel);
+
+    const statusFilter = newModel.items.find((item) => item.field === "status");
+    const assignFilter = newModel.items.find((item) => item.field === "assign");
+
+    const newParams = new URLSearchParams(searchParams.toString());
+
+    if (statusFilter?.value) newParams.set("status", statusFilter.value);
+    else newParams.delete("status");
+
+    if (assignFilter?.value) newParams.set("assign", assignFilter.value);
+    else newParams.delete("assign");
+
+    setSearchParams(newParams);
+  };
   return (
     <>
       <Typography variant="h4" gutterBottom>
@@ -73,6 +115,8 @@ const CaseList = ({ cases, onRowDoubleClicked }) => {
       <DataGrid
         rows={cases}
         columns={columns}
+        filterModel={filterModel}
+        onFilterModelChange={handleFilterModelChange}
         initialState={{
           pagination: {
             paginationModel: { pageSize: 25, page: 0 },

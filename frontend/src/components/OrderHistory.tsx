@@ -4,6 +4,7 @@ import {
   Accordion,
   AccordionSummary,
   AccordionDetails,
+  Alert,
   Typography,
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
@@ -16,6 +17,9 @@ const OrderHistory = ({ purchaseOrder }) => {
   const [loaded, setLoaded] = React.useState(false);
   const [paginationModel, setPaginationModel] =
     React.useState<GridPaginationModel>({ page: 0, pageSize: 25 });
+
+  // Make sure only four characters are used to filter order history
+  const canOrderHistoryFilter = purchaseOrder?.length >= 4;
 
   const columns = [
     { field: "product_number", headerName: "Product Number", width: 320 },
@@ -39,11 +43,16 @@ const OrderHistory = ({ purchaseOrder }) => {
     return true;
   });
 
+  // Reset loaded state again when purchase order is changed
+  React.useEffect(() => {
+    setLoaded(false);
+  }, [purchaseOrder]);
+
   // Only fetch orders when accordion expands for the first time
   React.useEffect(() => {
-    if (expanded && !loaded) {
+    if (expanded && !loaded && canOrderHistoryFilter) {
       api
-        .get("order-history")
+        .get("order-history?search_term=" + purchaseOrder)
         .then((response) => {
           const fetchedOrders = response.data;
           setOrders(fetchedOrders.orders);
@@ -53,7 +62,7 @@ const OrderHistory = ({ purchaseOrder }) => {
           console.error("There was an error loading the orders!", error)
         );
     }
-  }, [expanded, loaded]);
+  }, [expanded, loaded, canOrderHistoryFilter, purchaseOrder]);
 
   return (
     <Accordion
@@ -88,10 +97,15 @@ const OrderHistory = ({ purchaseOrder }) => {
               "& .MuiDataGrid-menuIconButton": { color: "white" },
             }}
           />
-        ) : (
+        ) : canOrderHistoryFilter ? (
           <Typography variant="body2" color="text.secondary">
             Expand to load order history...
           </Typography>
+        ) : (
+          <Alert severity="warning">
+            Please enter <strong>four or more characters</strong> in purchase
+            order to filter.
+          </Alert>
         )}
       </AccordionDetails>
     </Accordion>
