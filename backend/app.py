@@ -24,9 +24,9 @@ from config import (
     SHIP_STATION_API_KEY,
     SHIP_STATION_API_SECRET
 )
-from cron_jobs.grant_monthly_pto import grant_monthly_pto
+from cron_jobs.grant_monthly_pto import HOURS_PER_DAY, grant_monthly_pto
 from emailer import init_mail, send_email
-from utils import get_case_assignees, update_fields, to_snake_case
+from utils import count_weekdays, get_case_assignees, update_fields, to_snake_case
 from models import AuditLog, Customer, Leave, UserLeaveHours, db, Case, File, User
 from google_drive_client import upload_file_to_google_drive, get_web_view_link
 
@@ -510,10 +510,15 @@ def get_leaves():
         query = Leave.query.filter_by(created_by=user_id)
 
     # Apply date filters if provided
-    if start_date:
-        query = query.filter(Leave.start_date >= start_date)
-    if end_date:
-        query = query.filter(Leave.end_date <= end_date)
+    if start_date and end_date:
+        query = query.filter(
+            Leave.start_date <= end_date,
+            Leave.end_date >= start_date
+        )
+    elif start_date:
+        query = query.filter(Leave.end_date >= start_date)
+    elif end_date:
+        query = query.filter(Leave.start_date <= end_date)
 
     leave_list = query.order_by(Leave.start_date.desc()).all()
 
@@ -631,6 +636,62 @@ def get_remaining_leave_hours():
         "user_id": user_leave_hour.user_id,
         "remaining_hours": user_leave_hour.remaining_hours
     }), 200
+
+@app.route("/api/leaves/summary", methods=["GET"])
+@jwt_required
+def get_leave_summary():
+    """Get leave requests for the current user, optionally filtered by date range"""
+
+    # Get query parameters
+    start_date_str = request.args.get("start_date")
+    end_date_str = request.args.get("end_date")
+
+    # Convert query params to datetime objects if provided
+    start_date = datetime.fromisoformat(start_date_str).date() if start_date_str else None
+    end_date = datetime.fromisoformat(end_date_str).date() if end_date_str else None
+
+    # Build base query
+    query = Leave.query
+    query = query.filter(Leave.status.in_(["Pending", "Approved"]))
+    
+    # Apply date overlap filters
+    if start_date and end_date:
+        query = query.filter(Leave.start_date <= end_date, Leave.end_date >= start_date)
+    elif start_date:
+        query = query.filter(Leave.end_date >= start_date)
+    elif end_date:
+        query = query.filter(Leave.start_date <= end_date)
+
+    leave_list = query.order_by(Leave.start_date.desc()).all()
+
+    summary = {}
+
+    for leave in leave_list:
+        leave_start = leave.start_date
+        leave_end = leave.end_date
+
+        # Compute overlap with filter
+        overlap_start = max(leave_start, start_date) if start_date else leave_start
+        overlap_end = min(leave_end, end_date) if end_date else leave_end
+        overlap_days = count_weekdays(overlap_start, overlap_end)
+        overlap_hours = overlap_days * HOURS_PER_DAY
+
+        user_id = leave.created_by
+        leave_user = User.query.get(user_id)
+
+        if user_id not in summary:
+            summary[user_id] = {
+                "id": user_id,
+                "name": f"{leave_user.first_name} {leave_user.last_name}",
+                "totalHours": 0,
+            }
+
+        summary[user_id]["totalHours"] += overlap_hours
+
+    # Convert dict to list
+    result = list(summary.values())
+
+    return jsonify(result), 200
 
 @app.route('/api/leaves/history/remaining_hours/<user_id>', methods=['GET'])
 @jwt_required
