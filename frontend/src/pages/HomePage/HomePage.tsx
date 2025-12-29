@@ -5,18 +5,12 @@ import { CASE_FORM_ACTION_TYPES } from "../../constants";
 import NewCaseForm from "components/CaseForm/NewCaseForm";
 import ExistCaseForm from "components/CaseForm/ExistCaseForm";
 
-import { useAuth } from "hooks/useAuth";
 import "./HomePage.css";
 
 function HomePage() {
-  const { user, setAuth } = useAuth();
   const [currentPage, setCurrentPage] = React.useState(
     CASE_FORM_ACTION_TYPES.NEW
   );
-
-  const handleLogout = () => {
-    setAuth(null, null);
-  };
 
   return (
     <div className="App">
@@ -25,19 +19,6 @@ function HomePage() {
           <img src="/logo_company.jpg" alt="Logo" className="logo" />
           <h2 className="title">Customer Services</h2>
           <div className="spacer" />
-          <button
-            onClick={handleLogout}
-            style={{ marginLeft: "auto" }}
-            color="error"
-          >
-            Logout
-          </button>
-        </div>
-        <div className="user-info-banner">
-          Logged in:{" "}
-          <strong>
-            {user.first_name} {user.last_name}
-          </strong>
         </div>
         <div
           style={{

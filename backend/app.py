@@ -4,6 +4,7 @@ import uuid
 
 from datetime import datetime, timezone
 from flask import Flask, request, jsonify
+from flask_apscheduler import APScheduler
 from flask_cors import CORS
 from flask_migrate import Migrate
 from requests.auth import HTTPBasicAuth
@@ -23,10 +24,14 @@ from config import (
     SHIP_STATION_API_KEY,
     SHIP_STATION_API_SECRET
 )
+from cron_jobs.grant_monthly_pto import grant_monthly_pto
 from emailer import init_mail, send_email
 from utils import get_case_assignees, update_fields, to_snake_case
-from models import AuditLog, Customer, db, Case, File, User
+from models import AuditLog, Customer, Leave, UserLeaveHours, db, Case, File, User
 from google_drive_client import upload_file_to_google_drive, get_web_view_link
+
+class Config:
+    SCHEDULER_API_ENABLED = True
 
 app = Flask(__name__)
 CORS(app)
@@ -45,6 +50,19 @@ init_mail(app)
 
 db.init_app(app)
 migrate = Migrate(app, db)
+
+app.config.from_object(Config)
+scheduler = APScheduler()
+scheduler.init_app(app)
+scheduler.start()
+
+scheduler.add_job(
+    id="grant_monthly_pto",
+    func=lambda: grant_monthly_pto(app),
+    trigger="cron",
+    hour=0,
+    minute=0
+)
 
 
 @app.route('/api/cases', methods=['GET'])
@@ -470,11 +488,208 @@ def get_order_history():
     return jsonify({"orders": records})
 
 
+@app.route("/api/leaves", methods=["GET"])
+@jwt_required
+def get_leaves():
+    """Get leave requests for the current user, optionally filtered by date range"""
+    user_id = request.user.id
+    user = User.query.get(user_id)
+
+    # Get query parameters
+    start_date_str = request.args.get("start_date")
+    end_date_str = request.args.get("end_date")
+
+    # Convert query params to datetime objects if provided
+    start_date = datetime.fromisoformat(start_date_str) if start_date_str else None
+    end_date = datetime.fromisoformat(end_date_str) if end_date_str else None
+
+    # Build base query
+    if user.role == "manager":
+        query = Leave.query
+    else:
+        query = Leave.query.filter_by(created_by=user_id)
+
+    # Apply date filters if provided
+    if start_date:
+        query = query.filter(Leave.start_date >= start_date)
+    if end_date:
+        query = query.filter(Leave.end_date <= end_date)
+
+    leave_list = query.order_by(Leave.start_date.desc()).all()
+
+    # Add user info and remaining hours
+    result = []
+    for leave in leave_list:
+        leave_user = User.query.get(leave.created_by)
+        user_hours = UserLeaveHours.query.filter_by(user_id=leave.created_by).first()
+
+        leave_dict = leave.to_dict()
+        leave_dict["created_by"] = {
+            "id": leave.created_by,
+            "first_name": leave_user.first_name,
+            "last_name": leave_user.last_name,
+            "remaining_hours": user_hours.remaining_hours if user_hours else 0
+        }
+
+        result.append(leave_dict)
+
+    return jsonify(result), 200
+
+
+@app.route("/api/leaves", methods=["POST"])
+@jwt_required
+def create_leave():
+    """Create a new leave request"""
+    user_id = request.user.id
+    data = request.get_json()
+
+    type = data.get("type")
+    start_date = data.get("start_date")
+    end_date = data.get("end_date")
+    hours = data.get("hours")
+
+    if not start_date or not end_date or hours is None:
+        return jsonify({"error": "start_date, end_date, and hours are required"}), 400
+
+    try:
+        start = datetime.fromisoformat(start_date).date()
+        end = datetime.fromisoformat(end_date).date()
+    except ValueError:
+        return jsonify({"error": "Invalid date format, expected YYYY-MM-DD"}), 400
+
+    if start > end:
+        return jsonify({"error": "start_date cannot be later than end_date"}), 400
+    
+    # Validate PTO hours for Paid leaves before creating the leave
+    user_leave_hours = UserLeaveHours.query.filter_by(user_id=user_id).first()
+    if type == "Paid" and user_leave_hours:
+        if hours > user_leave_hours.remaining_hours:
+            return jsonify({"error": "Insufficient remaining PTO hours"}), 400
+        else:
+            user_leave_hours.remaining_hours -= hours
+
+    new_leave = Leave(
+        type=type,
+        created_by=user_id,
+        start_date=start,
+        end_date=end,
+        hours=hours,
+        status="Pending"
+    )
+
+    try:
+        db.session.add(new_leave)
+        db.session.commit()
+        return jsonify(new_leave.to_dict()), 201
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/leaves/<leave_id>/action", methods=["PATCH"])
+@jwt_required
+def leave_action(leave_id):
+    data = request.get_json()
+    action = data.get("action")
+    if action not in ("approve", "reject", "cancel"):
+        return jsonify({"error": "Invalid action"}), 400
+
+    leave = Leave.query.get_or_404(leave_id)
+
+    if action == "cancel" or action == "reject":
+        if leave.type == "Paid":
+            # Fetch user leave remaining hours
+            leave_user_id = leave.created_by
+            user_leave_hours = UserLeaveHours.query.filter_by(user_id=leave_user_id).first()
+            if not user_leave_hours:
+                return jsonify({"error": f"User PTO record not found for User ID {leave_user_id}"}), 404
+            else:
+                user_leave_hours.remaining_hours += leave.hours
+            if action == "cancel":
+                leave.status = "Cancelled"
+            elif action == "reject":
+                leave.status = "Rejected"
+    elif action == "approve":
+        leave.status = "Approved"
+
+    db.session.commit()
+    return jsonify({"success": True, "leave": leave.to_dict()}), 200
+
+@app.route("/api/leaves/remaining", methods=["GET"])
+@jwt_required
+def get_remaining_leave_hours():
+    """Get the remaining PTO hours for the current user"""
+    user_id = request.user.id
+
+    # Fetch from the UserPTO table
+    user_leave_hour = UserLeaveHours.query.filter_by(user_id=user_id).first()
+
+    if not user_leave_hour:
+        return jsonify({"error": f"User Leave Hour record not found for User ID {user_id}"}), 404
+
+    return jsonify({
+        "user_id": user_leave_hour.user_id,
+        "remaining_hours": user_leave_hour.remaining_hours
+    }), 200
+
+@app.route('/api/leaves/history/remaining_hours/<user_id>', methods=['GET'])
+@jwt_required
+def get_user_remaining_hours(user_id):
+    audit_logs = AuditLog.query.filter_by(entity_id=user_id, entity=UserLeaveHours.__tablename__).order_by(desc(AuditLog.created_at)).all()
+    return jsonify([audit_log.to_dict() for audit_log in audit_logs]), 200
+
+
+@app.route('/api/users', methods=['GET'])
+@jwt_required
+def get_users():
+    users = User.query.all()
+    return jsonify([user.to_dict() for user in users])
+
+
+@app.route('/api/users/<user_id>', methods=['GET'])
+@jwt_required
+def get_user(user_id):
+    user = User.query.filter_by(id=user_id).first()
+    if not user:
+        return jsonify({"error": "User not found"}), 404
+    return jsonify(user.to_dict())
+
+@app.route('/api/users/<user_id>', methods=['PUT'])
+@jwt_required
+def update_user(user_id):
+    """Update an existing user"""
+    user = User.query.get(user_id)
+    if not user:
+        return jsonify({'error': 'User not found'}), 404
+
+    immutable_fields = {"id", "created_at", "password_hash"}
+
+    data = request.get_json()
+
+    update_fields(user, data, AuditLogActions.UPDATED, request.user.id,
+                  immutable_fields=immutable_fields)
+
+
+    try:
+        db.session.commit()
+
+        return jsonify({'user': user.to_dict()}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
+
 @app.route('/api/health', methods=['GET'])
 def health_check():
     """Health check endpoint"""
     return jsonify({'status': 'healthy', 'message': 'Case Management API is running'})
 
+@app.route('/api/run-pto', methods=['POST'])
+@jwt_required
+def run_pto():
+    """Endpoint to process backend PTO"""
+    # Implement your PTO processing logic here
+    grant_monthly_pto(app)
+    return jsonify({'success': True, 'message': 'PTO processed successfully'}), 200
 
 if __name__ == '__main__':
     app.run(debug=True, port=5001)

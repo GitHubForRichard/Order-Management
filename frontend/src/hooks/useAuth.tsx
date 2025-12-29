@@ -13,6 +13,8 @@ interface User {
   email: string;
   first_name: string;
   last_name: string;
+  role: "employee" | "manager";
+  join_date: string;
 }
 
 interface AuthContextType {

@@ -1,0 +1,167 @@
+import React from "react";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  TextField,
+  Button,
+  Box,
+  Typography,
+} from "@mui/material";
+
+import api from "../../api";
+
+interface LeaveSummaryTableProps {
+  groupedLeaves: GroupedLeave[];
+}
+
+interface GroupedLeave {
+  id: string;
+  name: string;
+  totalHours: number;
+}
+
+// Utility function to format date as YYYY-MM-DD
+const formatDate = (date: Date) => date.toISOString().split("T")[0];
+
+const LeaveSummaryTable: React.FC<LeaveSummaryTableProps> = ({
+  groupedLeaves,
+}) => {
+  return (
+    <TableContainer
+      component={Paper}
+      sx={{ maxWidth: "60%", margin: "auto", overflowX: "auto" }}
+    >
+      <Table>
+        <TableHead>
+          <TableRow>
+            <TableCell>User</TableCell>
+            <TableCell align="right">Total Hours</TableCell>
+          </TableRow>
+        </TableHead>
+
+        <TableBody>
+          {groupedLeaves.length > 0 ? (
+            groupedLeaves.map((leave) => (
+              <TableRow key={leave.id}>
+                <TableCell>{leave.name}</TableCell>
+                <TableCell align="right">{leave.totalHours}</TableCell>
+              </TableRow>
+            ))
+          ) : (
+            <TableRow>
+              <TableCell colSpan={2} align="center">
+                <Typography variant="body2" color="text.secondary">
+                  No records found
+                </Typography>
+              </TableCell>
+            </TableRow>
+          )}
+        </TableBody>
+      </Table>
+    </TableContainer>
+  );
+};
+
+const LeaveSummary = () => {
+  // Compute first and last day of current month
+  const today = new Date();
+  const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+  const lastDayOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+
+  const [startDate, setStartDate] = React.useState(formatDate(firstDayOfMonth));
+  const [endDate, setEndDate] = React.useState(formatDate(lastDayOfMonth));
+  const [leaves, setLeaves] = React.useState<any[]>([]);
+
+  const isDateRangeValid =
+    Boolean(startDate) &&
+    Boolean(endDate) &&
+    new Date(endDate) >= new Date(startDate);
+
+  const fetchLeaves = async () => {
+    try {
+      if (!isDateRangeValid) {
+        return;
+      }
+      const response = await api.get(
+        `leaves?start_date=${startDate}&end_date=${endDate}`
+      );
+      setLeaves(response.data || []);
+    } catch (error) {
+      console.error("Error fetching leaves", error);
+    }
+  };
+
+  React.useEffect(() => {
+    fetchLeaves();
+  }, []);
+
+  const groupedLeavesById: Record<string, GroupedLeave> = leaves.reduce(
+    (acc, leave) => {
+      const userId = leave.created_by.id;
+      if (!acc[userId]) {
+        acc[userId] = {
+          id: userId,
+          name: `${leave.created_by.first_name} ${leave.created_by.last_name}`,
+          totalHours: 0,
+        };
+      }
+      acc[userId].totalHours += leave.hours ?? 0;
+      return acc;
+    },
+    {} as Record<string, GroupedLeave>
+  );
+
+  const groupedLeaves: GroupedLeave[] = Object.values(groupedLeavesById);
+
+  return (
+    <Box marginTop={4}>
+      <Box
+        display="flex"
+        gap={2}
+        marginBottom={2}
+        justifyContent="center"
+        alignItems="flex-start"
+      >
+        <TextField
+          label="Start Date"
+          type="date"
+          value={startDate}
+          onChange={(e) => setStartDate(e.target.value)}
+          InputLabelProps={{ shrink: true }}
+        />
+        <TextField
+          label="End Date"
+          type="date"
+          value={endDate}
+          onChange={(e) => setEndDate(e.target.value)}
+          InputLabelProps={{ shrink: true }}
+          error={!isDateRangeValid}
+          helperText={
+            !isDateRangeValid ? "End date must be after start date" : ""
+          }
+        />
+        <Button
+          variant="contained"
+          onClick={fetchLeaves}
+          disabled={!isDateRangeValid}
+        >
+          Filter
+        </Button>
+      </Box>
+
+      <Typography variant="subtitle1" textAlign="center" gutterBottom>
+        Showing leaves from <strong>{startDate}</strong> to{" "}
+        <strong>{endDate}</strong>
+      </Typography>
+
+      <LeaveSummaryTable groupedLeaves={groupedLeaves} />
+    </Box>
+  );
+};
+
+export default LeaveSummary;
