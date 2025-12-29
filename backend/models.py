@@ -1,9 +1,11 @@
 import uuid
 from datetime import datetime, timezone
+from decimal import Decimal
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import (
     Boolean,
     Column,
+    Numeric,
     String,
     Text,
     DateTime,
@@ -206,7 +208,7 @@ class Leave(db.Model):
     type = db.Column(db.String, nullable=False)
     start_date = db.Column(db.Date, nullable=False)
     end_date = db.Column(db.Date, nullable=False)
-    hours = db.Column(db.Float, nullable=False)
+    hours = db.Column(Numeric(10, 2), nullable=False)
     status = db.Column(db.String, default="Pending")
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
     created_by = Column(UUID(as_uuid=True), ForeignKey('users.id'), nullable=False)
@@ -231,11 +233,11 @@ class UserLeaveHours(db.Model):
 
     id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     user_id = Column(UUID(as_uuid=True), ForeignKey('users.id'), nullable=False)
-    remaining_hours = db.Column(db.Float, nullable=False, default=0.0)
+    remaining_hours = db.Column(Numeric(10, 2), nullable=False, default=Decimal("0.00"))
 
     def to_dict(self):
         return {
             "id": str(self.id),
             "user_id": str(self.user_id),
-            "remaining_hours": self.remaining_hours
+            "remaining_hours": float(self.remaining_hours)
         }
