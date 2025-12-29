@@ -16,10 +16,10 @@ import {
 import api from "../../api";
 
 interface LeaveSummaryTableProps {
-  groupedLeaves: GroupedLeave[];
+  leaveSummaryList: LeaveSummary[];
 }
 
-interface GroupedLeave {
+interface LeaveSummary {
   id: string;
   name: string;
   totalHours: number;
@@ -29,7 +29,7 @@ interface GroupedLeave {
 const formatDate = (date: Date) => date.toISOString().split("T")[0];
 
 const LeaveSummaryTable: React.FC<LeaveSummaryTableProps> = ({
-  groupedLeaves,
+  leaveSummaryList,
 }) => {
   return (
     <TableContainer
@@ -45,8 +45,8 @@ const LeaveSummaryTable: React.FC<LeaveSummaryTableProps> = ({
         </TableHead>
 
         <TableBody>
-          {groupedLeaves.length > 0 ? (
-            groupedLeaves.map((leave) => (
+          {leaveSummaryList.length > 0 ? (
+            leaveSummaryList.map((leave) => (
               <TableRow key={leave.id}>
                 <TableCell>{leave.name}</TableCell>
                 <TableCell align="right">{leave.totalHours}</TableCell>
@@ -75,48 +75,32 @@ const LeaveSummary = () => {
 
   const [startDate, setStartDate] = React.useState(formatDate(firstDayOfMonth));
   const [endDate, setEndDate] = React.useState(formatDate(lastDayOfMonth));
-  const [leaves, setLeaves] = React.useState<any[]>([]);
+  const [leaveSummaryList, setLeaveSummaryList] = React.useState<
+    LeaveSummary[]
+  >([]);
 
   const isDateRangeValid =
     Boolean(startDate) &&
     Boolean(endDate) &&
     new Date(endDate) >= new Date(startDate);
 
-  const fetchLeaves = async () => {
+  const fetchLeaveSummary = async () => {
     try {
       if (!isDateRangeValid) {
         return;
       }
       const response = await api.get(
-        `leaves?start_date=${startDate}&end_date=${endDate}`
+        `leaves/summary?start_date=${startDate}&end_date=${endDate}`
       );
-      setLeaves(response.data || []);
+      setLeaveSummaryList(response.data || []);
     } catch (error) {
-      console.error("Error fetching leaves", error);
+      console.error("Error fetching leave summary", error);
     }
   };
 
   React.useEffect(() => {
-    fetchLeaves();
+    fetchLeaveSummary();
   }, []);
-
-  const groupedLeavesById: Record<string, GroupedLeave> = leaves.reduce(
-    (acc, leave) => {
-      const userId = leave.created_by.id;
-      if (!acc[userId]) {
-        acc[userId] = {
-          id: userId,
-          name: `${leave.created_by.first_name} ${leave.created_by.last_name}`,
-          totalHours: 0,
-        };
-      }
-      acc[userId].totalHours += leave.hours ?? 0;
-      return acc;
-    },
-    {} as Record<string, GroupedLeave>
-  );
-
-  const groupedLeaves: GroupedLeave[] = Object.values(groupedLeavesById);
 
   return (
     <Box marginTop={4}>
@@ -147,7 +131,7 @@ const LeaveSummary = () => {
         />
         <Button
           variant="contained"
-          onClick={fetchLeaves}
+          onClick={fetchLeaveSummary}
           disabled={!isDateRangeValid}
         >
           Filter
@@ -159,7 +143,7 @@ const LeaveSummary = () => {
         <strong>{endDate}</strong>
       </Typography>
 
-      <LeaveSummaryTable groupedLeaves={groupedLeaves} />
+      <LeaveSummaryTable leaveSummaryList={leaveSummaryList} />
     </Box>
   );
 };
