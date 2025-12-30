@@ -505,7 +505,7 @@ def get_leaves():
     end_date = datetime.fromisoformat(end_date_str) if end_date_str else None
 
     # Build base query
-    if role == "manager":
+    if user.role == "manager" or role == "manager":
         query = Leave.query
     else:
         query = Leave.query.filter_by(created_by=user_id)
