@@ -71,7 +71,6 @@ const LeaveList = ({ leaves, handleLeaveAction, isManager }) => {
       }
 
       const isOwner = leave.created_by.id === user?.id;
-      const canApprove = isOwner || isManager;
 
       return (
         <Box display="flex" gap={1}>
@@ -86,7 +85,7 @@ const LeaveList = ({ leaves, handleLeaveAction, isManager }) => {
             </Button>
           )}
 
-          {canApprove && (
+          {isManager && (
             <Button
               variant="contained"
               color="success"
