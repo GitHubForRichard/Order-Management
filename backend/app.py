@@ -598,6 +598,21 @@ def create_leave():
     try:
         db.session.add(new_leave)
         db.session.commit()
+
+        managers = User.query.filter_by(role="manager").all()
+        manager_emails = [m.email for m in managers if m.email]
+        if manager_emails:
+            subject = f"New Leave Request from {request.user.first_name} {request.user.last_name}"
+            body = f"""
+            A new leave request has been submitted:
+
+            Type: {type}
+            Start Date: {start_date}
+            End Date: {end_date}
+            Hours: {hours}
+            """
+            send_email(subject=subject, recipients=manager_emails, body=body, sender=app.config['MAIL_USERNAME'])
+
         return jsonify(new_leave.to_dict()), 201
     except Exception as e:
         db.session.rollback()
@@ -613,11 +628,12 @@ def leave_action(leave_id):
         return jsonify({"error": "Invalid action"}), 400
 
     leave = Leave.query.get_or_404(leave_id)
+    leave_user_id = leave.created_by
+    leave_user = User.query.get(leave_user_id)
 
     if action == "cancel" or action == "reject":
         if leave.type == "Paid":
             # Fetch user leave remaining hours
-            leave_user_id = leave.created_by
             user_leave_hours = UserLeaveHours.query.filter_by(user_id=leave_user_id).first()
             if not user_leave_hours:
                 return jsonify({"error": f"User PTO record not found for User ID {leave_user_id}"}), 404
@@ -627,8 +643,15 @@ def leave_action(leave_id):
                 leave.status = "Cancelled"
             elif action == "reject":
                 leave.status = "Rejected"
+                subject = "Leave Request Rejected"
+                body = f"Your leave request from {leave.start_date} to {leave.end_date} has been rejected."
+                send_email(subject=subject, recipients=[leave_user.email], body=body, sender=app.config['MAIL_USERNAME'])
+
     elif action == "approve":
         leave.status = "Approved"
+        subject = "Leave Request Approved"
+        body = f"Your leave request from {leave.start_date} to {leave.end_date} has been approved."
+        send_email(subject=subject, recipients=[leave_user.email], body=body, sender=app.config['MAIL_USERNAME'])
 
     db.session.commit()
     return jsonify({"success": True, "leave": leave.to_dict()}), 200
