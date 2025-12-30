@@ -4,7 +4,7 @@ from calendar import monthrange
 from dateutil.relativedelta import relativedelta
 
 from constants import AuditLogActions
-from models import AuditLog, UserLeaveHours, db, User
+from models import AuditLog, ScriptRunLog, UserLeaveHours, db, User
 
 HOURS_PER_DAY = 8
 
@@ -56,6 +56,20 @@ def grant_monthly_pto(app):
         today = date.today()
         print(f"Running PTO accrual for {today}")
 
+        # Prevent multiple script runs
+        log = ScriptRunLog.query.filter_by(script_name="grant_monthly_pto").first()
+        if log and log.last_run_date == today:
+            print("PTO script has already run today, exiting.")
+            return
+        elif not log:
+            log = ScriptRunLog(script_name="grant_monthly_pto", last_run_date=None)
+            db.session.add(log)
+            db.session.flush()
+
+        # Update last_run_date early to prevent duplicate runs
+        log.last_run_date = today
+
+
         users = User.query.all()
 
         for user in users:
@@ -80,11 +94,6 @@ def grant_monthly_pto(app):
             print(f"Effective start date: {effective_start_date}")
             print(f"Years worked: {years_worked}")
 
-            # Only grant PTO on monthly anniversary
-            if not is_monthly_anniversary(effective_start_date, today):
-                print(f"Skipping PTO for {user_name} (not monthly anniversary)")
-                continue
-
             accrual_days = PTO_ACCRUAL_BY_YEARS.get(min(years_worked, 7), 0)
             accrual_hours = accrual_days * HOURS_PER_DAY
 
@@ -101,6 +110,15 @@ def grant_monthly_pto(app):
                 print(f"Skipping {user_name}, PTO script has been applied to this user today already")
                 continue
 
+            # Update last accrual date
+            user_leave_hours.last_accrual_date = today
+
+            # Only grant PTO on monthly anniversary
+            if not is_monthly_anniversary(effective_start_date, today):
+                print(f"Skipping PTO for {user_name} (not monthly anniversary)")
+                continue
+
+
             prev_remaining_hours = user_leave_hours.remaining_hours
 
             # Apply year-end carryover on Dec 31
@@ -115,8 +133,7 @@ def grant_monthly_pto(app):
                 user_leave_hours.remaining_hours + accrual_hours,
                 2
             )
-            # Update last accrual date
-            user_leave_hours.last_accrual_date = today
+
 
             print(
                 f"User {user_name}: +{accrual_hours:.2f} hours "

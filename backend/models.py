@@ -232,7 +232,6 @@ class UserLeaveHours(db.Model):
     id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     user_id = Column(UUID(as_uuid=True), ForeignKey('users.id'), nullable=False)
     remaining_hours = db.Column(db.Float, nullable=False, default=0.0)
-
     def to_dict(self):
         return {
             "id": str(self.id),
