@@ -92,8 +92,14 @@ def grant_monthly_pto(app):
             user_leave_hours = UserLeaveHours.query.filter_by(user_id=user.id).first()
             if not user_leave_hours:
                 print(f"Unable to find PTO record for {user_name}, creating a new record")
-                user_leave_hours = UserLeaveHours(user_id=user.id, remaining_hours=0)
+                user_leave_hours = UserLeaveHours(user_id=user.id, remaining_hours=0, last_accrual_date=None)
                 db.session.add(user_leave_hours)
+                db.session.flush()  # ensure we get the ID
+
+            # Prevent double accrual in a single day
+            if user_leave_hours.last_accrual_date == today:
+                print(f"Skipping {user_name}, PTO script has been applied to this user today already")
+                continue
 
             prev_remaining_hours = user_leave_hours.remaining_hours
 
@@ -109,6 +115,8 @@ def grant_monthly_pto(app):
                 user_leave_hours.remaining_hours + accrual_hours,
                 2
             )
+            # Update last accrual date
+            user_leave_hours.last_accrual_date = today
 
             print(
                 f"User {user_name}: +{accrual_hours:.2f} hours "
