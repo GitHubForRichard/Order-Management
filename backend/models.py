@@ -238,3 +238,9 @@ class UserLeaveHours(db.Model):
             "user_id": str(self.user_id),
             "remaining_hours": self.remaining_hours
         }
+
+class ScriptRunLog(db.Model):
+    __tablename__ = "script_run_log"
+    id = db.Column(db.Integer, primary_key=True)
+    script_name = db.Column(db.String, unique=True)
+    last_run_date = db.Column(db.Date)
