@@ -1,11 +1,13 @@
 import * as React from "react";
 import {
+  Alert,
   Button,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
   TextField,
+  Typography,
 } from "@mui/material";
 
 import api from "../../api";
@@ -18,25 +20,21 @@ const CreateLeaveDialog = ({
   setNewLeave,
   remainingHours,
 }) => {
-  /**
-   * Calculate hours between a start date and an end date
-   * Excludes weekends and holidays (timezone-safe)
-   */
+  const [errorMessage, setErrorMessage] = React.useState("");
+
   const calculateHours = (startDate: string, endDate: string) => {
     if (!startDate || !endDate) return 0;
 
-    // Force local midnight to avoid timezone issues
     const start = new Date(startDate + "T00:00:00");
     const end = new Date(endDate + "T00:00:00");
 
     if (isNaN(start.getTime()) || isNaN(end.getTime()) || start > end) return 0;
 
     let hours = 0;
-
     const holidaySet = new Set(Object.values(HOLIDAYS));
 
     for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
-      const dayOfWeek = d.getDay(); // 0=Sun, 6=Sat
+      const dayOfWeek = d.getDay();
       const dayStr = `${d.getFullYear()}-${(d.getMonth() + 1)
         .toString()
         .padStart(2, "0")}-${d.getDate().toString().padStart(2, "0")}`;
@@ -73,15 +71,30 @@ const CreateLeaveDialog = ({
     }
   };
 
-  const handleSubmit = () => {
-    api.post("leaves", {
-      type: newLeave.leaveType,
-      start_date: newLeave.start_date,
-      end_date: newLeave.end_date,
-      hours: newLeave.hours,
-    });
-    setNewLeave({ start_date: "", end_date: "", hours: 0, leaveType: "Paid" });
-    setIsShown(false);
+  const handleSubmit = async () => {
+    try {
+      await api.post("leaves", {
+        type: newLeave.leaveType,
+        start_date: newLeave.start_date,
+        end_date: newLeave.end_date,
+        hours: newLeave.hours,
+      });
+
+      setNewLeave({
+        start_date: "",
+        end_date: "",
+        hours: 0,
+        leaveType: "Paid",
+      });
+      setIsShown(false);
+      setErrorMessage("");
+    } catch (err: any) {
+      if (err.response?.status === 400) {
+        setErrorMessage(err.response.data?.error || "Invalid leave request");
+      } else {
+        setErrorMessage("Something went wrong. Please try again.");
+      }
+    }
   };
 
   const start = newLeave.start_date ? new Date(newLeave.start_date) : null;
@@ -146,6 +159,7 @@ const CreateLeaveDialog = ({
           <option value="Paid">PTO</option>
           <option value="Unpaid">Leave</option>
         </TextField>
+        {errorMessage && <Alert severity="error">{errorMessage}</Alert>}
       </DialogContent>
       <DialogActions>
         <Button onClick={() => setIsShown(false)}>Cancel</Button>

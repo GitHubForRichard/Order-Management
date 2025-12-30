@@ -566,6 +566,18 @@ def create_leave():
     if start > end:
         return jsonify({"error": "start_date cannot be later than end_date"}), 400
     
+    # Check for overlapping leaves (only Pending or Approved)
+    overlapping_leave = Leave.query.filter(
+        Leave.created_by == user_id,
+        Leave.status.in_(["Pending", "Approved"]),
+        Leave.start_date <= end,
+        Leave.end_date >= start
+    ).first()
+
+    if overlapping_leave:
+        return jsonify({"error": "Leave request overlaps with existing leave"}), 400
+
+    
     # Validate PTO hours for Paid leaves before creating the leave
     user_leave_hours = UserLeaveHours.query.filter_by(user_id=user_id).first()
     if type == "Paid" and user_leave_hours:

@@ -33,7 +33,10 @@ const LeaveList = ({ leaves, handleLeaveAction, isManager }) => {
       headerName: "Start Date",
       flex: 1,
       type: "date",
-      valueGetter: (_, row) => new Date(row.start_date),
+      valueGetter: (_, row) => {
+        const [year, month, day] = row.start_date.split("-").map(Number);
+        return new Date(year, month - 1, day);
+      },
       renderCell: (params) =>
         params.value ? params.value.toLocaleDateString() : "",
     },
@@ -42,7 +45,10 @@ const LeaveList = ({ leaves, handleLeaveAction, isManager }) => {
       headerName: "End Date",
       flex: 1,
       type: "date",
-      valueGetter: (_, row) => new Date(row.end_date),
+      valueGetter: (_, row) => {
+        const [year, month, day] = row.end_date.split("-").map(Number);
+        return new Date(year, month - 1, day); // local date
+      },
       renderCell: (params) =>
         params.value ? params.value.toLocaleDateString() : "",
     },
