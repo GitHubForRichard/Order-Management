@@ -101,15 +101,6 @@ const LeavePage: React.FC = () => {
       </Button>
       <Box mt={2} mb={4}>
         <Typography variant="h6">PTO Information</Typography>
-        <Button
-          variant="contained"
-          size="large"
-          onClick={() => {
-            api.post("/run-pto");
-          }}
-        >
-          Run Backend PTO
-        </Button>
 
         <Grid container spacing={2} mt={1}>
           <Grid item xs={12} sm={6}>
