@@ -1,6 +1,7 @@
 import uuid
-from datetime import date, datetime, timedelta, timezone
+from datetime import date, datetime, timezone
 from calendar import monthrange
+from dateutil.relativedelta import relativedelta
 
 from constants import AuditLogActions
 from models import AuditLog, ScriptRunLog, UserLeaveHours, db, User
@@ -31,7 +32,7 @@ CARRYOVER_CAP_BY_YEAR = {
     7: 7.0,
 }
 
-PROBATION_DAYS = 90  # Skip accrual during first 90 days
+PROBATION_MONTHS = 3  # Skip accrual during first 3 months
 
 
 def calculate_years_worked(start_date: date, today: date) -> int:
@@ -79,7 +80,7 @@ def grant_monthly_pto(app):
                 continue
 
             # Compute probation end date
-            probation_end = user.join_date + timedelta(days=PROBATION_DAYS)
+            probation_end = user.join_date + relativedelta(months=PROBATION_MONTHS)
 
             # Skip users still in probation
             if today < probation_end:
