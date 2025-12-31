@@ -106,7 +106,6 @@ const LeavePage: React.FC = () => {
           size="large"
           onClick={() => {
             api.post("/run-pto");
-            window.location.reload();
           }}
         >
           Run Backend PTO
