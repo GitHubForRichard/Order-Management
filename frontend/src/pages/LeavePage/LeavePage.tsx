@@ -117,7 +117,9 @@ const LeavePage: React.FC = () => {
               <Typography variant="subtitle2" color="text.secondary">
                 PTO Balance
               </Typography>
-              <Typography variant="h5">{remainingHours} hours</Typography>
+              <Typography variant="h5">
+                {remainingHours.toFixed(2)} hours
+              </Typography>
             </Paper>
           </Grid>
 

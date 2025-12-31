@@ -61,7 +61,7 @@ const LeaveList = ({ leaves, handleLeaveAction, isManager }) => {
       field: "remaining_hours",
       headerName: "Hours Remaining",
       flex: 1,
-      valueGetter: (_, row) => row.created_by.remaining_hours,
+      valueGetter: (_, row) => row.created_by.remaining_hours.toFixed(2),
     });
   }
 
