@@ -12,3 +12,5 @@ DB_NAME = os.getenv("POSTGRES_DB", "postgres")
 class AuditLogActions(str, Enum):
     CREATED = "CREATED"
     UPDATED = "UPDATED"
+
+SACRAMENTO_SUPERVISOR_EMAIL = 'Brian@tlmsupply.com'
