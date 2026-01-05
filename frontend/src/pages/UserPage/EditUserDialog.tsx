@@ -20,18 +20,24 @@ const EditUserDialog = ({
 }) => {
   const [newJoinDate, setNewJoinDate] = React.useState("");
   const [role, setRole] = React.useState("employee");
+  const [workLocation, setWorkLocation] = React.useState("");
 
   React.useEffect(() => {
     if (editingUser) {
       setNewJoinDate(editingUser.join_date?.slice(0, 10) || "");
       setRole(editingUser.role || "employee");
+      setWorkLocation(editingUser.work_location || "");
     }
   }, [editingUser]);
 
   const handleSave = async () => {
     if (!editingUser) return;
 
-    const payload: { join_date?: string; role?: string } = {};
+    const payload: {
+      work_location?: string;
+      join_date?: string;
+      role?: string;
+    } = {};
 
     if (newJoinDate) {
       payload.join_date = newJoinDate;
@@ -39,6 +45,10 @@ const EditUserDialog = ({
 
     if (role) {
       payload.role = role;
+    }
+
+    if (workLocation) {
+      payload.work_location = workLocation;
     }
 
     if (Object.keys(payload).length > 0) {
@@ -80,6 +90,16 @@ const EditUserDialog = ({
         >
           <MenuItem value="employee">Employee</MenuItem>
           <MenuItem value="manager">Manager</MenuItem>
+        </TextField>
+        <TextField
+          label="Work Location"
+          select
+          value={workLocation}
+          onChange={(e) => setWorkLocation(e.target.value)}
+          fullWidth
+        >
+          <MenuItem value="Burlingame">Burlingame</MenuItem>
+          <MenuItem value="Sacramento">Sacramento</MenuItem>
         </TextField>
       </DialogContent>
 

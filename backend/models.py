@@ -151,6 +151,7 @@ class User(db.Model):
         timezone.utc), nullable=False)
     join_date = Column(db.Date, default=lambda: datetime.now(timezone.utc), nullable=True)
     role = Column(String(50), nullable=False, default="employee")
+    work_location = Column(String(100), nullable=True)
 
     def __repr__(self):
         return f'<User {self.id}>'
@@ -165,8 +166,8 @@ class User(db.Model):
             'created_at': self.created_at.isoformat() if self.created_at else None,
             'join_date': self.join_date.isoformat() if self.join_date else None,
             'role': self.role,
+            'work_location': self.work_location
         }
-
 
 class AuditLog(db.Model):
     __tablename__ = "audit_log"
