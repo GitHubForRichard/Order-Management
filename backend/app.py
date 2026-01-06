@@ -650,6 +650,16 @@ def leave_action(leave_id):
             email_recipients.append(SACRAMENTO_SUPERVISOR_EMAIL)
 
     if action == "cancel" or action == "reject":
+        if action == "cancel":
+            leave.status = "Cancelled"
+        # Send email notification when the leave is rejected
+        elif action == "reject":
+            leave.status = "Rejected"
+            subject = "Leave Request Rejected"
+            body = f"Your leave request from {leave.start_date} to {leave.end_date} has been rejected."
+            send_email(subject=subject, recipients=email_recipients, body=body, sender=app.config['MAIL_USERNAME'])
+
+        
         if leave.type == "Paid":
             # Fetch user leave remaining hours
             user_leave_hours = UserLeaveHours.query.filter_by(user_id=leave_user_id).first()
@@ -657,13 +667,6 @@ def leave_action(leave_id):
                 return jsonify({"error": f"User PTO record not found for User ID {leave_user_id}"}), 404
             else:
                 user_leave_hours.remaining_hours += leave.hours
-            if action == "cancel":
-                leave.status = "Cancelled"
-            elif action == "reject":
-                leave.status = "Rejected"
-                subject = "Leave Request Rejected"
-                body = f"Your leave request from {leave.start_date} to {leave.end_date} has been rejected."
-                send_email(subject=subject, recipients=email_recipients, body=body, sender=app.config['MAIL_USERNAME'])
 
     elif action == "approve":
         leave.status = "Approved"
