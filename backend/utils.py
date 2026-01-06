@@ -2,7 +2,7 @@ import pandas as pd
 import re
 import uuid
 
-from datetime import datetime, timezone
+from datetime import date, datetime, timedelta, timezone
 
 from config import EMPLOYEE_CSV_FILE_PATH
 from models import db, AuditLog
@@ -79,3 +79,12 @@ def get_case_assignees():
             ]
 
     return assignees
+
+def count_weekdays(start: date, end: date) -> int:
+    days = 0
+    current = start
+    while current <= end:
+        if current.weekday() < 5:
+            days += 1
+        current += timedelta(days=1)
+    return days

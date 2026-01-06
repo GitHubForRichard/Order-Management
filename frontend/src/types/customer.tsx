@@ -1,9 +1,11 @@
-interface User {
+export interface User {
   id: string;
   first_name: string;
   last_name: string;
   email: string;
   created_at: string;
+  role: "employee" | "manager";
+  join_date: string;
 }
 
 export interface Customer {
