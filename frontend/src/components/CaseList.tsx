@@ -4,6 +4,8 @@ import { useSearchParams } from "react-router-dom";
 import { Typography } from "@mui/material";
 import { DataGrid, GridFilterModel } from "@mui/x-data-grid";
 
+import { formatUTCToPST } from "../utils";
+
 const CaseList = ({ cases, onRowDoubleClicked }) => {
   const [searchParams, setSearchParams] = useSearchParams();
   const existingStatusFilter = searchParams.get("status");
@@ -74,20 +76,19 @@ const CaseList = ({ cases, onRowDoubleClicked }) => {
       headerName: "Created Date",
       width: 180,
       valueGetter: (_, row) =>
-        row.created_at &&
-        `${new Date(row.created_at).toLocaleDateString()} ${new Date(
-          row.created_at
-        ).toLocaleTimeString()}`,
+        row.created_at ? new Date(`${row.created_at}Z`) : null,
+
+      valueFormatter: (value) => formatUTCToPST(value),
+      sortable: true,
     },
     {
       field: "updated_at",
       headerName: "Last Updated",
       width: 180,
       valueGetter: (_, row) =>
-        row.updated_at &&
-        `${new Date(row.updated_at).toLocaleDateString()} ${new Date(
-          row.updated_at
-        ).toLocaleTimeString()}`,
+        row.updated_at ? new Date(`${row.updated_at}Z`) : null,
+      valueFormatter: (value) => formatUTCToPST(value),
+      sortable: true,
     },
   ];
 
