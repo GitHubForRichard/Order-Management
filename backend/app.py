@@ -7,6 +7,7 @@ from flask import Flask, request, jsonify
 from flask_apscheduler import APScheduler
 from flask_cors import CORS
 from flask_migrate import Migrate
+from pytz import timezone
 from requests.auth import HTTPBasicAuth
 from sqlalchemy import desc
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -52,7 +53,7 @@ db.init_app(app)
 migrate = Migrate(app, db)
 
 app.config.from_object(Config)
-scheduler = APScheduler()
+scheduler = APScheduler(timezone=timezone("US/Pacific"))
 scheduler.init_app(app)
 scheduler.start()
 
