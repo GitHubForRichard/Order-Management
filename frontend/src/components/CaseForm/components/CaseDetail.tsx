@@ -11,7 +11,10 @@ import {
 } from "@mui/material";
 
 const CaseDetail = () => {
-  const { control } = useFormContext();
+  const {
+    control,
+    formState: { errors },
+  } = useFormContext();
 
   const [modelNumbers, setModelNumbers] = React.useState<string[]>([]);
 
@@ -63,7 +66,7 @@ const CaseDetail = () => {
           <Controller
             name="model_number"
             control={control}
-            rules={{ required: "Model Name is required" }}
+            rules={{ required: "Model Number is required" }}
             render={({ field }) => (
               <Autocomplete
                 disablePortal
@@ -71,7 +74,13 @@ const CaseDetail = () => {
                 value={field.value || null}
                 onChange={(_, newValue) => field.onChange(newValue?.value)}
                 renderInput={(params) => (
-                  <TextField {...params} label="Model Numbers" />
+                  <TextField
+                    {...params}
+                    label="Model Numbers"
+                    error={!!errors.model_number}
+                    helperText={errors.model_number?.message?.toString() ?? ""}
+                    required
+                  />
                 )}
               />
             )}
