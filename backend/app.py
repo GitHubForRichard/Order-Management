@@ -47,13 +47,16 @@ app.config['MAIL_USE_TLS'] = MAIL_USE_TLS
 app.config['MAIL_USERNAME'] = MAIL_USERNAME
 app.config['MAIL_PASSWORD'] = MAIL_PASSWORD
 
+# Scheduler config
+app.config["SCHEDULER_TIMEZONE"] = "US/Pacific"
+
 init_mail(app)
 
 db.init_app(app)
 migrate = Migrate(app, db)
 
 app.config.from_object(Config)
-scheduler = APScheduler(timezone=timezone("US/Pacific"))
+scheduler = APScheduler()
 scheduler.init_app(app)
 scheduler.start()
 
@@ -61,8 +64,9 @@ scheduler.add_job(
     id="grant_monthly_pto",
     func=lambda: grant_monthly_pto(app),
     trigger="cron",
-    hour=0,
+    hour=2,
     minute=0
+    timezone="US/Pacific",
 )
 
 
