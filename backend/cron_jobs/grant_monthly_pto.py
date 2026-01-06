@@ -105,9 +105,23 @@ def grant_monthly_pto(app):
                 db.session.add(user_leave_hours)
                 db.session.flush()  # ensure we get the ID
 
+            # Compute user's annual anniversary (after probation)
+            try:
+                anniversary = effective_start_date.replace(year=today.year)
+            except ValueError:
+                # Handles Feb 29 for non-leap years
+                anniversary = effective_start_date.replace(year=today.year, day=28)
+
+            # Apply carryover cap on anniversary
+            if today == anniversary:
+                carryover_days = CARRYOVER_CAP_BY_YEAR.get(min(years_worked, 7), 7)
+                carryover_hours = min(user_leave_hours.remaining_hours, carryover_days * HOURS_PER_DAY)
+                user_leave_hours.remaining_hours = carryover_hours
+                print(f"Carryover applied for {user_name} on anniversary: {carryover_hours:.2f} hours")
+
             # Only grant PTO on monthly anniversary
             if not is_monthly_anniversary(effective_start_date, today):
-                print(f"Skipping PTO for {user_name} (not monthly anniversary)")
+                print(f"Skipping monthly PTO accrual for {user_name} (not monthly anniversary)")
                 continue
 
 
