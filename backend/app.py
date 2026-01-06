@@ -12,7 +12,7 @@ from sqlalchemy import desc
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from auth import generate_jwt, jwt_required
-from constants import AuditLogActions, DB_HOST, DB_NAME, DB_PASSWORD, DB_PORT, DB_USER
+from constants import SACRAMENTO_SUPERVISOR_EMAIL, AuditLogActions, DB_HOST, DB_NAME, DB_PASSWORD, DB_PORT, DB_USER
 from config import (
     MAIL_PASSWORD,
     MAIL_PORT,
@@ -601,6 +601,13 @@ def create_leave():
 
         managers = User.query.filter_by(role="manager").all()
         manager_emails = [m.email for m in managers if m.email]
+
+        # Add Sacramento supervisor if the user work location is in Sacramento
+        if request.user.work_location and request.user.work_location.lower() == "sacramento":
+            if SACRAMENTO_SUPERVISOR_EMAIL not in manager_emails:
+                manager_emails.append(SACRAMENTO_SUPERVISOR_EMAIL)
+
+
         if manager_emails:
             subject = f"New Leave Request from {request.user.first_name} {request.user.last_name}"
             body = f"""
@@ -631,6 +638,12 @@ def leave_action(leave_id):
     leave_user_id = leave.created_by
     leave_user = User.query.get(leave_user_id)
 
+    email_recipients = [leave_user.email]
+    # Add Sacramento supervisor if the user work location is in Sacramento
+    if request.user.work_location and request.user.work_location.lower() == "sacramento":
+        if SACRAMENTO_SUPERVISOR_EMAIL not in email_recipients:
+            email_recipients.append(SACRAMENTO_SUPERVISOR_EMAIL)
+
     if action == "cancel" or action == "reject":
         if leave.type == "Paid":
             # Fetch user leave remaining hours
@@ -645,13 +658,13 @@ def leave_action(leave_id):
                 leave.status = "Rejected"
                 subject = "Leave Request Rejected"
                 body = f"Your leave request from {leave.start_date} to {leave.end_date} has been rejected."
-                send_email(subject=subject, recipients=[leave_user.email], body=body, sender=app.config['MAIL_USERNAME'])
+                send_email(subject=subject, recipients=email_recipients, body=body, sender=app.config['MAIL_USERNAME'])
 
     elif action == "approve":
         leave.status = "Approved"
         subject = "Leave Request Approved"
         body = f"Your leave request from {leave.start_date} to {leave.end_date} has been approved."
-        send_email(subject=subject, recipients=[leave_user.email], body=body, sender=app.config['MAIL_USERNAME'])
+        send_email(subject=subject, recipients=email_recipients, body=body, sender=app.config['MAIL_USERNAME'])
 
     db.session.commit()
     return jsonify({"success": True, "leave": leave.to_dict()}), 200

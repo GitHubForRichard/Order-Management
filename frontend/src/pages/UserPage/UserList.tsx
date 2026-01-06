@@ -37,6 +37,11 @@ const UserList = ({ users, onUserUpdated }) => {
       flex: 1,
     },
     {
+      field: "work_location",
+      headerName: "Work Location",
+      flex: 1,
+    },
+    {
       field: "actions",
       headerName: "Actions",
       renderCell: (params) => (
