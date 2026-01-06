@@ -65,7 +65,7 @@ scheduler.add_job(
     func=lambda: grant_monthly_pto(app),
     trigger="cron",
     hour=2,
-    minute=0
+    minute=0,
     timezone="US/Pacific",
 )
 
