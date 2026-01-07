@@ -1,6 +1,7 @@
 import { DataGrid, GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
 import { Box, Button } from "@mui/material";
 import { useAuth } from "hooks/useAuth";
+import { formatUTCToPST } from "../../utils";
 
 const LeaveList = ({ leaves, handleLeaveAction, isManager }) => {
   const { user } = useAuth();
@@ -23,9 +24,10 @@ const LeaveList = ({ leaves, handleLeaveAction, isManager }) => {
       field: "request_date",
       headerName: "Request Date",
       valueGetter: (_, row) =>
-        `${new Date(row.created_at).toLocaleDateString()} ${new Date(
-          row.created_at
-        ).toLocaleTimeString()}`,
+        row.created_at ? new Date(`${row.created_at}Z`) : null,
+
+      valueFormatter: (value) => formatUTCToPST(value),
+      sortable: true,
       flex: 1.5,
     },
     {
