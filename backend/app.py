@@ -759,8 +759,14 @@ def get_leave_summary():
         # Compute overlap with filter
         overlap_start = max(leave_start, start_date) if start_date else leave_start
         overlap_end = min(leave_end, end_date) if end_date else leave_end
-        overlap_days = count_weekdays(overlap_start, overlap_end)
-        overlap_hours = overlap_days * HOURS_PER_DAY
+
+        # If leave is within the same day, use the exact hours from the leave record
+        if leave_start == leave_end:
+            overlap_hours = leave.hours
+        else:
+            # Otherwise, compute hours based on weekdays in overlap
+            overlap_days = count_weekdays(overlap_start, overlap_end)
+            overlap_hours = overlap_days * HOURS_PER_DAY
 
         user_id = leave.created_by
         leave_user = User.query.get(user_id)
