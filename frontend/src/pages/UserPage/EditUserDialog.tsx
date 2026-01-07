@@ -10,17 +10,19 @@ import {
 } from "@mui/material";
 
 import api from "../../api";
+import { useUpdateUserMutation } from "../../rtk/usersApi";
 
 const EditUserDialog = ({
   isShown,
   setIsShown,
   editingUser,
   setEditingUser,
-  onUserUpdated,
 }) => {
   const [newJoinDate, setNewJoinDate] = React.useState("");
   const [role, setRole] = React.useState("employee");
   const [workLocation, setWorkLocation] = React.useState("");
+
+  const [updateUser, { isLoading }] = useUpdateUserMutation();
 
   React.useEffect(() => {
     if (editingUser) {
@@ -52,8 +54,7 @@ const EditUserDialog = ({
     }
 
     if (Object.keys(payload).length > 0) {
-      await api.put(`/users/${editingUser.id}`, payload);
-      onUserUpdated({ ...editingUser, ...payload });
+      updateUser({ id: editingUser.id, ...payload });
     }
 
     setIsShown(false);

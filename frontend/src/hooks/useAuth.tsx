@@ -3,6 +3,7 @@ import React, { createContext, useContext, useState } from "react";
 import { jwtDecode } from "jwt-decode";
 
 import { setAuthToken } from "../api";
+import { setAuthToken as setRtkAuthToken } from "../rtkApi";
 
 interface JwtPayload {
   exp: number; // expiration timestamp
@@ -65,6 +66,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     if (storedToken && storedUser && !isTokenExpired(storedToken)) {
       setToken(storedToken);
       setAuthToken(storedToken);
+      setRtkAuthToken(storedToken);
       setUser(JSON.parse(storedUser));
     }
     setLoading(false);

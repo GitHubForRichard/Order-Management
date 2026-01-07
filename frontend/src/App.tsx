@@ -16,6 +16,7 @@ import NavBar from "./NavBar";
 import NotFoundPage from "./pages/NotFoundPage/NotFoundPage";
 import LeaveCalendarPage from "./pages/LeaveCalendarPage/LeaveCalendarPage";
 import LeaveSummary from "./pages/LeavePage/LeaveSummary";
+import { Notifications } from "./components/Notifications";
 
 // Protected Route Component
 const PrivateRoute = ({ children }: { children }) => {
@@ -31,6 +32,7 @@ const PrivateRoute = ({ children }: { children }) => {
 const App = () => {
   return (
     <AuthProvider>
+      <Notifications />
       <Router>
         <NavBar />
         <Routes>
