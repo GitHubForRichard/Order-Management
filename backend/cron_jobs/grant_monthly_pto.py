@@ -177,10 +177,11 @@ def grant_monthly_pto(app):
             user_leave_hours = UserLeaveHours.query.filter_by(user_id=user.id).first()
             if not user_leave_hours:
                 print(f"Unable to find PTO record for {user_name}, creating a new record")
-                user_leave_hours = UserLeaveHours(user_id=user.id, remaining_hours=0)
+                user_leave_hours = UserLeaveHours(user_id=user.id, remaining_hours=0, max_remaining_hours=0)
                 db.session.add(user_leave_hours)
                 db.session.flush()  # ensure we get the ID
 
+            prev_remaining_hours = user_leave_hours.remaining_hours
 
             if today.month == 1 and today.day == 1:
                 # Calculate advanced PTO for the year on Jan 1st
