@@ -36,13 +36,11 @@ const HoursHistory = () => {
   return (
     <>
       <TableContainer component={Paper}>
-        <Table
-          sx={{ tableLayout: "fixed", width: "100%" }}
-          aria-label="simple table"
-        >
+        <Table sx={{ tableLayout: "fixed", width: "100%" }}>
           <TableHead>
             <TableRow>
               <TableCell>Time</TableCell>
+              <TableCell>Field</TableCell>
               <TableCell>Old Value</TableCell>
               <TableCell>New Value</TableCell>
             </TableRow>
@@ -56,6 +54,7 @@ const HoursHistory = () => {
                 <TableCell>
                   {`${new Date(row.created_at).toLocaleDateString()}`}
                 </TableCell>
+                <TableCell>{row.field}</TableCell>
                 <TableCell>{row.old_value}</TableCell>
                 <TableCell>{row.new_value}</TableCell>
               </TableRow>
