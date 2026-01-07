@@ -206,7 +206,7 @@ def grant_monthly_pto(app):
             user_leave_hours = UserLeaveHours.query.filter_by(user_id=user.id).first()
             if not user_leave_hours:
                 print(f"Unable to find PTO record for {user_name}, creating a new record")
-                user_leave_hours = UserLeaveHours(user_id=user.id, remaining_hours=0, max_remaining_hours=0)
+                user_leave_hours = UserLeaveHours(user_id=user.id, remaining_hours=0, advanced_remaining_hours=0)
                 db.session.add(user_leave_hours)
                 db.session.flush()  # ensure we get the ID
 
@@ -216,8 +216,8 @@ def grant_monthly_pto(app):
                 # Calculate advanced PTO for the year on Jan 1st
                 print(f"Calculating advanced PTO for {user_name} on Jan 1st")
                 advanced_pto = calculate_advanced_pto_for_year(effective_start_date, today.year)
-                prev_max_remaining_hours = user_leave_hours.max_remaining_hours
-                user_leave_hours.max_remaining_hours = advanced_pto
+                prev_advanced_remaining_hours = user_leave_hours.advanced_remaining_hours
+                user_leave_hours.advanced_remaining_hours = advanced_pto
                 print(f"Advanced PTO for {user_name} on Jan 1: {advanced_pto:.2f} hours")
 
                 # Audit log for advanced remaining hours
@@ -226,9 +226,9 @@ def grant_monthly_pto(app):
                     entity=UserLeaveHours.__tablename__,
                     entity_id=str(user.id),
                     action=AuditLogActions.UPDATED,
-                    field="max_remaining_hours",
-                    old_value=str(prev_max_remaining_hours),
-                    new_value=str(user_leave_hours.max_remaining_hours),
+                    field="advanced_remaining_hours",
+                    old_value=str(prev_advanced_remaining_hours),
+                    new_value=str(user_leave_hours.advanced_remaining_hours),
                     created_by=user.id,
                     created_at=datetime.now(timezone.utc),
                 )
@@ -248,6 +248,15 @@ def grant_monthly_pto(app):
                 user_leave_hours.remaining_hours + accrual_hours,
                 2
             )
+
+            # After adding monthly accrual to the current balance,
+            # deduct from advanced_remaining_hours if available because
+            # advanced PTO is granted in the first place to cover future accruals.
+            if user_leave_hours.advanced_remaining_hours > 0:
+                user_leave_hours.advanced_remaining_hours = round(
+                    user_leave_hours.advanced_remaining_hours - accrual_hours,
+                    2
+                )
 
 
             print(
