@@ -21,16 +21,7 @@ PTO_ACCRUAL_BY_YEARS = {
 }
 
 # Maximum carryover per year (in days)
-CARRYOVER_CAP_BY_YEAR = {
-    0: 3.5,
-    1: 4.0,
-    2: 4.5,
-    3: 5.0,
-    4: 5.5,
-    5: 6.0,
-    6: 6.5,
-    7: 7.0,
-}
+CARRYOVER_CAP_DAYS = 7
 
 PROBATION_MONTHS = 3  # Skip accrual during first 3 months
 
@@ -116,17 +107,15 @@ def calculate_years_worked(start_date: date, today: date) -> int:
         years -= 1
     return max(years, 0)
 
-def calculate_carry_over(user: User, user_leave_hours: UserLeaveHours, today: date):
-    """Calculate and apply year-end PTO carryover"""
-    # Apply year-end carryover
+def calculate_carry_over(user: User, user_leave_hours: UserLeaveHours):
+    """Calculate and apply year-end PTO carryover with a flat 7-day cap"""
     user_name = f"{user.first_name} {user.last_name}"
-    effective_start_date = get_user_effective_start_date(user)
-    years_worked = calculate_years_worked(effective_start_date, today)
-
-    carryover_days = CARRYOVER_CAP_BY_YEAR.get(min(years_worked, 7), 7)
-    carryover_hours = min(user_leave_hours.remaining_hours, carryover_days * HOURS_PER_DAY)
+    
+    carryover_hours = min(user_leave_hours.remaining_hours, CARRYOVER_CAP_DAYS * HOURS_PER_DAY)
+    
     pre_carryover_hours = user_leave_hours.remaining_hours
     user_leave_hours.remaining_hours = carryover_hours
+    
     print(f"Year-end carryover applied for {user_name}: {carryover_hours:.2f} hours")
     
     # Audit log for carryover
@@ -160,6 +149,7 @@ def grant_monthly_pto(app):
     """Grant PTO for employees based on effective start date after probation"""
     with app.app_context():
         today = date.today()
+        today = date(2026, 1, 1)
         print(f"Running PTO accrual for {today}")
 
         # Prevent multiple script runs
@@ -235,7 +225,7 @@ def grant_monthly_pto(app):
                 db.session.add(audit_log)
 
                 # Apply year-end carryover cap
-                calculate_carry_over(user, user_leave_hours, today)
+                calculate_carry_over(user, user_leave_hours)
 
 
             # Only grant PTO on monthly anniversary
