@@ -17,6 +17,6 @@ export const baseApi = createApi({
       return headers;
     },
   }),
-  tagTypes: [], // shared tag types for cache invalidation
-  endpoints: () => ({}), // base API doesn’t define endpoints itself
+  tagTypes: ["Users"],
+  endpoints: () => ({}),
 });

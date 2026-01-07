@@ -1,11 +1,10 @@
-// store.ts
 import { configureStore } from "@reduxjs/toolkit";
-import { usersApi } from "./rtk/usersApi"; // your API slice
+import { usersApi } from "./rtk/usersApi";
 import notificationsReducer from "./redux/notificationsSlice";
 
 export const store = configureStore({
   reducer: {
-    [usersApi.reducerPath]: usersApi.reducer, // RTK Query slice
+    [usersApi.reducerPath]: usersApi.reducer,
     notifications: notificationsReducer,
   },
   middleware: (getDefaultMiddleware) =>
