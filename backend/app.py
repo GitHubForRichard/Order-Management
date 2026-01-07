@@ -593,16 +593,23 @@ def create_leave():
         if hours > total_remaining_hours:
             return jsonify({"error": "Insufficient remaining PTO hours"}), 400
 
+        # Initialize used amounts
+        remaining_used = 0.0
+        advanced_used = 0.0
+
         # First use regular remaining hours
         if hours <= user_leave_hours.remaining_hours:
             user_leave_hours.remaining_hours -= hours
+            remaining_used = hours
         else:
-            # Use up all remaining_hours
+            # Use all remaining hours
+            remaining_used = user_leave_hours.remaining_hours
             hours_left = hours - user_leave_hours.remaining_hours
             user_leave_hours.remaining_hours = 0
 
             # Then use advanced PTO
             user_leave_hours.advanced_remaining_hours -= hours_left
+            advanced_used = hours_left
 
     new_leave = Leave(
         type=type,
@@ -610,6 +617,8 @@ def create_leave():
         start_date=start,
         end_date=end,
         hours=hours,
+        remaining_hours_used=remaining_used,
+        advanced_hours_used=advanced_used,
         status="Pending"
     )
 
@@ -678,8 +687,14 @@ def leave_action(leave_id):
             user_leave_hours = UserLeaveHours.query.filter_by(user_id=leave_user_id).first()
             if not user_leave_hours:
                 return jsonify({"error": f"User PTO record not found for User ID {leave_user_id}"}), 404
-            else:
-                user_leave_hours.remaining_hours += leave.hours
+            
+            # Restore hours to the correct buckets
+            user_leave_hours.remaining_hours += leave.remaining_hours_used
+            user_leave_hours.advanced_remaining_hours += leave.advanced_hours_used
+
+            # Reset used amounts on the leave record
+            leave.remaining_hours_used = 0
+            leave.advanced_hours_used = 0
 
     elif action == "approve":
         leave.status = "Approved"

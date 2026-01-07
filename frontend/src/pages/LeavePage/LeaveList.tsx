@@ -55,6 +55,16 @@ const LeaveList = ({ leaves, handleLeaveAction, isManager }) => {
         params.value ? params.value.toLocaleDateString() : "",
     },
     { field: "hours", headerName: "Hours", flex: 0.5 },
+    {
+      field: "remaining_hours_used",
+      headerName: "Balance Hours Used",
+      flex: 0.5,
+    },
+    {
+      field: "advanced_hours_used",
+      headerName: "Advanced Hours Used",
+      flex: 0.5,
+    },
     { field: "status", headerName: "Status", flex: 0.5 },
   ];
 
