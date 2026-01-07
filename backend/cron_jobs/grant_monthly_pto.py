@@ -148,21 +148,21 @@ def is_monthly_anniversary(start_date: date, today: date) -> bool:
 def grant_monthly_pto(app):
     """Grant PTO for employees based on effective start date after probation"""
     with app.app_context():
-        today = date.today()
+        today = date(2026, 1, 1)
         print(f"Running PTO accrual for {today}")
 
-        # Prevent multiple script runs
-        log = ScriptRunLog.query.filter_by(script_name="grant_monthly_pto").first()
-        if log and log.last_run_date == today:
-            print("PTO script has already run today, exiting.")
-            return
-        elif not log:
-            log = ScriptRunLog(script_name="grant_monthly_pto", last_run_date=None)
-            db.session.add(log)
-            db.session.flush()
+        # # Prevent multiple script runs
+        # log = ScriptRunLog.query.filter_by(script_name="grant_monthly_pto").first()
+        # if log and log.last_run_date == today:
+        #     print("PTO script has already run today, exiting.")
+        #     return
+        # elif not log:
+        #     log = ScriptRunLog(script_name="grant_monthly_pto", last_run_date=None)
+        #     db.session.add(log)
+        #     db.session.flush()
 
-        # Update last_run_date early to prevent duplicate runs
-        log.last_run_date = today
+        # # Update last_run_date early to prevent duplicate runs
+        # log.last_run_date = today
 
 
         users = User.query.all()
