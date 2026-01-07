@@ -19,6 +19,7 @@ const CreateLeaveDialog = ({
   newLeave,
   setNewLeave,
   remainingHours,
+  advancedRemainingHours,
 }) => {
   const [errorMessage, setErrorMessage] = React.useState("");
 
@@ -101,6 +102,10 @@ const CreateLeaveDialog = ({
   const end = newLeave.end_date ? new Date(newLeave.end_date) : null;
   const invalidDates = start && end ? start > end : false;
 
+  const isExceedingRemainingHours =
+    newLeave.leaveType === "Paid" &&
+    newLeave.hours > remainingHours + advancedRemainingHours;
+
   return (
     <Dialog open={isShown} onClose={() => setIsShown(false)}>
       <DialogTitle sx={{ fontSize: 22, fontWeight: 600, pb: 1 }}>
@@ -168,10 +173,7 @@ const CreateLeaveDialog = ({
           variant="contained"
           color="primary"
           disabled={
-            newLeave.hours <= 0 ||
-            (newLeave.leaveType === "Paid" &&
-              newLeave.hours > remainingHours) ||
-            invalidDates
+            newLeave.hours <= 0 || isExceedingRemainingHours || invalidDates
           }
         >
           Apply

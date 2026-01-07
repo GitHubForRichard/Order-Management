@@ -162,6 +162,7 @@ const LeavePage: React.FC = () => {
         newLeave={newLeave}
         setNewLeave={setNewLeave}
         remainingHours={remainingHours}
+        advancedRemainingHours={advancedRemainingHours}
       />
     </Box>
   );
