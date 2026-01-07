@@ -149,7 +149,6 @@ def grant_monthly_pto(app):
     """Grant PTO for employees based on effective start date after probation"""
     with app.app_context():
         today = date.today()
-        today = date(2026, 1, 1)
         print(f"Running PTO accrual for {today}")
 
         # Prevent multiple script runs
