@@ -690,7 +690,8 @@ def get_remaining_leave_hours():
 
     return jsonify({
         "user_id": user_leave_hour.user_id,
-        "remaining_hours": user_leave_hour.remaining_hours
+        "remaining_hours": user_leave_hour.remaining_hours,
+        "advanced_remaining_hours": user_leave_hour.advanced_remaining_hours
     }), 200
 
 @app.route("/api/leaves/summary", methods=["GET"])
