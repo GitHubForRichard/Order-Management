@@ -58,12 +58,11 @@ def calculate_advanced_pto_for_year(
     total_hours = 0.0
 
     # ---- Before anniversary (old rate) ----
-    one_day_before_anniversary = anniversary - relativedelta(days=1)
-    print(f"Running rate calculation before anniversary on {one_day_before_anniversary}")
+    print(f"Running rate calculation before anniversary on {anniversary}")
 
     # Number of months before anniversary in the year (exclusive)
     months_before = (
-        one_day_before_anniversary.month - year_start.month
+        anniversary.month - year_start.month
     )
     print(f"Months before anniversary: {months_before}")
 
@@ -203,9 +202,7 @@ def grant_monthly_pto(app):
                 )
                 db.session.add(audit_log)
 
-
-            # Apply year-end carryover on Dec 31
-            if today.month == 12 and today.day == 31:
+                # Apply year-end carryover cap
                 carryover_days = CARRYOVER_CAP_BY_YEAR.get(min(years_worked, 7), 7)
                 carryover_hours = min(user_leave_hours.remaining_hours, carryover_days * HOURS_PER_DAY)
                 user_leave_hours.remaining_hours = carryover_hours
