@@ -8,6 +8,7 @@ export const usersApi = baseApi.injectEndpoints({
       query: () => "users",
       providesTags: ["Users"],
     }),
+
     updateUser: builder.mutation<
       User,
       { id: string; join_date?: string; role?: string; work_location?: string }
@@ -18,7 +19,7 @@ export const usersApi = baseApi.injectEndpoints({
         body,
       }),
       invalidatesTags: ["Users"],
-      async onQueryStarted(arg, { queryFulfilled, dispatch }) {
+      async onQueryStarted(_arg, { queryFulfilled, dispatch }) {
         try {
           await queryFulfilled;
           dispatch(
