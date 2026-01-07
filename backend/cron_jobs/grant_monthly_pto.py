@@ -148,7 +148,6 @@ def grant_monthly_pto(app):
         users = User.query.all()
 
         for user in users:
-            print(f"Processing user {user.first_name} {user.last_name}")
             print(f"------------- Processing user {user.first_name} {user.last_name} -------------")
 
             if not user.join_date:
