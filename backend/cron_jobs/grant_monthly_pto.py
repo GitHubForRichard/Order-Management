@@ -116,6 +116,38 @@ def calculate_years_worked(start_date: date, today: date) -> int:
         years -= 1
     return max(years, 0)
 
+def calculate_carry_over(user: User, user_leave_hours: UserLeaveHours, today: date):
+    """Calculate and apply year-end PTO carryover"""
+    # Apply year-end carryover
+    user_name = f"{user.first_name} {user.last_name}"
+    effective_start_date = get_user_effective_start_date(user)
+    years_worked = calculate_years_worked(effective_start_date, today)
+
+    carryover_days = CARRYOVER_CAP_BY_YEAR.get(min(years_worked, 7), 7)
+    carryover_hours = min(user_leave_hours.remaining_hours, carryover_days * HOURS_PER_DAY)
+    pre_carryover_hours = user_leave_hours.remaining_hours
+    user_leave_hours.remaining_hours = carryover_hours
+    print(f"Year-end carryover applied for {user_name}: {carryover_hours:.2f} hours")
+    
+    # Audit log for carryover
+    audit_log = AuditLog(
+        id=str(uuid.uuid4()),
+        entity=UserLeaveHours.__tablename__,
+        entity_id=str(user.id),
+        action=AuditLogActions.UPDATED,
+        field="remaining_hours",
+        old_value=str(pre_carryover_hours),
+        new_value=str(user_leave_hours.remaining_hours),
+        created_by=user.id,
+        created_at=datetime.now(timezone.utc),
+    )
+    db.session.add(audit_log)
+
+def get_user_effective_start_date(user: User) -> date:
+    """Get the effective PTO start date after probation"""
+    if not user.join_date:
+        raise ValueError("User has no join date")
+    return user.join_date + relativedelta(months=PROBATION_MONTHS)
 
 def is_monthly_anniversary(start_date: date, today: date) -> bool:
     """Check if today is the employee's monthly PTO accrual date based on effective start date"""
@@ -153,15 +185,14 @@ def grant_monthly_pto(app):
                 print(f"Skipping PTO for {user.first_name} {user.last_name} with no join date")
                 continue
 
-            # Compute probation end date
-            probation_end = user.join_date + relativedelta(months=PROBATION_MONTHS)
+            # Compute the effective start date after probation
+            effective_start_date = get_user_effective_start_date(user)
 
             # Skip users still in probation
-            if today < probation_end:
+            if today < effective_start_date:
                 print(f"Skipping PTO for {user.first_name} {user.last_name} (still in probation)")
                 continue
 
-            effective_start_date = probation_end
             user_name = f"{user.first_name} {user.last_name}"
             years_worked = calculate_years_worked(effective_start_date, today)
 
@@ -185,17 +216,18 @@ def grant_monthly_pto(app):
                 # Calculate advanced PTO for the year on Jan 1st
                 print(f"Calculating advanced PTO for {user_name} on Jan 1st")
                 advanced_pto = calculate_advanced_pto_for_year(effective_start_date, today.year)
+                prev_max_remaining_hours = user_leave_hours.max_remaining_hours
                 user_leave_hours.max_remaining_hours = advanced_pto
                 print(f"Advanced PTO for {user_name} on Jan 1: {advanced_pto:.2f} hours")
 
-                # Audit log
+                # Audit log for advanced remaining hours
                 audit_log = AuditLog(
                     id=str(uuid.uuid4()),
                     entity=UserLeaveHours.__tablename__,
                     entity_id=str(user.id),
                     action=AuditLogActions.UPDATED,
                     field="max_remaining_hours",
-                    old_value=str(user_leave_hours.max_remaining_hours),
+                    old_value=str(prev_max_remaining_hours),
                     new_value=str(user_leave_hours.max_remaining_hours),
                     created_by=user.id,
                     created_at=datetime.now(timezone.utc),
@@ -203,10 +235,7 @@ def grant_monthly_pto(app):
                 db.session.add(audit_log)
 
                 # Apply year-end carryover cap
-                carryover_days = CARRYOVER_CAP_BY_YEAR.get(min(years_worked, 7), 7)
-                carryover_hours = min(user_leave_hours.remaining_hours, carryover_days * HOURS_PER_DAY)
-                user_leave_hours.remaining_hours = carryover_hours
-                print(f"Year-end carryover applied for {user_name}: {carryover_hours:.2f} hours")
+                calculate_carry_over(user, user_leave_hours, today)
 
 
             # Only grant PTO on monthly anniversary
