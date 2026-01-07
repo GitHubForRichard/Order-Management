@@ -28,6 +28,7 @@ const LeavePage: React.FC = () => {
 
   const [leaves, setLeaves] = React.useState<Leave[]>([]);
   const [remainingHours, setRemainingHours] = React.useState(0);
+  const [advancedRemainingHours, setAdvancedRemainingHours] = React.useState(0);
   const [isCreateLeaveDialogShown, setIsCreateLeaveDialogShown] =
     React.useState(false);
 
@@ -47,6 +48,9 @@ const LeavePage: React.FC = () => {
 
         const remainingHoursResponse = await api.get("leaves/remaining");
         setRemainingHours(remainingHoursResponse.data.remaining_hours || 0);
+        setAdvancedRemainingHours(
+          remainingHoursResponse.data.advanced_remaining_hours || 0
+        );
       } catch (error) {
         console.error(`Error fetching leaves or remaining hours:`, error);
       }
@@ -103,7 +107,7 @@ const LeavePage: React.FC = () => {
         <Typography variant="h6">PTO Information</Typography>
 
         <Grid container spacing={2} mt={1}>
-          <Grid item xs={12} sm={6}>
+          <Grid item xs={12} sm={4}>
             <Paper sx={{ p: 2 }}>
               <Typography variant="subtitle2" color="text.secondary">
                 PTO Balance
@@ -114,12 +118,23 @@ const LeavePage: React.FC = () => {
             </Paper>
           </Grid>
 
-          <Grid item xs={12} sm={6}>
+          <Grid item xs={12} sm={4}>
             <Paper sx={{ p: 2 }}>
               <Typography variant="subtitle2" color="text.secondary">
                 Hire Date
               </Typography>
               <Typography variant="h6">{currentUser?.join_date}</Typography>
+            </Paper>
+          </Grid>
+
+          <Grid item xs={12} sm={4}>
+            <Paper sx={{ p: 2 }}>
+              <Typography variant="subtitle2" color="text.secondary">
+                Advanced PTO Balance
+              </Typography>
+              <Typography variant="h6">
+                {advancedRemainingHours.toFixed(2)} hours
+              </Typography>
             </Paper>
           </Grid>
         </Grid>
