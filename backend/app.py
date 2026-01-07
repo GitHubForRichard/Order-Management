@@ -557,6 +557,8 @@ def create_leave():
     start_date = data.get("start_date")
     end_date = data.get("end_date")
     hours = data.get("hours")
+    hours = float(hours) if hours is not None else 0
+    
 
     if not start_date or not end_date or hours is None:
         return jsonify({"error": "start_date, end_date, and hours are required"}), 400
