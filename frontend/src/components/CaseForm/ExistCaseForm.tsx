@@ -50,11 +50,8 @@ const ExistCaseForm = () => {
           filesToAdd: attachmentsField,
         });
 
-        setFilesToRemove([]);
         methods.setValue("attachments", []);
       }
-
-      methods.reset(defaultValues);
     } catch (error) {
       console.error("There was an error updating the case!", error);
     }

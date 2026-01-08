@@ -25,8 +25,6 @@ const Attachments: React.FC<AttachmentsProps> = ({
     }
   );
 
-  console.log({ attachments });
-
   const acceptedFileTypes = ["image/png", "image/jpeg", "application/pdf"];
 
   return (

@@ -38,13 +38,17 @@ type GetCaseHistoryResponse = {
 }[];
 
 type CaseAttachment = {
+  case_id: string;
+  created_at: string;
+  deleted_at: string | null;
+  drive_file_id: string;
   id: string;
-  url: string;
   name: string;
+  url: string;
 };
 
 type GetCaseAttachmentsResponse = {
-  attachments: { id: string; url: string; name: string }[];
+  files: CaseAttachment[];
 };
 
 type CreateCaseResponse = {
@@ -93,9 +97,7 @@ export const casesApi = baseApi.injectEndpoints({
           body,
         }),
 
-        invalidatesTags: (_result, _error, { caseId }) => [
-          { type: "Cases", id: caseId }, // invalidates cache for this case
-        ],
+        invalidatesTags: ["Cases"],
         async onQueryStarted(_arg, { queryFulfilled, dispatch }) {
           try {
             await queryFulfilled;
@@ -201,7 +203,7 @@ export const casesApi = baseApi.injectEndpoints({
       query: ({ caseId }) => `files/${caseId}`,
       providesTags: ["Attachments"],
       transformResponse: (response: GetCaseAttachmentsResponse) => {
-        return response.attachments;
+        return response.files;
       },
     }),
 
