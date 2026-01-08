@@ -9,17 +9,24 @@ import {
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 
-import api from "api";
+import { useGetOrderHistoryQuery } from "rtk/casesApi";
 
 const OrderHistory = ({ purchaseOrder }) => {
-  const [orders, setOrders] = React.useState<any[]>([]);
   const [expanded, setExpanded] = React.useState(false);
-  const [loaded, setLoaded] = React.useState(false);
   const [paginationModel, setPaginationModel] =
     React.useState<GridPaginationModel>({ page: 0, pageSize: 25 });
 
   // Make sure only four characters are used to filter order history
   const canOrderHistoryFilter = purchaseOrder?.length >= 4;
+
+  const { data: orderData, isLoading } = useGetOrderHistoryQuery(
+    { searchTerm: purchaseOrder || "" },
+    {
+      skip: !expanded || !canOrderHistoryFilter, // only fetch when accordion expands and filter valid
+    }
+  );
+
+  const orders = orderData?.orders || [];
 
   const columns = [
     { field: "product_number", headerName: "Product Number", width: 320 },
@@ -43,27 +50,6 @@ const OrderHistory = ({ purchaseOrder }) => {
     return true;
   });
 
-  // Reset loaded state again when purchase order is changed
-  React.useEffect(() => {
-    setLoaded(false);
-  }, [purchaseOrder]);
-
-  // Only fetch orders when accordion expands for the first time
-  React.useEffect(() => {
-    if (expanded && !loaded && canOrderHistoryFilter) {
-      api
-        .get("order-history?search_term=" + purchaseOrder)
-        .then((response) => {
-          const fetchedOrders = response.data;
-          setOrders(fetchedOrders.orders);
-          setLoaded(true);
-        })
-        .catch((error) =>
-          console.error("There was an error loading the orders!", error)
-        );
-    }
-  }, [expanded, loaded, canOrderHistoryFilter, purchaseOrder]);
-
   return (
     <Accordion
       expanded={expanded}
@@ -77,7 +63,7 @@ const OrderHistory = ({ purchaseOrder }) => {
         <Typography variant="h6">Order History</Typography>
       </AccordionSummary>
       <AccordionDetails>
-        {loaded ? (
+        {!isLoading ? (
           <DataGrid
             rows={filteredOrders}
             columns={columns}

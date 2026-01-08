@@ -1,6 +1,3 @@
-import React from "react";
-
-import api from "api";
 import { useFormContext, Controller } from "react-hook-form";
 import {
   Autocomplete,
@@ -10,26 +7,16 @@ import {
   Typography,
 } from "@mui/material";
 
+import { useGetModelNumbersQuery } from "rtk/casesApi";
+
 const CaseDetail = () => {
   const {
     control,
     formState: { errors },
   } = useFormContext();
 
-  const [modelNumbers, setModelNumbers] = React.useState<string[]>([]);
-
-  // useEffect for getting model numbers
-  React.useEffect(() => {
-    api
-      .get("model-numbers")
-      .then((response) => {
-        const fetchedModelNumbers = response.data;
-        setModelNumbers(fetchedModelNumbers.model_numbers);
-      })
-      .catch((error) =>
-        console.error("There was an error loading the model numbers!", error)
-      );
-  }, []);
+  const { data: modelNumbersData } = useGetModelNumbersQuery();
+  const modelNumbers = modelNumbersData?.model_numbers || [];
 
   const modelNumberOptions = modelNumbers.map((modelNumber) => ({
     label: modelNumber,

@@ -10,12 +10,12 @@ import {
 } from "@mui/material";
 
 import { CASE_FORM_ACTION_TYPES } from "../../../constants";
-import { useAssignees } from "hooks/useAssignees";
+import { useGetAssigneesQuery } from "rtk/casesApi";
 
 const CaseInfo = ({ caseFormActionType, disabled = false }) => {
   const { control } = useFormContext();
 
-  const { assignees } = useAssignees();
+  const { data: assignees = [] } = useGetAssigneesQuery();
 
   return (
     <div>

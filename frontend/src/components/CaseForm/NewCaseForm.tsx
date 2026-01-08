@@ -2,8 +2,6 @@ import React from "react";
 import { FormProvider, useForm, useWatch } from "react-hook-form";
 import { Button } from "@mui/material";
 
-import api from "api";
-
 import CustomerList from "../CustomerList";
 import OrderHistory from "../OrderHistory";
 import ProductDetail from "../ProductDetail";
@@ -17,6 +15,13 @@ import { CASE_FORM_ACTION_TYPES } from "../../constants";
 
 import { Customer } from "types/customer";
 import Attachments from "./Attachments";
+import {
+  useCreateCaseMutation,
+  useCreateCustomerMutation,
+  useGetCustomersQuery,
+  useUpdateCustomerMutation,
+  useUploadCaseAttachmentsMutation,
+} from "rtk/casesApi";
 
 export const defaultValues = {
   first_name: "",
@@ -54,9 +59,18 @@ const NewCaseForm = () => {
     mode: "onBlur",
   });
 
-  const [customers, setCustomers] = React.useState<Customer[]>([]);
   const [selectedCustomer, setSelectedCustomer] =
     React.useState<Customer | null>(null);
+
+  const { data: customers } = useGetCustomersQuery();
+
+  const [uploadCaseAttachments, { isLoading: isUploadingCaseAttachments }] =
+    useUploadCaseAttachmentsMutation();
+  const [createCase, { isLoading: isCreatingCase }] = useCreateCaseMutation();
+  const [createCustomer, { isLoading: isCreatingCustomer }] =
+    useCreateCustomerMutation();
+  const [updateCustomer, { isLoading: isUpdatingCustomer }] =
+    useUpdateCustomerMutation();
 
   const purchaseOrderWatch = useWatch({
     control: methods.control,
@@ -67,69 +81,29 @@ const NewCaseForm = () => {
     name: "model_number",
   });
 
-  // useEffect to get customers
-  React.useEffect(() => {
-    api
-      .get("customers")
-      .then((response) => {
-        const fetchedCustomers = response.data;
-        setCustomers(fetchedCustomers);
-      })
-      .catch((error) =>
-        console.error("There was an error loading the customers!", error)
-      );
-  }, []);
-
-  const uploadAttachmentsToCase = async (
-    attachments: File[],
-    caseId: string
-  ) => {
-    const formData = new FormData();
-    attachments.forEach((file) => {
-      formData.append("files", file);
-    });
-
-    try {
-      await api.post(`files/${caseId}`, formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
-    } catch (error) {
-      console.error("Error uploading files:", error);
-    }
-  };
-
   const onFormCreate = async (data: any) => {
     try {
-      let customerId = null;
-      if (!selectedCustomer) {
-        const postCustomerResponse = await api.post("customers", data);
-        setCustomers((prev) => [...prev, postCustomerResponse.data.customer]);
-        customerId = postCustomerResponse.data.customer.id;
+      let customerId = selectedCustomer?.id;
+      if (!customerId) {
+        // Create a new customer if not selected from the list
+        const newCustomer = await createCustomer(data).unwrap();
+        console.log({ newCustomer });
+        customerId = newCustomer.customer.id;
       } else {
-        customerId = selectedCustomer.id;
-        const updateCustomerResponse = await api.put(
-          `customers/${customerId}`,
-          data
-        );
-        setCustomers((prev) =>
-          prev.map((customer) =>
-            customer.id === customerId
-              ? updateCustomerResponse.data.customer
-              : customer
-          )
-        );
+        // Update the existing customer if selected
+        await updateCustomer({ id: customerId, body: data }).unwrap();
       }
 
-      const casePostResponse = await api.post("cases", {
-        ...data,
-        customer_id: customerId,
-      });
+      const caseBody = { ...data, customer_id: customerId };
+      console.log({ caseBody });
 
-      const newCase = casePostResponse.data.case;
+      const newCase = await createCase(caseBody).unwrap();
+
       if (data.attachments) {
-        await uploadAttachmentsToCase(data.attachments, newCase.id);
+        await uploadCaseAttachments({
+          caseId: newCase.case.id,
+          files: data.attachments,
+        });
       }
       methods.reset(defaultValues);
     } catch (error) {
@@ -195,7 +169,16 @@ const NewCaseForm = () => {
               <CaseDetail />
 
               <div className="action-buttons">
-                <Button type="submit" variant="contained">
+                <Button
+                  type="submit"
+                  variant="contained"
+                  disabled={
+                    isCreatingCustomer ||
+                    isUpdatingCustomer ||
+                    isUploadingCaseAttachments ||
+                    isCreatingCase
+                  }
+                >
                   Create New
                 </Button>
               </div>

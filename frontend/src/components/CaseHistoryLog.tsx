@@ -1,6 +1,3 @@
-import React from "react";
-import api from "api";
-
 import {
   Paper,
   Table,
@@ -10,24 +7,15 @@ import {
   TableHead,
   TableRow,
 } from "@mui/material";
+
+import { useGetCaseHistoryQuery } from "rtk/casesApi";
 const CaseHistoryLog = ({ caseId }) => {
-  const [CaseHistoryLog, setCaseHistoryLog] = React.useState<any[]>([]);
-
-  React.useEffect(() => {
-    if (caseId) {
-      // Fetch audit logs information
-      const fetchCaseHistory = async () => {
-        try {
-          const response = await api.get(`cases/history/${caseId}`);
-          setCaseHistoryLog(response.data || []);
-        } catch (error) {
-          console.error(`Error fetching case history for ${caseId}:`, error);
-        }
-      };
-
-      fetchCaseHistory();
+  const { data: CaseHistoryLog = [] } = useGetCaseHistoryQuery(
+    { caseId },
+    {
+      skip: !caseId,
     }
-  }, [caseId]);
+  );
 
   return (
     <>

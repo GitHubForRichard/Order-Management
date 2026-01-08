@@ -2,8 +2,6 @@ import React from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { Button } from "@mui/material";
 
-import api from "api";
-
 import ShipStationTracks from "../ShipStationTracks";
 import CustomerInfo from "./components/CustomerInfo";
 import AddressInfo from "./components/AddressInfo";
@@ -17,6 +15,10 @@ import CaseList from "../CaseList";
 import Attachments from "./Attachments";
 import { defaultValues } from "./NewCaseForm";
 import CaseHistoryLog from "../CaseHistoryLog";
+import {
+  useUpdateCaseAttachmentsMutation,
+  useUpdateCaseMutation,
+} from "rtk/casesApi";
 
 const ExistCaseForm = () => {
   const methods = useForm({
@@ -24,45 +26,30 @@ const ExistCaseForm = () => {
     mode: "onBlur",
   });
 
-  const [cases, setCases] = React.useState<any[]>([]);
   const [selectedCase, setSelectedCase] = React.useState<any | null>(null);
   const [filesToRemove, setFilesToRemove] = React.useState<string[]>([]);
 
-  // useEffect for getting cases
-  React.useEffect(() => {
-    api
-      .get("cases")
-      .then((response) => {
-        const fetchedCases = response.data;
-        setCases(fetchedCases);
-      })
-      .catch((error) =>
-        console.error("There was an error loading the cases!", error)
-      );
-  }, []);
+  const [updateCase, { isLoading: isUpdatingCase }] = useUpdateCaseMutation();
+  const [updateCaseAttachments, { isLoading: isUpdatingCaseAttachments }] =
+    useUpdateCaseAttachmentsMutation();
 
   const onFormUpdate = async (data: any) => {
     try {
-      await api.put(`cases/${selectedCase.id}`, data);
+      await updateCase({
+        caseId: selectedCase.id,
+        body: data,
+      }).unwrap();
 
       const attachmentsField = methods.getValues("attachments");
       if (filesToRemove.length > 0 || attachmentsField?.length > 0) {
-        const formData = new FormData();
-
-        filesToRemove.forEach((id) => formData.append("remove[]", id));
-        attachmentsField?.forEach((file: File) => formData.append("add", file));
-
-        await api.put(`files/${selectedCase.id}`, formData, {
-          headers: { "Content-Type": "multipart/form-data" },
+        await updateCaseAttachments({
+          caseId: selectedCase.id,
+          filesToRemove: filesToRemove,
+          filesToAdd: attachmentsField,
         });
 
-        setFilesToRemove([]);
         methods.setValue("attachments", []);
       }
-
-      const casesGetResponse = await api.get("cases");
-      setCases(casesGetResponse.data);
-      methods.reset(defaultValues);
     } catch (error) {
       console.error("There was an error updating the case!", error);
     }
@@ -88,7 +75,7 @@ const ExistCaseForm = () => {
   return (
     <FormProvider {...methods}>
       <form onSubmit={methods.handleSubmit(onFormUpdate)}>
-        <CaseList cases={cases} onRowDoubleClicked={handleCaseRowSelect} />
+        <CaseList onRowDoubleClicked={handleCaseRowSelect} />
         <div className="form-container">
           <div className="form-left">
             <div className="form-row">
@@ -130,7 +117,13 @@ const ExistCaseForm = () => {
               <CaseDetail />
 
               <div className="action-buttons">
-                <Button type="submit" variant="contained">
+                <Button
+                  type="submit"
+                  variant="contained"
+                  disabled={
+                    !selectedCase || isUpdatingCase || isUpdatingCaseAttachments
+                  }
+                >
                   Update
                 </Button>
               </div>

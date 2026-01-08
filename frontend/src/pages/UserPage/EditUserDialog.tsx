@@ -9,7 +9,6 @@ import {
   MenuItem,
 } from "@mui/material";
 
-import api from "api";
 import { useUpdateUserMutation } from "rtk/usersApi";
 
 const EditUserDialog = ({
@@ -22,7 +21,7 @@ const EditUserDialog = ({
   const [role, setRole] = React.useState("employee");
   const [workLocation, setWorkLocation] = React.useState("");
 
-  const [updateUser, { isLoading }] = useUpdateUserMutation();
+  const [updateUser, { isLoading: isUpdatingUser }] = useUpdateUserMutation();
 
   React.useEffect(() => {
     if (editingUser) {
@@ -106,7 +105,11 @@ const EditUserDialog = ({
 
       <DialogActions>
         <Button onClick={() => setIsShown(false)}>Cancel</Button>
-        <Button onClick={handleSave} variant="contained">
+        <Button
+          onClick={handleSave}
+          variant="contained"
+          disabled={isUpdatingUser}
+        >
           Save
         </Button>
       </DialogActions>
