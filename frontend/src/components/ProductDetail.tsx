@@ -8,17 +8,21 @@ import {
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 
-import api from "api";
+import { useGetProductsQuery } from "rtk/casesApi";
 
 const ProductDetail = ({ modelNumber }) => {
-  const [products, setProducts] = React.useState<any[]>([]);
   const [paginationModel, setPaginationModel] =
     React.useState<GridPaginationModel>({
       page: 0,
       pageSize: 25,
     });
   const [expanded, setExpanded] = React.useState(false);
-  const [loaded, setLoaded] = React.useState(false);
+
+  const { data, isLoading } = useGetProductsQuery(undefined, {
+    skip: !expanded,
+  });
+
+  const products = data?.products || [];
 
   const columns = [
     { field: "part", headerName: "Part", width: 250 },
@@ -46,22 +50,6 @@ const ProductDetail = ({ modelNumber }) => {
     },
   ];
 
-  // Only fetch when expanded for the first time
-  React.useEffect(() => {
-    if (expanded && !loaded) {
-      api
-        .get("products")
-        .then((response) => {
-          const fetchedProducts = response.data;
-          setProducts(fetchedProducts.products);
-          setLoaded(true);
-        })
-        .catch((error) =>
-          console.error("There was an error loading the products!", error)
-        );
-    }
-  }, [expanded, loaded]);
-
   const filteredProducts = products.filter((product) => {
     if (modelNumber) {
       return product.part.toLowerCase().includes(modelNumber.toLowerCase());
@@ -82,7 +70,7 @@ const ProductDetail = ({ modelNumber }) => {
         <Typography variant="h6">Product Details</Typography>
       </AccordionSummary>
       <AccordionDetails>
-        {loaded ? (
+        {!isLoading ? (
           <DataGrid
             rows={filteredProducts}
             columns={columns}

@@ -2,8 +2,6 @@ import React from "react";
 import { FormProvider, useForm, useWatch } from "react-hook-form";
 import { Button } from "@mui/material";
 
-import api from "../../api";
-
 import CustomerList from "../CustomerList";
 import OrderHistory from "../OrderHistory";
 import ProductDetail from "../ProductDetail";

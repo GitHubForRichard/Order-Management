@@ -55,6 +55,38 @@ type CreateCaseResponse = {
   case: Case;
 };
 
+type OrderHistoryItem = {
+  product_number: string;
+  product_quantity: number;
+  date: string;
+  s_o_num: string;
+  p_o_num: string;
+  ship_to_name: string;
+};
+
+type GetOrderHistoryResponse = {
+  orders: OrderHistoryItem[];
+};
+
+export type ProductDetailItem = {
+  part: string;
+  description: string;
+  on_hand: number;
+  allocated: number;
+  available: number;
+  available_to_pick: number;
+  on_order: number;
+  committed: number;
+};
+
+type GetProductsResponse = {
+  products: ProductDetailItem[];
+};
+
+type ModelNumbersResponse = {
+  model_numbers: string[];
+};
+
 export const casesApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     getCases: builder.query<GetCasesResponse, void>({
@@ -277,6 +309,21 @@ export const casesApi = baseApi.injectEndpoints({
         },
       }
     ),
+
+    getOrderHistory: builder.query<
+      GetOrderHistoryResponse,
+      { searchTerm: string }
+    >({
+      query: ({ searchTerm }) => `order-history?search_term=${searchTerm}`,
+    }),
+
+    getProducts: builder.query<GetProductsResponse, void>({
+      query: () => "products",
+    }),
+
+    getModelNumbers: builder.query<ModelNumbersResponse, void>({
+      query: () => "model-numbers",
+    }),
   }),
   overrideExisting: false,
 });
@@ -294,4 +341,7 @@ export const {
   useGetCaseAttachmentsQuery,
   useUploadCaseAttachmentsMutation,
   useUpdateCaseAttachmentsMutation,
+  useGetOrderHistoryQuery,
+  useGetProductsQuery,
+  useGetModelNumbersQuery,
 } = casesApi;

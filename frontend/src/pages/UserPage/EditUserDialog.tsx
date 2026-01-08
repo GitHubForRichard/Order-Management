@@ -9,7 +9,6 @@ import {
   MenuItem,
 } from "@mui/material";
 
-import api from "api";
 import { useUpdateUserMutation } from "rtk/usersApi";
 
 const EditUserDialog = ({
