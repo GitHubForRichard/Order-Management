@@ -78,9 +78,18 @@ const NavBar = () => {
             </MenuItem>
           </Menu>
           {user.role === "manager" && (
-            <Button color="inherit" component={RouterLink} to="/users">
-              Users
-            </Button>
+            <>
+              <Button color="inherit" component={RouterLink} to="/users">
+                Users
+              </Button>
+              <Button
+                color="inherit"
+                component={RouterLink}
+                to="/leaves/remaining-hours/summary"
+              >
+                Employee PTO Balance
+              </Button>
+            </>
           )}
         </Box>
 

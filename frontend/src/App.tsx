@@ -10,13 +10,14 @@ import LoginPage from "./pages/LoginPage/LoginPage";
 import RegisterPage from "./pages/RegisterPage/RegisterPage";
 
 import "./App.css";
+import { Notifications } from "./components/Notifications";
 import LeavePage from "./pages/LeavePage/LeavePage";
 import UserPage from "./pages/UserPage/UserPage";
 import NavBar from "./NavBar";
 import NotFoundPage from "./pages/NotFoundPage/NotFoundPage";
 import LeaveCalendarPage from "./pages/LeaveCalendarPage/LeaveCalendarPage";
 import LeaveSummary from "./pages/LeavePage/LeaveSummary";
-import { Notifications } from "./components/Notifications";
+import { RemainingHoursSummary } from "./pages/LeavePage/RemainingHoursSummary";
 
 // Protected Route Component
 const PrivateRoute = ({ children }: { children }) => {
@@ -75,6 +76,14 @@ const App = () => {
             element={
               <PrivateRoute>
                 <UserPage />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/leaves/remaining-hours/summary"
+            element={
+              <PrivateRoute>
+                <RemainingHoursSummary />
               </PrivateRoute>
             }
           />
