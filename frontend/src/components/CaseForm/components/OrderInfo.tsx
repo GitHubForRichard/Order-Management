@@ -41,11 +41,9 @@ const CaseInfo = ({ caseFormActionType, disabled = false }) => {
           disabled={disabled}
           name="sales_order"
           control={control}
-          rules={{ required: "Sales Order is required" }}
           render={({ field }) => (
             <TextField
               {...field}
-              required
               label="Sales Order"
               variant="outlined"
               margin="normal"

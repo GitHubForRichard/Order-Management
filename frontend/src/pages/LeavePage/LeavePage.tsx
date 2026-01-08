@@ -121,23 +121,25 @@ const LeavePage: React.FC = () => {
           <Grid item xs={12} sm={4}>
             <Paper sx={{ p: 2 }}>
               <Typography variant="subtitle2" color="text.secondary">
-                Hire Date
-              </Typography>
-              <Typography variant="h6">{currentUser?.join_date}</Typography>
-            </Paper>
-          </Grid>
-
-          <Grid item xs={12} sm={4}>
-            <Paper sx={{ p: 2 }}>
-              <Typography variant="subtitle2" color="text.secondary">
-                Advanced PTO Balance
+                Advanced PTO Balance (Current Year)
               </Typography>
               <Typography variant="h6">
                 {advancedRemainingHours.toFixed(2)} hours
               </Typography>
             </Paper>
           </Grid>
+        
+
+          <Grid item xs={12} sm={4}>
+            <Paper sx={{ p: 2 }}>
+              <Typography variant="subtitle2" color="text.secondary">
+                Hire Date
+              </Typography>
+              <Typography variant="h6">{currentUser?.join_date}</Typography>
+            </Paper>
+          </Grid>
         </Grid>
+
 
         <Grid container spacing={2} mt={2}>
           <Grid item xs={12} md={9}>
