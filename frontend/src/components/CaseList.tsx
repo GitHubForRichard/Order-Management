@@ -5,11 +5,14 @@ import { Typography } from "@mui/material";
 import { DataGrid, GridFilterModel } from "@mui/x-data-grid";
 
 import { formatUTCToPST } from "utils";
+import { useGetCasesQuery } from "rtk/casesApi";
 
-const CaseList = ({ cases, onRowDoubleClicked }) => {
+const CaseList = ({ onRowDoubleClicked }) => {
   const [searchParams, setSearchParams] = useSearchParams();
   const existingStatusFilter = searchParams.get("status");
   const existingAssignFilter = searchParams.get("assign");
+
+  const { data: cases = [] } = useGetCasesQuery();
 
   const [filterModel, setFilterModel] = React.useState<GridFilterModel>(() => {
     const items = [];

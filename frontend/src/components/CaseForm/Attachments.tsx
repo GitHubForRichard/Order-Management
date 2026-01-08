@@ -3,7 +3,7 @@ import Button from "@mui/material/Button";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import { Controller, useFormContext } from "react-hook-form";
 
-import api from "api";
+import { useGetCaseAttachmentsQuery } from "rtk/casesApi";
 
 interface AttachmentsProps {
   selectedCase: any;
@@ -18,17 +18,14 @@ const Attachments: React.FC<AttachmentsProps> = ({
 }) => {
   const { control } = useFormContext();
 
-  const [attachments, setAttachments] = React.useState<any[]>([]);
-
-  React.useEffect(() => {
-    if (selectedCase?.id) {
-      const fetchAttachments = async () => {
-        const res = await api.get(`files/${selectedCase.id}`);
-        setAttachments(res.data.files);
-      };
-      fetchAttachments();
+  const { data: attachments = [] } = useGetCaseAttachmentsQuery(
+    { caseId: selectedCase?.id },
+    {
+      skip: !selectedCase?.id,
     }
-  }, [selectedCase]);
+  );
+
+  console.log({ attachments });
 
   const acceptedFileTypes = ["image/png", "image/jpeg", "application/pdf"];
 

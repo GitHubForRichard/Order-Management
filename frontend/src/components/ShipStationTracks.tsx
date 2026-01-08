@@ -1,5 +1,3 @@
-import React from "react";
-
 import {
   Paper,
   Table,
@@ -9,26 +7,17 @@ import {
   TableHead,
   TableRow,
 } from "@mui/material";
-import api from "api";
+import { useGetShipStationTrackingQuery } from "rtk/casesApi";
 
 const ShipStationTracks = ({ trackingNumber }) => {
-  const [shipStationTracks, setShipStationTracks] = React.useState<any[]>([]);
-
-  React.useEffect(() => {
-    if (trackingNumber) {
-      // Fetch ShipStation tracking information
-      const fetchTrackingInfo = async () => {
-        try {
-          const response = await api.get(`shipstation/${trackingNumber}`);
-          setShipStationTracks(response.data.shipments || []);
-        } catch (error) {
-          console.error("Error fetching ShipStation tracking info:", error);
-        }
-      };
-
-      fetchTrackingInfo();
+  const { data: shipStationTracks = [] } = useGetShipStationTrackingQuery(
+    {
+      trackingNumber,
+    },
+    {
+      skip: !trackingNumber,
     }
-  }, [trackingNumber]);
+  );
 
   return (
     <div className="form-section-card shipstation-track">
