@@ -3,7 +3,7 @@ import React from "react";
 import api from "../../api";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
 
-export const RemainingHoursSummary = () => {
+const RemainingHoursSummary = () => {
   const [allRemainingHours, setAllRemainingHours] = React.useState([]);
 
   React.useEffect(() => {
@@ -52,3 +52,5 @@ export const RemainingHoursSummary = () => {
     />
   );
 };
+
+export default RemainingHoursSummary;
