@@ -3,8 +3,12 @@ import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import { Button } from "@mui/material";
 import { User } from "@/types/customer";
 import EditUserDialog from "./EditUserDialog";
+import { useGetUsersQuery } from "../../rtk/usersApi";
 
-const UserList = ({ users, onUserUpdated }) => {
+const UserList = () => {
+  const { data: users = [], isLoading } = useGetUsersQuery();
+  console.log("Fetched users:", users);
+
   const [isEditUserDialogShown, setIsEditUserDialogShown] =
     React.useState(false);
   const [editingUser, setEditingUser] = React.useState<User | null>(null);
@@ -76,7 +80,6 @@ const UserList = ({ users, onUserUpdated }) => {
         setIsShown={setIsEditUserDialogShown}
         editingUser={editingUser}
         setEditingUser={setEditingUser}
-        onUserUpdated={onUserUpdated}
       />
     </>
   );
