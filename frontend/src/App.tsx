@@ -16,6 +16,7 @@ import NavBar from "./NavBar";
 import NotFoundPage from "./pages/NotFoundPage/NotFoundPage";
 import LeaveCalendarPage from "./pages/LeaveCalendarPage/LeaveCalendarPage";
 import LeaveSummary from "./pages/LeavePage/LeaveSummary";
+import { RemainingHoursSummary } from "./pages/LeavePage/RemainingHoursSummary";
 
 // Protected Route Component
 const PrivateRoute = ({ children }: { children }) => {
@@ -73,6 +74,14 @@ const App = () => {
             element={
               <PrivateRoute>
                 <UserPage />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/leaves/remaining-hours/summary"
+            element={
+              <PrivateRoute>
+                <RemainingHoursSummary />
               </PrivateRoute>
             }
           />

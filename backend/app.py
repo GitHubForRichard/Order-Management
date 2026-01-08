@@ -723,6 +723,34 @@ def get_remaining_leave_hours():
         "advanced_remaining_hours": user_leave_hour.advanced_remaining_hours
     }), 200
 
+
+@app.route("/api/leaves/all/remaining", methods=["GET"])
+@jwt_required
+def get_all_remaining_leave_hours():
+    """Get the remaining PTO hours for all users"""
+    # Fetch from the UserPTO table
+    user_leave_hours = (
+        db.session.query(UserLeaveHours, User)
+        .join(User, User.id == UserLeaveHours.user_id).all()
+    )
+
+    results = []
+
+    if not user_leave_hours:
+        return jsonify({"error": "No User Leave Hour records found"}), 404
+
+    for user_leave_hour, user in user_leave_hours:
+        results.append({
+            "user": {
+                "id": user.id,
+                "first_name": user.first_name,
+                "last_name": user.last_name
+            },
+            "remaining_hours": user_leave_hour.remaining_hours,
+            "advanced_remaining_hours": user_leave_hour.advanced_remaining_hours
+        })
+    return jsonify(results), 200
+
 @app.route("/api/leaves/summary", methods=["GET"])
 @jwt_required
 def get_leave_summary():
