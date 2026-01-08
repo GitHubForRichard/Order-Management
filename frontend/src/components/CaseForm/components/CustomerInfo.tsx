@@ -128,11 +128,7 @@ const CustomerInfo = ({
           name="phone_code"
           control={control}
           render={({ field, fieldState }) => (
-            <FormControl
-              margin="normal"
-              size="small"
-              sx={{ width: "70px" }}
-            >
+            <FormControl margin="normal" size="small" sx={{ width: "70px" }}>
               <InputLabel id="phone-code-label" sx={{ fontSize: "0.6rem" }}>
                 Code
               </InputLabel>

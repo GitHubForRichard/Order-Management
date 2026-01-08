@@ -1,5 +1,5 @@
-import { baseApi } from "../rtkApi";
-import { User } from "@/types/customer";
+import { baseApi } from "rtkApi";
+import { User } from "types/customer";
 import { notify } from "../redux/notificationsSlice";
 
 export const usersApi = baseApi.injectEndpoints({

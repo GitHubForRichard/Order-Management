@@ -9,7 +9,7 @@ import {
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 
-import api from "../api";
+import api from "api";
 
 const OrderHistory = ({ purchaseOrder }) => {
   const [orders, setOrders] = React.useState<any[]>([]);

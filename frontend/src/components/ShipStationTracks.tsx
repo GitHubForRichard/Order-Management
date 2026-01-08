@@ -9,7 +9,7 @@ import {
   TableHead,
   TableRow,
 } from "@mui/material";
-import api from "../api";
+import api from "api";
 
 const ShipStationTracks = ({ trackingNumber }) => {
   const [shipStationTracks, setShipStationTracks] = React.useState<any[]>([]);

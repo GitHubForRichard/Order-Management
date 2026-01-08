@@ -5,11 +5,10 @@ import { Paper, Typography } from "@mui/material";
 import { format, parse, startOfWeek, getDay } from "date-fns";
 import enUS from "date-fns/locale/en-US";
 
-import api from "../../api";
 import LeaveEventDialog from "./LeaveEventDialog";
+import { useGetLeavesQuery } from "rtk/leavesApi";
 
 const LeaveCalendarPage = () => {
-  const [leaves, setLeaves] = React.useState<any[]>([]);
   const [selectedLeave, setSelectedLeave] = React.useState<any | null>(null);
 
   const locales = {
@@ -24,19 +23,7 @@ const LeaveCalendarPage = () => {
     locales,
   });
 
-  React.useEffect(() => {
-    // Fetch leave records
-    const fetchLeaves = async () => {
-      try {
-        const response = await api.get(`leaves?role=manager`);
-        setLeaves(response.data || []);
-      } catch (error) {
-        console.error(`Error fetching leaves or remaining hours:`, error);
-      }
-    };
-
-    fetchLeaves();
-  }, []);
+  const { data: leaves = [] } = useGetLeavesQuery({ role: "manager" });
 
   // Map leave records to calendar events
   const leaveEvents: Event[] = leaves

@@ -10,7 +10,7 @@ import {
 } from "@mui/material";
 
 import { CASE_FORM_ACTION_TYPES } from "../../../constants";
-import { useAssignees } from "../../../hooks/useAssignees";
+import { useAssignees } from "hooks/useAssignees";
 
 const CaseInfo = ({ caseFormActionType, disabled = false }) => {
   const { control } = useFormContext();
