@@ -1,44 +1,15 @@
 import { baseApi } from "rtkApi";
 import { Leave } from "pages/LeavePage/LeavePage";
 
-type CreateLeaveRequest = {
-  start_date: string;
-  end_date: string;
-  hours: number;
-  type: "Paid" | "Unpaid";
-};
+import { CreateLeaveRequest } from "rtk/requests/leaveApiRequests";
+import {
+  GetUserRemainingHoursResponse,
+  GetAllUsersRemainingHoursResponse,
+  GetUserHoursHistoryResponse,
+  LeaveSummary,
+} from "./responses/leaveApiResponses";
 
-type GetUserRemainingHoursResponse = {
-  user_id: string;
-  remaining_hours: number;
-  advanced_remaining_hours: number;
-};
-
-type getAllUsersRemainingHoursResponse = {
-  user: {
-    id: string;
-    first_name: string;
-    last_name: string;
-  };
-  remaining_hours: number;
-  advanced_remaining_hours: number;
-}[];
-
-type GetUserHoursHistoryResponse = {
-  id: string;
-  field: string;
-  old_value: string;
-  new_value: string;
-  created_at: string;
-}[];
-
-export type LeaveSummary = {
-  id: string;
-  name: string;
-  totalHours: number;
-};
-
-export type LeaveAction = "approve" | "reject" | "cancel";
+import { LeaveAction } from "types/leaves";
 
 export const leavesApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
@@ -86,7 +57,7 @@ export const leavesApi = baseApi.injectEndpoints({
     }),
 
     getAllUsersRemainingHours: builder.query<
-      getAllUsersRemainingHoursResponse,
+      GetAllUsersRemainingHoursResponse,
       void
     >({
       query: () => "leaves/all/remaining",

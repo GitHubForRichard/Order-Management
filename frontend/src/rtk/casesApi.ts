@@ -2,90 +2,24 @@ import { baseApi } from "rtkApi";
 import { Customer, User } from "types/customer";
 import { notify } from "../redux/notificationsSlice";
 
-import { Assignee, Case } from "types/cases";
+import { Case } from "types/cases";
+import {
+  CaseAttachment,
+  CreateCaseResponse,
+  GetAssigneesResponse,
+  GetCaseAttachmentsResponse,
+  GetCaseHistoryResponse,
+  GetCasesResponse,
+  GetOrderHistoryResponse,
+  GetProductsResponse,
+  GetShipStationTrackingResponse,
+  GetModelNumbersResponse,
+} from "./responses/caseApiResponses";
 
-type UploadCaseAttachmentsRequest = {
-  caseId: string;
-  files: File[];
-};
-
-type UpdateCaseAttachmentsRequest = {
-  caseId: string;
-  filesToAdd?: File[];
-  filesToRemove?: string[];
-};
-
-type GetCasesResponse = Case[];
-type GetAssigneesResponse = Assignee[];
-type GetShipStationTrackingResponse = {
-  carrierCode: string;
-  serviceCode: string;
-  shipTo: {
-    name: string;
-  };
-  shipDate: string;
-  trackingNumber: string;
-}[];
-
-type GetCaseHistoryResponse = {
-  action: string;
-  created_by: User;
-  created_at: string;
-  field: string;
-  id: string;
-  new_value: string;
-  old_value: string;
-}[];
-
-type CaseAttachment = {
-  case_id: string;
-  created_at: string;
-  deleted_at: string | null;
-  drive_file_id: string;
-  id: string;
-  name: string;
-  url: string;
-};
-
-type GetCaseAttachmentsResponse = {
-  files: CaseAttachment[];
-};
-
-type CreateCaseResponse = {
-  case: Case;
-};
-
-type OrderHistoryItem = {
-  product_number: string;
-  product_quantity: number;
-  date: string;
-  s_o_num: string;
-  p_o_num: string;
-  ship_to_name: string;
-};
-
-type GetOrderHistoryResponse = {
-  orders: OrderHistoryItem[];
-};
-
-export type ProductDetailItem = {
-  part: string;
-  description: string;
-  on_hand: number;
-  allocated: number;
-  available: number;
-  available_to_pick: number;
-  on_order: number;
-  committed: number;
-};
-
-type GetProductsResponse = {
-  products: ProductDetailItem[];
-};
-
-type ModelNumbersResponse = {
-  model_numbers: string[];
-};
+import {
+  UpdateCaseAttachmentsRequest,
+  UploadCaseAttachmentsRequest,
+} from "./requests/caseApiRequests";
 
 export const casesApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
@@ -321,7 +255,7 @@ export const casesApi = baseApi.injectEndpoints({
       query: () => "products",
     }),
 
-    getModelNumbers: builder.query<ModelNumbersResponse, void>({
+    getModelNumbers: builder.query<GetModelNumbersResponse, void>({
       query: () => "model-numbers",
     }),
   }),
