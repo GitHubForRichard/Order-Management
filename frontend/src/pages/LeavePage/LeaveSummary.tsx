@@ -12,14 +12,13 @@ import {
   Box,
   Typography,
 } from "@mui/material";
-
-import api from "../../api";
+import { useGetLeaveSummaryQuery } from "../../rtk/leavesApi";
 
 interface LeaveSummaryTableProps {
   leaveSummaryList: LeaveSummary[];
 }
 
-interface LeaveSummary {
+export interface LeaveSummary {
   id: string;
   name: string;
   totalHours: number;
@@ -75,32 +74,16 @@ const LeaveSummary = () => {
 
   const [startDate, setStartDate] = React.useState(formatDate(firstDayOfMonth));
   const [endDate, setEndDate] = React.useState(formatDate(lastDayOfMonth));
-  const [leaveSummaryList, setLeaveSummaryList] = React.useState<
-    LeaveSummary[]
-  >([]);
+  const { data: leaveSummaryList = [], refetch: refetchLeaveSummary } =
+    useGetLeaveSummaryQuery({
+      start_date: startDate,
+      end_date: endDate,
+    });
 
   const isDateRangeValid =
     Boolean(startDate) &&
     Boolean(endDate) &&
     new Date(endDate) >= new Date(startDate);
-
-  const fetchLeaveSummary = async () => {
-    try {
-      if (!isDateRangeValid) {
-        return;
-      }
-      const response = await api.get(
-        `leaves/summary?start_date=${startDate}&end_date=${endDate}`
-      );
-      setLeaveSummaryList(response.data || []);
-    } catch (error) {
-      console.error("Error fetching leave summary", error);
-    }
-  };
-
-  React.useEffect(() => {
-    fetchLeaveSummary();
-  }, []);
 
   return (
     <Box marginTop={4}>
@@ -131,7 +114,7 @@ const LeaveSummary = () => {
         />
         <Button
           variant="contained"
-          onClick={fetchLeaveSummary}
+          onClick={refetchLeaveSummary}
           disabled={!isDateRangeValid}
         >
           Filter

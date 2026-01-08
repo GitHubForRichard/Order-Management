@@ -2,18 +2,22 @@ import React from "react";
 import { Box, Button, Typography, Paper, Grid } from "@mui/material";
 
 import { useCurrentUser } from "hooks/useCurrentUser";
-import api from "../../api";
 import LeaveList from "./LeaveList";
 import CreateLeaveDialog from "./CreateLeaveDialog";
 import HoursHistory from "./HoursHistory";
+import {
+  useGetLeavesQuery,
+  useGetUserRemainingHoursQuery,
+} from "../../rtk/leavesApi";
+import { LeaveStatus, LeaveType } from "../../types/leaves";
 
 export interface Leave {
   id: number;
-  type: "Paid" | "Unpaid";
+  type: LeaveType;
   start_date: string;
   end_date: string;
   hours: number;
-  status: "Pending" | "Approved" | "Rejected" | "Cancelled";
+  status: LeaveStatus;
   created_by: {
     id: string;
     first_name: string;
@@ -26,9 +30,6 @@ export interface Leave {
 const LeavePage: React.FC = () => {
   const { currentUser } = useCurrentUser();
 
-  const [leaves, setLeaves] = React.useState<Leave[]>([]);
-  const [remainingHours, setRemainingHours] = React.useState(0);
-  const [advancedRemainingHours, setAdvancedRemainingHours] = React.useState(0);
   const [isCreateLeaveDialogShown, setIsCreateLeaveDialogShown] =
     React.useState(false);
 
@@ -39,54 +40,12 @@ const LeavePage: React.FC = () => {
     leaveType: "Paid",
   });
 
-  React.useEffect(() => {
-    // Fetch leave records
-    const fetchLeaves = async () => {
-      try {
-        const response = await api.get(`leaves`);
-        setLeaves(response.data || []);
+  const { data: leaves = ([] = []) } = useGetLeavesQuery();
+  const { data: remainingHoursData } = useGetUserRemainingHoursQuery();
 
-        const remainingHoursResponse = await api.get("leaves/remaining");
-        setRemainingHours(remainingHoursResponse.data.remaining_hours || 0);
-        setAdvancedRemainingHours(
-          remainingHoursResponse.data.advanced_remaining_hours || 0
-        );
-      } catch (error) {
-        console.error(`Error fetching leaves or remaining hours:`, error);
-      }
-    };
-
-    fetchLeaves();
-  }, []);
-
-  const handleLeaveAction = async (
-    leaveId: number,
-    action: "approve" | "reject" | "cancel"
-  ) => {
-    try {
-      await api.patch(`leaves/${leaveId}/action`, { action });
-      let actionText = "";
-      if (action === "approve") {
-        actionText = "Approved";
-      } else if (action === "reject") {
-        actionText = "Rejected";
-      } else if (action === "cancel") {
-        actionText = "Cancelled";
-      }
-      setLeaves((prev) =>
-        prev.map((l) =>
-          l.id === leaveId
-            ? {
-                ...l,
-                status: actionText as Leave["status"],
-              }
-            : l
-        )
-      );
-    } catch (error) {
-      console.error(`Error performing ${action} on leave:`, error);
-    }
-  };
+  const remainingHours = remainingHoursData?.remaining_hours || 0;
+  const advancedRemainingHours =
+    remainingHoursData?.advanced_remaining_hours || 0;
 
   return (
     <Box p={4}>
@@ -144,7 +103,6 @@ const LeavePage: React.FC = () => {
             <Typography variant="h6">Leaves</Typography>
             <LeaveList
               leaves={leaves}
-              handleLeaveAction={handleLeaveAction}
               isManager={currentUser?.role === "manager"}
             />
           </Grid>

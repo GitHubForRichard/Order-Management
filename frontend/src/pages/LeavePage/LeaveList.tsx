@@ -2,9 +2,13 @@ import { DataGrid, GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
 import { Box, Button } from "@mui/material";
 import { useAuth } from "hooks/useAuth";
 import { formatUTCToPST } from "../../utils";
+import { useProcessLeaveMutation } from "../../rtk/leavesApi";
 
-const LeaveList = ({ leaves, handleLeaveAction, isManager }) => {
+const LeaveList = ({ leaves, isManager }) => {
   const { user } = useAuth();
+
+  const [processLeave, { isLoading: isProcessingLeave }] =
+    useProcessLeaveMutation();
 
   const columns: GridColDef[] = [
     {
@@ -97,7 +101,10 @@ const LeaveList = ({ leaves, handleLeaveAction, isManager }) => {
               variant="contained"
               color="warning"
               size="small"
-              onClick={() => handleLeaveAction(leave.id, "cancel", leave.hours)}
+              disabled={isProcessingLeave}
+              onClick={() =>
+                processLeave({ leaveId: leave.id, action: "cancel" })
+              }
             >
               Cancel
             </Button>
@@ -108,8 +115,9 @@ const LeaveList = ({ leaves, handleLeaveAction, isManager }) => {
               variant="contained"
               color="success"
               size="small"
+              disabled={isProcessingLeave}
               onClick={() =>
-                handleLeaveAction(leave.id, "approve", leave.hours)
+                processLeave({ leaveId: leave.id, action: "approve" })
               }
             >
               Approve
@@ -121,7 +129,10 @@ const LeaveList = ({ leaves, handleLeaveAction, isManager }) => {
               variant="contained"
               color="error"
               size="small"
-              onClick={() => handleLeaveAction(leave.id, "reject")}
+              disabled={isProcessingLeave}
+              onClick={() =>
+                processLeave({ leaveId: leave.id, action: "reject" })
+              }
             >
               Reject
             </Button>
