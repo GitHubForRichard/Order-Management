@@ -9,6 +9,11 @@ export const usersApi = baseApi.injectEndpoints({
       providesTags: ["Users"],
     }),
 
+    getUser: builder.query<User, { id: string }>({
+      query: ({ id }) => `users/${id}`,
+      providesTags: ["Users"],
+    }),
+
     updateUser: builder.mutation<
       User,
       { id: string; join_date?: string; role?: string; work_location?: string }
@@ -42,4 +47,5 @@ export const usersApi = baseApi.injectEndpoints({
   overrideExisting: false,
 });
 
-export const { useGetUsersQuery, useUpdateUserMutation } = usersApi;
+export const { useGetUsersQuery, useGetUserQuery, useUpdateUserMutation } =
+  usersApi;
