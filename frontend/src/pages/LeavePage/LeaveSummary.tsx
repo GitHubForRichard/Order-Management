@@ -74,16 +74,19 @@ const LeaveSummary = () => {
 
   const [startDate, setStartDate] = React.useState(formatDate(firstDayOfMonth));
   const [endDate, setEndDate] = React.useState(formatDate(lastDayOfMonth));
-  const { data: leaveSummaryList = [], refetch: refetchLeaveSummary } =
-    useGetLeaveSummaryQuery({
-      start_date: startDate,
-      end_date: endDate,
-    });
 
   const isDateRangeValid =
     Boolean(startDate) &&
     Boolean(endDate) &&
     new Date(endDate) >= new Date(startDate);
+
+  const { data: leaveSummaryList = [] } = useGetLeaveSummaryQuery(
+    {
+      start_date: startDate,
+      end_date: endDate,
+    },
+    { skip: !isDateRangeValid }
+  );
 
   return (
     <Box marginTop={4}>
@@ -111,14 +114,8 @@ const LeaveSummary = () => {
           helperText={
             !isDateRangeValid ? "End date must be after start date" : ""
           }
+          inputProps={{ min: startDate || undefined }}
         />
-        <Button
-          variant="contained"
-          onClick={refetchLeaveSummary}
-          disabled={!isDateRangeValid}
-        >
-          Filter
-        </Button>
       </Box>
 
       <Typography variant="subtitle1" textAlign="center" gutterBottom>
