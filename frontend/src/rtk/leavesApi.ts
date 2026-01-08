@@ -24,6 +24,14 @@ type getAllUsersRemainingHoursResponse = {
   advanced_remaining_hours: number;
 }[];
 
+type GetUserHoursHistoryResponse = {
+  id: string;
+  field: string;
+  old_value: string;
+  new_value: string;
+  created_at: string;
+}[];
+
 export type LeaveSummary = {
   id: string;
   name: string;
@@ -137,6 +145,14 @@ export const leavesApi = baseApi.injectEndpoints({
         }
       },
     }),
+
+    getUserHoursHistory: builder.query<
+      GetUserHoursHistoryResponse,
+      { userId: string }
+    >({
+      query: ({ userId }) => `leaves/history/remaining_hours/${userId}`,
+      providesTags: ["Leaves"],
+    }),
   }),
   overrideExisting: false,
 });
@@ -148,4 +164,5 @@ export const {
   useGetAllUsersRemainingHoursQuery,
   useGetLeaveSummaryQuery,
   useProcessLeaveMutation,
+  useGetUserHoursHistoryQuery,
 } = leavesApi;
