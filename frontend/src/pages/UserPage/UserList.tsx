@@ -1,9 +1,9 @@
 import * as React from "react";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import { Button } from "@mui/material";
-import { User } from "@/types/customer";
+import { User } from "types/customer";
 import EditUserDialog from "./EditUserDialog";
-import { useGetUsersQuery } from "../../rtk/usersApi";
+import { useGetUsersQuery } from "rtk/usersApi";
 
 const UserList = () => {
   const { data: users = [], isLoading } = useGetUsersQuery();

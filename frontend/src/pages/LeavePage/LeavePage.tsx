@@ -8,8 +8,8 @@ import HoursHistory from "./HoursHistory";
 import {
   useGetLeavesQuery,
   useGetUserRemainingHoursQuery,
-} from "../../rtk/leavesApi";
-import { LeaveStatus, LeaveType } from "../../types/leaves";
+} from "rtk/leavesApi";
+import { LeaveStatus, LeaveType } from "types/leaves";
 
 export interface Leave {
   id: number;

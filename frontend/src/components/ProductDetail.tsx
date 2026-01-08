@@ -8,7 +8,7 @@ import {
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 
-import api from "../api";
+import api from "api";
 
 const ProductDetail = ({ modelNumber }) => {
   const [products, setProducts] = React.useState<any[]>([]);

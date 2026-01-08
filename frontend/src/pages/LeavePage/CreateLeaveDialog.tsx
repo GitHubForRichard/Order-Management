@@ -11,7 +11,7 @@ import {
 } from "@mui/material";
 
 import { HOLIDAYS } from "../../constants";
-import { useCreateLeavesMutation } from "../../rtk/leavesApi";
+import { useCreateLeavesMutation } from "rtk/leavesApi";
 
 const CreateLeaveDialog = ({
   isShown,

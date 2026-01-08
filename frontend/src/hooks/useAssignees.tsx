@@ -1,5 +1,5 @@
 import React from "react";
-import api from "../api";
+import api from "api";
 
 export function useAssignees() {
   const [assignees, setAssignees] = React.useState([]);

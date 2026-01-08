@@ -3,7 +3,7 @@ import Button from "@mui/material/Button";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import { Controller, useFormContext } from "react-hook-form";
 
-import api from "../../api";
+import api from "api";
 
 interface AttachmentsProps {
   selectedCase: any;

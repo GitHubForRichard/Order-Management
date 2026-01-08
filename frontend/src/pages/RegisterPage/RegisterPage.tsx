@@ -13,9 +13,9 @@ import {
 } from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 
-import { useAuth } from "../../hooks/useAuth";
-import api, { setAuthToken } from "../../api";
-import { setAuthToken as setRtkAuthToken } from "../../rtkApi";
+import { useAuth } from "hooks/useAuth";
+import api, { setAuthToken } from "api";
+import { setAuthToken as setRtkAuthToken } from "rtkApi";
 
 const RegisterPage = () => {
   const { setAuth } = useAuth();

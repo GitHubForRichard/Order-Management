@@ -2,7 +2,7 @@ import React from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { Button } from "@mui/material";
 
-import api from "../../api";
+import api from "api";
 
 import ShipStationTracks from "../ShipStationTracks";
 import CustomerInfo from "./components/CustomerInfo";

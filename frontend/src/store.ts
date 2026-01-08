@@ -1,5 +1,5 @@
 import { configureStore } from "@reduxjs/toolkit";
-import { usersApi } from "./rtk/usersApi";
+import { usersApi } from "rtk/usersApi";
 import notificationsReducer from "./redux/notificationsSlice";
 
 export const store = configureStore({

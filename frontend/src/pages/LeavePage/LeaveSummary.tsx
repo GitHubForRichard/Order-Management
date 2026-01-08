@@ -12,7 +12,7 @@ import {
   Box,
   Typography,
 } from "@mui/material";
-import { useGetLeaveSummaryQuery } from "../../rtk/leavesApi";
+import { useGetLeaveSummaryQuery } from "rtk/leavesApi";
 
 interface LeaveSummaryTableProps {
   leaveSummaryList: LeaveSummary[];

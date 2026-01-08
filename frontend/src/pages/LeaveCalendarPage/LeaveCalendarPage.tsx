@@ -6,7 +6,7 @@ import { format, parse, startOfWeek, getDay } from "date-fns";
 import enUS from "date-fns/locale/en-US";
 
 import LeaveEventDialog from "./LeaveEventDialog";
-import { useGetLeavesQuery } from "../../rtk/leavesApi";
+import { useGetLeavesQuery } from "rtk/leavesApi";
 
 const LeaveCalendarPage = () => {
   const [selectedLeave, setSelectedLeave] = React.useState<any | null>(null);

@@ -1,8 +1,8 @@
 import { DataGrid, GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
 import { Box, Button } from "@mui/material";
 import { useAuth } from "hooks/useAuth";
-import { formatUTCToPST } from "../../utils";
-import { useProcessLeaveMutation } from "../../rtk/leavesApi";
+import { formatUTCToPST } from "utils";
+import { useProcessLeaveMutation } from "rtk/leavesApi";
 
 const LeaveList = ({ leaves, isManager }) => {
   const { user } = useAuth();

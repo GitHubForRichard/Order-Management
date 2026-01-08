@@ -11,7 +11,7 @@ import {
 
 import { useAuth } from "hooks/useAuth";
 
-import api from "../../api";
+import api from "api";
 
 const HoursHistory = () => {
   const { user } = useAuth();

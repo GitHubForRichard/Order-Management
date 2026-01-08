@@ -1,6 +1,5 @@
-import { baseApi } from "../rtkApi";
-import { Leave } from "../pages/LeavePage/LeavePage";
-import { notify } from "../redux/notificationsSlice";
+import { baseApi } from "rtkApi";
+import { Leave } from "pages/LeavePage/LeavePage";
 
 type CreateLeaveRequest = {
   start_date: string;

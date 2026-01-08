@@ -4,7 +4,7 @@ import { useSearchParams } from "react-router-dom";
 import { Typography } from "@mui/material";
 import { DataGrid, GridFilterModel } from "@mui/x-data-grid";
 
-import { formatUTCToPST } from "../utils";
+import { formatUTCToPST } from "utils";
 
 const CaseList = ({ cases, onRowDoubleClicked }) => {
   const [searchParams, setSearchParams] = useSearchParams();
