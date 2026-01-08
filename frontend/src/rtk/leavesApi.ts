@@ -14,6 +14,16 @@ type GetUserRemainingHoursResponse = {
   advanced_remaining_hours: number;
 };
 
+type getAllUsersRemainingHoursResponse = {
+  user: {
+    id: string;
+    first_name: string;
+    last_name: string;
+  };
+  remaining_hours: number;
+  advanced_remaining_hours: number;
+}[];
+
 export type LeaveSummary = {
   id: string;
   name: string;
@@ -64,6 +74,14 @@ export const leavesApi = baseApi.injectEndpoints({
 
     getUserRemainingHours: builder.query<GetUserRemainingHoursResponse, void>({
       query: () => "leaves/remaining",
+      providesTags: ["Leaves"],
+    }),
+
+    getAllUsersRemainingHours: builder.query<
+      getAllUsersRemainingHoursResponse,
+      void
+    >({
+      query: () => "leaves/all/remaining",
       providesTags: ["Leaves"],
     }),
 
@@ -127,6 +145,7 @@ export const {
   useGetLeavesQuery,
   useCreateLeavesMutation,
   useGetUserRemainingHoursQuery,
+  useGetAllUsersRemainingHoursQuery,
   useGetLeaveSummaryQuery,
   useProcessLeaveMutation,
 } = leavesApi;

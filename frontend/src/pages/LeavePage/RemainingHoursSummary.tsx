@@ -1,24 +1,11 @@
 import React from "react";
 
-import api from "api";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
 
+import { useGetAllUsersRemainingHoursQuery } from "rtk/leavesApi";
+
 const RemainingHoursSummary = () => {
-  const [allRemainingHours, setAllRemainingHours] = React.useState([]);
-
-  React.useEffect(() => {
-    // Fetch remaining hours for all users
-    const fetchAllRemainingHours = async () => {
-      try {
-        const remainingHoursResponse = await api.get("leaves/all/remaining");
-        setAllRemainingHours(remainingHoursResponse.data || []);
-      } catch (error) {
-        console.error(`Error fetching all remaining hours:`, error);
-      }
-    };
-
-    fetchAllRemainingHours();
-  }, []);
+  const { data: allRemainingHours = [] } = useGetAllUsersRemainingHoursQuery();
 
   const columns: GridColDef[] = [
     {
