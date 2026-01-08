@@ -15,7 +15,6 @@ import { Visibility, VisibilityOff } from "@mui/icons-material";
 
 import { useAuth } from "../../hooks/useAuth";
 import api, { setAuthToken } from "../../api";
-import { setAuthToken as setRtkAuthToken } from "../../rtkApi";
 
 const RegisterPage = () => {
   const { setAuth } = useAuth();
@@ -45,7 +44,6 @@ const RegisterPage = () => {
       });
       setAuth(response.data.token, response.data.user);
       setAuthToken(response.data.token);
-      setRtkAuthToken(response.data.token);
       navigate("/"); // Redirect to home after registration
     } catch (err) {
       console.error(err);
@@ -83,13 +81,7 @@ const RegisterPage = () => {
             <img
               src="/logo_company.jpg"
               alt="Logo"
-              style={{
-                width: "250px",
-                height: "auto",
-                border: "none",
-                boxShadow: "none",
-                outline: "none",
-              }}
+              style={{ width: "250px", height: "auto", border: "none", boxShadow: "none",outline: "none" }}
             />
           </Box>
 

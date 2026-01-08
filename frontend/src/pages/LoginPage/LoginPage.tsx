@@ -15,7 +15,6 @@ import { Visibility, VisibilityOff } from "@mui/icons-material";
 
 import { useAuth } from "../../hooks/useAuth";
 import api, { setAuthToken } from "../../api";
-import { setAuthToken as setRtkAuthToken } from "../../rtkApi";
 
 const LoginPage = () => {
   const { setAuth } = useAuth();
@@ -40,7 +39,6 @@ const LoginPage = () => {
       });
       setAuth(response.data.token, response.data.user);
       setAuthToken(response.data.token);
-      setRtkAuthToken(response.data.token);
       navigate("/");
     } catch (err) {
       console.error(err);
@@ -77,13 +75,7 @@ const LoginPage = () => {
             <img
               src="/logo_company.jpg"
               alt="Logo"
-              style={{
-                width: "250px",
-                height: "auto",
-                border: "none",
-                boxShadow: "none",
-                outline: "none",
-              }}
+              style={{ width: "250px", height: "auto", border: "none", boxShadow: "none",outline: "none" }}
             />
           </Box>
 
