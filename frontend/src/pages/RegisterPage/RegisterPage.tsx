@@ -14,8 +14,8 @@ import {
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 
 import { useAuth } from "hooks/useAuth";
-import api, { setAuthToken } from "api";
 import { setAuthToken as setRtkAuthToken } from "rtkApi";
+import { useRegisterMutation } from "rtk/authApi";
 
 const RegisterPage = () => {
   const { setAuth } = useAuth();
@@ -27,6 +27,8 @@ const RegisterPage = () => {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
+  const [register, { isLoading: isRegistering }] = useRegisterMutation();
+
   const handleClickShowPassword = () => setShowPassword((prev) => !prev);
   const handleMouseDownPassword = (
     event: React.MouseEvent<HTMLButtonElement>
@@ -37,15 +39,14 @@ const RegisterPage = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const response = await api.post("register", {
+      const { token, user } = await register({
         first_name: firstName,
         last_name: lastName,
         email,
         password,
-      });
-      setAuth(response.data.token, response.data.user);
-      setAuthToken(response.data.token);
-      setRtkAuthToken(response.data.token);
+      }).unwrap();
+      setAuth(token, user);
+      setRtkAuthToken(token);
       navigate("/"); // Redirect to home after registration
     } catch (err) {
       console.error(err);
@@ -172,6 +173,9 @@ const RegisterPage = () => {
                 backgroundColor: "#5a5ab6",
                 "&:hover": { backgroundColor: "#0056b3" },
               }}
+              disabled={
+                isRegistering || !firstName || !lastName || !email || !password
+              }
             >
               Register
             </Button>
