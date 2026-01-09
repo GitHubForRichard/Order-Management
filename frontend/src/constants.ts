@@ -70,16 +70,16 @@ export const CANADA_PROVINCES = [
 ];
 
 export const PHONE_COUNTRY_CODES = [
-  { code: "+1", name: "USA/Canada" },
-  { code: "+44", name: "UK" },
-  { code: "+61", name: "Australia" },
-  { code: "+81", name: "Japan" },
-  { code: "+49", name: "Germany" },
-  { code: "+91", name: "India" },
-  { code: "+33", name: "France" },
-  { code: "+86", name: "China" },
-  { code: "+82", name: "South Korea" },
-  { code: "+34", name: "Spain" },
+  { code: "1", name: "USA/Canada" },
+  { code: "44", name: "UK" },
+  { code: "61", name: "Australia" },
+  { code: "81", name: "Japan" },
+  { code: "49", name: "Germany" },
+  { code: "91", name: "India" },
+  { code: "33", name: "France" },
+  { code: "86", name: "China" },
+  { code: "82", name: "South Korea" },
+  { code: "34", name: "Spain" },
 ];
 
 export const COUNTRIES = ["USA", "Canada", "UK", "Australia"];

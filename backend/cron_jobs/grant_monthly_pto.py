@@ -8,16 +8,16 @@ from models import AuditLog, ScriptRunLog, UserLeaveHours, db, User
 
 HOURS_PER_DAY = 8
 
-# Monthly PTO accrual by years worked
+# Monthly PTO accrual in HOURS by years worked
 PTO_ACCRUAL_BY_YEARS = {
-    0: 0.58,
-    1: 0.67,
-    2: 0.75,
-    3: 0.83,
-    4: 0.92,
-    5: 1.00,
-    6: 1.08,
-    7: 1.17,
+    0: 4.67,
+    1: 5.34,
+    2: 6.00,
+    3: 6.67,
+    4: 7.34,
+    5: 8.00,
+    6: 8.67,
+    7: 9.34,
 }
 
 # Maximum carryover per year (in days)
@@ -66,12 +66,10 @@ def calculate_advanced_pto_for_year(
     rate_before = PTO_ACCRUAL_BY_YEARS.get(
         min(years_worked_before, 7), 0
     )
-    print(f"Accrual rate before anniversary: {rate_before} days/month")
+    print(f"Accrual rate before anniversary: {rate_before} hours/month")
 
-    total_hours += (
-        rate_before * months_before * HOURS_PER_DAY
-    )
-    print(f"Total hours before anniversary (accrual rate x months x 8 hours/day): {total_hours}")
+    total_hours += rate_before * months_before
+    print(f"Total hours before anniversary (accrual rate x months): {total_hours}")
 
     # ---- On / after anniversary (new rate) ----
     print(f"Running rate calculation after anniversary on {anniversary}")
@@ -90,13 +88,11 @@ def calculate_advanced_pto_for_year(
         rate_after = PTO_ACCRUAL_BY_YEARS.get(
             min(years_worked_after, 7), 0
         )
-        print(f"Accrual rate after anniversary: {rate_after} days/month")
+        print(f"Accrual rate after anniversary: {rate_after} hours/month")
 
-        print(f"Total hours after anniversary (accrual rate x months x 8 hours/day): {rate_after * months_after * HOURS_PER_DAY}")
+        print(f"Total hours after anniversary (accrual rate x months): {rate_after * months_after}")
         
-        total_hours += (
-            rate_after * months_after * HOURS_PER_DAY
-        )
+        total_hours += rate_after * months_after
 
     return round(total_hours, 2)
 
@@ -188,8 +184,7 @@ def grant_monthly_pto(app):
             print(f"Effective start date: {effective_start_date}")
             print(f"Years worked: {years_worked}")
 
-            accrual_days = PTO_ACCRUAL_BY_YEARS.get(min(years_worked, 7), 0)
-            accrual_hours = accrual_days * HOURS_PER_DAY
+            accrual_hours = PTO_ACCRUAL_BY_YEARS.get(min(years_worked, 7), 0)
 
             # Fetch or create PTO record
             user_leave_hours = UserLeaveHours.query.filter_by(user_id=user.id).first()
