@@ -1,5 +1,5 @@
 import { baseApi } from "rtkApi";
-import { Customer, User } from "types/customer";
+import { Customer } from "types/customer";
 import { notify } from "../redux/notificationsSlice";
 
 import { Case } from "types/cases";
