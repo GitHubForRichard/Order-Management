@@ -48,8 +48,8 @@ const CaseList = ({ onRowDoubleClicked }) => {
       width: 160,
     },
     {
-      field: "sales_order",
-      headerName: "Sales Order",
+      field: "model_number",
+      headerName: "Model Number",
       sortable: false,
       width: 100,
     },

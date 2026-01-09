@@ -164,8 +164,8 @@ const CreateLeaveDialog = ({
           onChange={handleChange}
           SelectProps={{ native: true }}
         >
-          <option value="Paid">PTO</option>
-          <option value="Unpaid">Leave</option>
+          <option value="Paid">PTO (Paid)</option>
+          <option value="Unpaid">Leave (Unpaid)</option>
         </TextField>
         {errorMessage && <Alert severity="error">{errorMessage}</Alert>}
       </DialogContent>

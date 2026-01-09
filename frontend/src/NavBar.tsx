@@ -60,7 +60,7 @@ const NavBar = () => {
               to="/leaves"
               onClick={closeLeavesMenu}
             >
-              List
+              PTO Apply
             </MenuItem>
             <MenuItem
               component={RouterLink}
