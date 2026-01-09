@@ -1,7 +1,7 @@
 import { baseApi, setAuthToken } from "rtkApi";
 import { notify } from "../redux/notificationsSlice";
-import { LoginRequest } from "./requests/authApiRequest";
-import { LoginResponse } from "./responses/authApiResponses";
+import { LoginRequest, RegisterRequest } from "./requests/authApiRequest";
+import { LoginResponse, RegisterResponse } from "./responses/authApiResponses";
 
 export const authApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
@@ -24,8 +24,28 @@ export const authApi = baseApi.injectEndpoints({
         }
       },
     }),
+
+    register: builder.mutation<RegisterResponse, RegisterRequest>({
+      query: (payload) => ({
+        url: "/register",
+        method: "POST",
+        body: payload,
+      }),
+      async onQueryStarted(_, { dispatch, queryFulfilled }) {
+        try {
+          await queryFulfilled;
+        } catch ({ error }: any) {
+          dispatch(
+            notify({
+              message: error?.data?.error || "Registration failed",
+              severity: "error",
+            })
+          );
+        }
+      },
+    }),
   }),
-  overrideExisting: false, // optional: ensures safe re-injection
+  overrideExisting: false,
 });
 
-export const { useLoginMutation } = authApi;
+export const { useLoginMutation, useRegisterMutation } = authApi;
