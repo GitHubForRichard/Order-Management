@@ -151,20 +151,20 @@ def grant_monthly_pto(app):
     with app.app_context():
         today = date.today()
         today = date(2026, 1, 1)  # For testing purposes
-        # print(f"Running PTO accrual for {today}")
+        print(f"Running PTO accrual for {today}")
 
-        # # Prevent multiple script runs
-        # log = ScriptRunLog.query.filter_by(script_name="grant_monthly_pto").first()
-        # if log and log.last_run_date == today:
-        #     print("PTO script has already run today, exiting.")
-        #     return
-        # elif not log:
-        #     log = ScriptRunLog(script_name="grant_monthly_pto", last_run_date=None)
-        #     db.session.add(log)
-        #     db.session.flush()
+        # Prevent multiple script runs
+        log = ScriptRunLog.query.filter_by(script_name="grant_monthly_pto").first()
+        if log and log.last_run_date == today:
+            print("PTO script has already run today, exiting.")
+            return
+        elif not log:
+            log = ScriptRunLog(script_name="grant_monthly_pto", last_run_date=None)
+            db.session.add(log)
+            db.session.flush()
 
-        # # Update last_run_date early to prevent duplicate runs
-        # log.last_run_date = today
+        # Update last_run_date early to prevent duplicate runs
+        log.last_run_date = today
 
 
         users = User.query.all()
@@ -224,50 +224,50 @@ def grant_monthly_pto(app):
                 )
                 db.session.add(audit_log)
 
-            #     # Apply year-end carryover cap
-            #     calculate_carry_over(user, user_leave_hours)
+                # Apply year-end carryover cap
+                calculate_carry_over(user, user_leave_hours)
 
 
-            # # Only grant PTO on monthly anniversary
-            # if not is_monthly_anniversary(effective_start_date, today):
-            #     print(f"Skipping PTO for {user_name} (not monthly anniversary)")
-            #     continue
+            # Only grant PTO on monthly anniversary
+            if not is_monthly_anniversary(effective_start_date, today):
+                print(f"Skipping PTO for {user_name} (not monthly anniversary)")
+                continue
 
-            # # Add monthly accrual
-            # user_leave_hours.remaining_hours = round(
-            #     user_leave_hours.remaining_hours + accrual_hours,
-            #     2
-            # )
+            # Add monthly accrual
+            user_leave_hours.remaining_hours = round(
+                user_leave_hours.remaining_hours + accrual_hours,
+                2
+            )
 
-            # # After adding monthly accrual to the current balance,
-            # # deduct from advanced_remaining_hours if available because
-            # # advanced PTO is granted in the first place to cover future accruals.
-            # if user_leave_hours.advanced_remaining_hours > 0:
-            #     user_leave_hours.advanced_remaining_hours = round(
-            #         user_leave_hours.advanced_remaining_hours - accrual_hours,
-            #         2
-            #     )
+            # After adding monthly accrual to the current balance,
+            # deduct from advanced_remaining_hours if available because
+            # advanced PTO is granted in the first place to cover future accruals.
+            if user_leave_hours.advanced_remaining_hours > 0:
+                user_leave_hours.advanced_remaining_hours = round(
+                    user_leave_hours.advanced_remaining_hours - accrual_hours,
+                    2
+                )
 
 
-            # print(
-            #     f"User {user_name}: +{accrual_hours:.2f} hours "
-            #     f"(Years worked: {years_worked}, Previous: {prev_remaining_hours:.2f}, "
-            #     f"New: {user_leave_hours.remaining_hours:.2f})"
-            # )
+            print(
+                f"User {user_name}: +{accrual_hours:.2f} hours "
+                f"(Years worked: {years_worked}, Previous: {prev_remaining_hours:.2f}, "
+                f"New: {user_leave_hours.remaining_hours:.2f})"
+            )
 
-            # # Audit log
-            # audit_log = AuditLog(
-            #     id=str(uuid.uuid4()),
-            #     entity=UserLeaveHours.__tablename__,
-            #     entity_id=str(user.id),
-            #     action=AuditLogActions.UPDATED,
-            #     field="remaining_hours",
-            #     old_value=str(prev_remaining_hours),
-            #     new_value=str(user_leave_hours.remaining_hours),
-            #     created_by=user.id,
-            #     created_at=datetime.now(timezone.utc),
-            # )
-            # db.session.add(audit_log)
+            # Audit log
+            audit_log = AuditLog(
+                id=str(uuid.uuid4()),
+                entity=UserLeaveHours.__tablename__,
+                entity_id=str(user.id),
+                action=AuditLogActions.UPDATED,
+                field="remaining_hours",
+                old_value=str(prev_remaining_hours),
+                new_value=str(user_leave_hours.remaining_hours),
+                created_by=user.id,
+                created_at=datetime.now(timezone.utc),
+            )
+            db.session.add(audit_log)
 
         db.session.commit()
 
