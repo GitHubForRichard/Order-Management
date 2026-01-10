@@ -53,7 +53,7 @@ def calculate_advanced_pto_for_year(
 
     # Number of months before anniversary in the year (exclusive)
     months_before = (
-        anniversary.month - year_start.month
+        anniversary.month - year_start.month + 1
     )
     print(f"Months before anniversary: {months_before}")
 
@@ -76,7 +76,7 @@ def calculate_advanced_pto_for_year(
 
     if anniversary <= year_end:
         # Number of months after (and including) anniversary in the year
-        months_after = year_end.month - anniversary.month + 1
+        months_after = year_end.month - anniversary.month
         print(f"Months after anniversary: {months_after}")
 
         years_worked_after = calculate_years_worked(
@@ -99,6 +99,12 @@ def calculate_advanced_pto_for_year(
 def calculate_years_worked(start_date: date, today: date) -> int:
     """Calculate full years worked from effective start date"""
     years = today.year - start_date.year
+    
+    # If the month of start date happen to be the same as today's month,
+    # it doesn't count as a full year
+    if today.month == start_date.month:
+        years -= 1
+
     if (today.month, today.day) < (start_date.month, start_date.day):
         years -= 1
     return max(years, 0)
