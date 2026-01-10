@@ -100,7 +100,8 @@ def calculate_years_worked(start_date: date, today: date) -> int:
     """Calculate full years worked from effective start date"""
     years = today.year - start_date.year
     
-    # If the month of start date is the same as today's month, it counts as a year
+    # If the month of start date happen to be the same as today's month,
+    # it doesn't count as a full year
     if today.month == start_date.month:
         years -= 1
 
