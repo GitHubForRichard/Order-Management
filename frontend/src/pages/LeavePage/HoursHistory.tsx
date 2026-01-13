@@ -1,17 +1,11 @@
 import React from "react";
-import {
-  Paper,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-} from "@mui/material";
+
+import { DataGrid } from "@mui/x-data-grid";
 
 import { useAuth } from "hooks/useAuth";
 
 import api from "../../api";
+import { formatUTCToPST } from "utils";
 
 const HoursHistory = () => {
   const { user } = useAuth();
@@ -33,36 +27,34 @@ const HoursHistory = () => {
     fetchHistory();
   }, [userId]);
 
+  const columns = [
+    {
+      field: "created_at",
+      headerName: "Time",
+      width: 150,
+      resizable: true,
+      valueGetter: (_, row) =>
+        row.created_at ? new Date(`${row.created_at}Z`) : null,
+
+      valueFormatter: (value) => formatUTCToPST(value),
+    },
+    { field: "field", headerName: "Field", width: 200, resizable: true },
+    {
+      field: "old_value",
+      headerName: "Old Value",
+      width: 100,
+      resizable: true,
+    },
+    {
+      field: "new_value",
+      headerName: "New Value",
+      width: 100,
+      resizable: true,
+    },
+  ];
+
   return (
-    <>
-      <TableContainer component={Paper}>
-        <Table sx={{ tableLayout: "fixed", width: "100%" }}>
-          <TableHead>
-            <TableRow>
-              <TableCell>Time</TableCell>
-              <TableCell>Field</TableCell>
-              <TableCell>Old Value</TableCell>
-              <TableCell>New Value</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {history.map((row) => (
-              <TableRow
-                key={row.id}
-                sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-              >
-                <TableCell>
-                  {`${new Date(row.created_at).toLocaleDateString()}`}
-                </TableCell>
-                <TableCell>{row.field}</TableCell>
-                <TableCell>{row.old_value}</TableCell>
-                <TableCell>{row.new_value}</TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
-    </>
+    <DataGrid rows={history} columns={columns} getRowId={(row) => row.id} />
   );
 };
 
