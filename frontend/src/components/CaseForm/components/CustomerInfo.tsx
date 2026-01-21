@@ -145,7 +145,7 @@ const CustomerInfo = ({
                     value={s.code}
                     sx={{ fontSize: "0.8rem" }}
                   >
-                    {s.code} {s.name}
+                    +{s.code} {s.name}
                   </MenuItem>
                 ))}
               </Select>
