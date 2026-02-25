@@ -1,6 +1,5 @@
 import React from "react";
-
-import { Link as RouterLink } from "react-router-dom";
+import { Link as RouterLink, useLocation } from "react-router-dom";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import PersonIcon from "@mui/icons-material/Person";
 import WorkOutlineIcon from "@mui/icons-material/WorkOutline";
@@ -17,6 +16,7 @@ import { useAuth } from "./hooks/useAuth";
 
 const NavBar = () => {
   const { user, setAuth } = useAuth();
+  const location = useLocation();
 
   const [leaveAnchorEl, setLeaveAnchorEl] = React.useState<null | HTMLElement>(
     null,
@@ -24,27 +24,26 @@ const NavBar = () => {
   const [managerAnchorEl, setManagerAnchorEl] =
     React.useState<null | HTMLElement>(null);
 
-  const openLeavesMenu = (event: React.MouseEvent<HTMLElement>) => {
+  const openLeavesMenu = (event: React.MouseEvent<HTMLElement>) =>
     setLeaveAnchorEl(event.currentTarget);
-  };
-
-  const openManagerMenu = (event: React.MouseEvent<HTMLElement>) => {
+  const openManagerMenu = (event: React.MouseEvent<HTMLElement>) =>
     setManagerAnchorEl(event.currentTarget);
-  };
+  const closeLeavesMenu = () => setLeaveAnchorEl(null);
+  const closeManagerMenu = () => setManagerAnchorEl(null);
 
-  const closeLeavesMenu = () => {
-    setLeaveAnchorEl(null);
-  };
+  const handleLogout = () => setAuth(null, null);
 
-  const closeManagerMenu = () => {
-    setManagerAnchorEl(null);
-  };
+  const leavesMenuItems = [
+    { label: "PTO Apply", to: "/leaves" },
+    { label: "Calendar", to: "/leaves/calendar" },
+    { label: "Summary", to: "/leaves/summary" },
+  ];
 
-  const handleLogout = () => {
-    setAuth(null, null);
-  };
-
-  console.log("NavBar user:", user);
+  const managerMenuItems = [
+    { label: "Users", to: "/users" },
+    { label: "Employee PTO Balance", to: "/leaves/remaining-hours/summary" },
+    { label: "Audit", to: "/audit" },
+  ];
 
   return user ? (
     <AppBar position="static">
@@ -55,6 +54,7 @@ const NavBar = () => {
           <Button color="inherit" component={RouterLink} to="/">
             Home
           </Button>
+
           <Button
             color="inherit"
             onClick={openLeavesMenu}
@@ -67,28 +67,19 @@ const NavBar = () => {
             open={Boolean(leaveAnchorEl)}
             onClose={closeLeavesMenu}
           >
-            <MenuItem
-              component={RouterLink}
-              to="/leaves"
-              onClick={closeLeavesMenu}
-            >
-              PTO Apply
-            </MenuItem>
-            <MenuItem
-              component={RouterLink}
-              to="/leaves/calendar"
-              onClick={closeLeavesMenu}
-            >
-              Calendar
-            </MenuItem>
-            <MenuItem
-              component={RouterLink}
-              to="/leaves/summary"
-              onClick={closeLeavesMenu}
-            >
-              Summary
-            </MenuItem>
+            {leavesMenuItems.map((item) => (
+              <MenuItem
+                key={item.to}
+                component={RouterLink}
+                to={item.to}
+                onClick={closeLeavesMenu}
+                selected={location.pathname === item.to}
+              >
+                {item.label}
+              </MenuItem>
+            ))}
           </Menu>
+
           {user.role === "manager" && (
             <>
               <Button
@@ -103,27 +94,17 @@ const NavBar = () => {
                 open={Boolean(managerAnchorEl)}
                 onClose={closeManagerMenu}
               >
-                <MenuItem
-                  component={RouterLink}
-                  to="/users"
-                  onClick={closeManagerMenu}
-                >
-                  Users
-                </MenuItem>
-                <MenuItem
-                  component={RouterLink}
-                  to="/leaves/remaining-hours/summary"
-                  onClick={closeManagerMenu}
-                >
-                  Employee PTO Balance
-                </MenuItem>
-                <MenuItem
-                  component={RouterLink}
-                  to="/audit"
-                  onClick={closeManagerMenu}
-                >
-                  Audit
-                </MenuItem>
+                {managerMenuItems.map((item) => (
+                  <MenuItem
+                    key={item.to}
+                    component={RouterLink}
+                    to={item.to}
+                    onClick={closeManagerMenu}
+                    selected={location.pathname === item.to}
+                  >
+                    {item.label}
+                  </MenuItem>
+                ))}
               </Menu>
             </>
           )}
@@ -147,7 +128,6 @@ const NavBar = () => {
               {user?.first_name} {user?.last_name}
             </Typography>
           </Box>
-
           <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
             <WorkOutlineIcon sx={{ fontSize: 14, color: "white" }} />
             <Typography variant="caption" sx={{ color: "white" }}>
@@ -155,6 +135,7 @@ const NavBar = () => {
             </Typography>
           </Box>
         </Box>
+
         <Button color="error" onClick={handleLogout} variant="contained">
           Logout
         </Button>
