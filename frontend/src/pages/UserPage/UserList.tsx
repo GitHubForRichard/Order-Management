@@ -7,7 +7,6 @@ import { useGetUsersQuery } from "rtk/usersApi";
 
 const UserList = () => {
   const { data: users = [], isLoading } = useGetUsersQuery();
-  console.log("Fetched users:", users);
 
   const [isEditUserDialogShown, setIsEditUserDialogShown] =
     React.useState(false);
