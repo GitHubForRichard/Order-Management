@@ -815,7 +815,13 @@ def get_leave_summary():
 @app.route('/api/leaves/history/remaining_hours/<user_id>', methods=['GET'])
 @jwt_required
 def get_user_remaining_hours(user_id):
-    audit_logs = AuditLog.query.filter_by(entity_id=user_id, entity=UserLeaveHours.__tablename__).order_by(desc(AuditLog.created_at)).all()
+    query = AuditLog.query.filter_by(entity=UserLeaveHours.__tablename__)
+
+    # Only apply user filter if user_id is provided, otherwise return history for all users
+    if user_id:
+        query = query.filter_by(entity_id=user_id)
+
+    audit_logs = query.order_by(desc(AuditLog.created_at)).all()
     return jsonify([audit_log.to_dict() for audit_log in audit_logs]), 200
 
 
