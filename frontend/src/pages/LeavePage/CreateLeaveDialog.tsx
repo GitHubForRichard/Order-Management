@@ -7,11 +7,10 @@ import {
   DialogContent,
   DialogTitle,
   TextField,
-  Typography,
 } from "@mui/material";
 
-import api from "../../api";
 import { HOLIDAYS } from "../../constants";
+import { useCreateLeavesMutation } from "rtk/leavesApi";
 
 const CreateLeaveDialog = ({
   isShown,
@@ -22,6 +21,9 @@ const CreateLeaveDialog = ({
   advancedRemainingHours,
 }) => {
   const [errorMessage, setErrorMessage] = React.useState("");
+
+  const [createLeaves, { isLoading: isCreatingLeaves }] =
+    useCreateLeavesMutation();
 
   const calculateHours = (startDate: string, endDate: string) => {
     if (!startDate || !endDate) return 0;
@@ -49,14 +51,14 @@ const CreateLeaveDialog = ({
   };
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
     const { name, value } = e.target;
 
     if (name === "start_date" || name === "end_date") {
       const newHours = calculateHours(
         name === "start_date" ? value : newLeave.start_date,
-        name === "end_date" ? value : newLeave.end_date
+        name === "end_date" ? value : newLeave.end_date,
       );
 
       setNewLeave((prev) => ({
@@ -74,12 +76,12 @@ const CreateLeaveDialog = ({
 
   const handleSubmit = async () => {
     try {
-      await api.post("leaves", {
+      await createLeaves({
         type: newLeave.leaveType,
         start_date: newLeave.start_date,
         end_date: newLeave.end_date,
         hours: newLeave.hours,
-      });
+      }).unwrap();
 
       setNewLeave({
         start_date: "",
@@ -90,8 +92,8 @@ const CreateLeaveDialog = ({
       setIsShown(false);
       setErrorMessage("");
     } catch (err: any) {
-      if (err.response?.status === 400) {
-        setErrorMessage(err.response.data?.error || "Invalid leave request");
+      if (err?.status === 400) {
+        setErrorMessage(err?.data?.error || "Invalid leave request");
       } else {
         setErrorMessage("Something went wrong. Please try again.");
       }
@@ -173,10 +175,13 @@ const CreateLeaveDialog = ({
           variant="contained"
           color="primary"
           disabled={
-            newLeave.hours <= 0 || isExceedingRemainingHours || invalidDates
+            newLeave.hours <= 0 ||
+            isExceedingRemainingHours ||
+            invalidDates ||
+            isCreatingLeaves
           }
         >
-          Apply
+          {isCreatingLeaves ? "Submitting..." : "Apply"}
         </Button>
       </DialogActions>
     </Dialog>

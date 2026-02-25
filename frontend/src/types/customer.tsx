@@ -9,7 +9,7 @@ export interface User {
 }
 
 export interface Customer {
-  id: number | string;
+  id: string;
   first_name: string;
   last_name: string;
   phone_code: string;

@@ -587,15 +587,14 @@ def create_leave():
     # Validate PTO hours for Paid leaves before creating the leave
     user_leave_hours = UserLeaveHours.query.filter_by(user_id=user_id).first()
 
+    remaining_used = 0.0
+    advanced_used = 0.0
+
     if type == "Paid" and user_leave_hours:
         total_remaining_hours = user_leave_hours.remaining_hours + user_leave_hours.advanced_remaining_hours
 
         if hours > total_remaining_hours:
             return jsonify({"error": "Insufficient remaining PTO hours"}), 400
-
-        # Initialize used amounts
-        remaining_used = 0.0
-        advanced_used = 0.0
 
         # First use regular remaining hours
         if hours <= user_leave_hours.remaining_hours:
