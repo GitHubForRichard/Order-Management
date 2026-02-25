@@ -19,20 +19,32 @@ const NavBar = () => {
   const { user, setAuth } = useAuth();
 
   const [leaveAnchorEl, setLeaveAnchorEl] = React.useState<null | HTMLElement>(
-    null
+    null,
   );
+  const [managerAnchorEl, setManagerAnchorEl] =
+    React.useState<null | HTMLElement>(null);
 
   const openLeavesMenu = (event: React.MouseEvent<HTMLElement>) => {
     setLeaveAnchorEl(event.currentTarget);
+  };
+
+  const openManagerMenu = (event: React.MouseEvent<HTMLElement>) => {
+    setManagerAnchorEl(event.currentTarget);
   };
 
   const closeLeavesMenu = () => {
     setLeaveAnchorEl(null);
   };
 
+  const closeManagerMenu = () => {
+    setManagerAnchorEl(null);
+  };
+
   const handleLogout = () => {
     setAuth(null, null);
   };
+
+  console.log("NavBar user:", user);
 
   return user ? (
     <AppBar position="static">
@@ -79,16 +91,40 @@ const NavBar = () => {
           </Menu>
           {user.role === "manager" && (
             <>
-              <Button color="inherit" component={RouterLink} to="/users">
-                Users
-              </Button>
               <Button
                 color="inherit"
-                component={RouterLink}
-                to="/leaves/remaining-hours/summary"
+                onClick={openManagerMenu}
+                endIcon={<KeyboardArrowDownIcon />}
               >
-                Employee PTO Balance
+                Manager
               </Button>
+              <Menu
+                anchorEl={managerAnchorEl}
+                open={Boolean(managerAnchorEl)}
+                onClose={closeManagerMenu}
+              >
+                <MenuItem
+                  component={RouterLink}
+                  to="/users"
+                  onClick={closeManagerMenu}
+                >
+                  Users
+                </MenuItem>
+                <MenuItem
+                  component={RouterLink}
+                  to="/leaves/remaining-hours/summary"
+                  onClick={closeManagerMenu}
+                >
+                  Employee PTO Balance
+                </MenuItem>
+                <MenuItem
+                  component={RouterLink}
+                  to="/audit"
+                  onClick={closeManagerMenu}
+                >
+                  Audit
+                </MenuItem>
+              </Menu>
             </>
           )}
         </Box>

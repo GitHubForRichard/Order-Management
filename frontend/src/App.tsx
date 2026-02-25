@@ -11,6 +11,7 @@ import RegisterPage from "./pages/RegisterPage/RegisterPage";
 
 import "./App.css";
 import { Notifications } from "./components/Notifications";
+import AuditPage from "./pages/AuditPage/AuditPage";
 import LeavePage from "./pages/LeavePage/LeavePage";
 import UserPage from "./pages/UserPage/UserPage";
 import NavBar from "./NavBar";
@@ -84,6 +85,14 @@ const App = () => {
             element={
               <PrivateRoute>
                 <RemainingHoursSummary />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/audit"
+            element={
+              <PrivateRoute>
+                <AuditPage />
               </PrivateRoute>
             }
           />
