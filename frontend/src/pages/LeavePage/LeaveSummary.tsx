@@ -16,10 +16,10 @@ import {
 import api from "../../api";
 
 interface LeaveSummaryTableProps {
-  leaveSummaryList: LeaveSummary[];
+  leaveSummaryList: LeaveSummaryItem[];
 }
 
-interface LeaveSummary {
+interface LeaveSummaryItem {
   id: string;
   name: string;
   totalHours: number;
@@ -76,7 +76,7 @@ const LeaveSummary = () => {
   const [startDate, setStartDate] = React.useState(formatDate(firstDayOfMonth));
   const [endDate, setEndDate] = React.useState(formatDate(lastDayOfMonth));
   const [leaveSummaryList, setLeaveSummaryList] = React.useState<
-    LeaveSummary[]
+    LeaveSummaryItem[]
   >([]);
 
   const isDateRangeValid =
@@ -84,23 +84,23 @@ const LeaveSummary = () => {
     Boolean(endDate) &&
     new Date(endDate) >= new Date(startDate);
 
-  const fetchLeaveSummary = async () => {
+  const fetchLeaveSummary = React.useCallback(async () => {
     try {
       if (!isDateRangeValid) {
         return;
       }
       const response = await api.get(
-        `leaves/summary?start_date=${startDate}&end_date=${endDate}`
+        `leaves/summary?start_date=${startDate}&end_date=${endDate}`,
       );
       setLeaveSummaryList(response.data || []);
     } catch (error) {
       console.error("Error fetching leave summary", error);
     }
-  };
+  }, [startDate, endDate, isDateRangeValid]);
 
   React.useEffect(() => {
     fetchLeaveSummary();
-  }, []);
+  }, [fetchLeaveSummary]);
 
   return (
     <Box marginTop={4}>
