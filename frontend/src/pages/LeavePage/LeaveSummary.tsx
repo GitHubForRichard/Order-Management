@@ -15,10 +15,10 @@ import {
 import { useGetLeaveSummaryQuery } from "rtk/leavesApi";
 
 interface LeaveSummaryTableProps {
-  leaveSummaryList: LeaveSummary[];
+  leaveSummaryList: LeaveSummaryItem[];
 }
 
-export interface LeaveSummary {
+interface LeaveSummaryItem {
   id: string;
   name: string;
   totalHours: number;
@@ -85,7 +85,7 @@ const LeaveSummary = () => {
       start_date: startDate,
       end_date: endDate,
     },
-    { skip: !isDateRangeValid }
+    { skip: !isDateRangeValid },
   );
 
   return (

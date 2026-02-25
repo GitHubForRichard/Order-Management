@@ -7,7 +7,6 @@ import {
   DialogContent,
   DialogTitle,
   TextField,
-  Typography,
 } from "@mui/material";
 
 import { HOLIDAYS } from "../../constants";
@@ -52,14 +51,14 @@ const CreateLeaveDialog = ({
   };
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
     const { name, value } = e.target;
 
     if (name === "start_date" || name === "end_date") {
       const newHours = calculateHours(
         name === "start_date" ? value : newLeave.start_date,
-        name === "end_date" ? value : newLeave.end_date
+        name === "end_date" ? value : newLeave.end_date,
       );
 
       setNewLeave((prev) => ({
