@@ -1,31 +1,14 @@
-import React from "react";
-
 import { DataGrid } from "@mui/x-data-grid";
 
 import { useAuth } from "hooks/useAuth";
-
-import api from "../../api";
+import { useGetUserHoursHistoryQuery } from "rtk/leavesApi";
 import { formatUTCToPST } from "utils";
 
 const HoursHistory = () => {
   const { user } = useAuth();
-  const userId = user.id;
-  const [history, setHistory] = React.useState<any>([]);
+  const userId = user.id as string;
 
-  React.useEffect(() => {
-    const fetchHistory = async () => {
-      try {
-        const response = await api.get(
-          `leaves/history/remaining_hours/${userId}`
-        );
-        setHistory(response.data || []);
-      } catch (error) {
-        console.error(`Error fetching user hours history:`, error);
-      }
-    };
-
-    fetchHistory();
-  }, [userId]);
+  const { data: history = [] } = useGetUserHoursHistoryQuery({ userId });
 
   const columns = [
     {

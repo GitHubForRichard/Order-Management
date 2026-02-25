@@ -13,8 +13,9 @@ import {
 } from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 
-import { useAuth } from "../../hooks/useAuth";
-import api, { setAuthToken } from "../../api";
+import { useAuth } from "hooks/useAuth";
+import { setAuthToken } from "rtkApi";
+import { useLoginMutation } from "rtk/authApi";
 
 const LoginPage = () => {
   const { setAuth } = useAuth();
@@ -22,6 +23,8 @@ const LoginPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+
+  const [login, { isLoading: isLoggingIn }] = useLoginMutation();
 
   const handleClickShowPassword = () => setShowPassword((prev) => !prev);
   const handleMouseDownPassword = (
@@ -33,16 +36,12 @@ const LoginPage = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const response = await api.post("login", {
-        email,
-        password,
-      });
-      setAuth(response.data.token, response.data.user);
-      setAuthToken(response.data.token);
+      const { token, user } = await login({ email, password }).unwrap();
+      setAuth(token, user);
+      setAuthToken(token);
       navigate("/");
     } catch (err) {
       console.error(err);
-      alert("Invalid credentials");
     }
   };
 
@@ -75,7 +74,13 @@ const LoginPage = () => {
             <img
               src="/logo_company.jpg"
               alt="Logo"
-              style={{ width: "250px", height: "auto", border: "none", boxShadow: "none",outline: "none" }}
+              style={{
+                width: "250px",
+                height: "auto",
+                border: "none",
+                boxShadow: "none",
+                outline: "none",
+              }}
             />
           </Box>
 
@@ -140,6 +145,7 @@ const LoginPage = () => {
                 backgroundColor: "#5a5ab6",
                 "&:hover": { backgroundColor: "#0056b3" },
               }}
+              disabled={!email || !password || isLoggingIn}
             >
               Login
             </Button>

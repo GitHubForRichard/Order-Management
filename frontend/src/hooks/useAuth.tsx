@@ -2,7 +2,7 @@
 import React, { createContext, useContext, useState } from "react";
 import { jwtDecode } from "jwt-decode";
 
-import { setAuthToken } from "../api";
+import { setAuthToken } from "rtkApi";
 
 interface JwtPayload {
   exp: number; // expiration timestamp
