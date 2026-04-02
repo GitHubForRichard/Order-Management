@@ -1,25 +1,35 @@
 import React from "react";
 
-import { Link as RouterLink } from "react-router-dom";
+import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
+import EventAvailableIcon from "@mui/icons-material/EventAvailable";
+import EventNoteIcon from "@mui/icons-material/EventNote";
+import GroupIcon from "@mui/icons-material/Group";
+import HomeIcon from "@mui/icons-material/Home";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import PersonIcon from "@mui/icons-material/Person";
+import ScheduleIcon from "@mui/icons-material/Schedule";
+import SummarizeIcon from "@mui/icons-material/Summarize";
 import WorkOutlineIcon from "@mui/icons-material/WorkOutline";
 import {
   AppBar,
   Box,
   Button,
+  ListItemIcon,
+  ListItemText,
   Menu,
   MenuItem,
   Toolbar,
   Typography,
 } from "@mui/material";
+import { Link as RouterLink } from "react-router-dom";
+
 import { useAuth } from "./hooks/useAuth";
 
 const NavBar = () => {
   const { user, setAuth } = useAuth();
 
   const [leaveAnchorEl, setLeaveAnchorEl] = React.useState<null | HTMLElement>(
-    null
+    null,
   );
 
   const openLeavesMenu = (event: React.MouseEvent<HTMLElement>) => {
@@ -40,12 +50,18 @@ const NavBar = () => {
         <Typography variant="h6">iLiving</Typography>
 
         <Box sx={{ display: "flex", gap: 1, flexGrow: 1, ml: 2 }}>
-          <Button color="inherit" component={RouterLink} to="/">
+          <Button
+            color="inherit"
+            component={RouterLink}
+            to="/"
+            startIcon={<HomeIcon />}
+          >
             Home
           </Button>
           <Button
             color="inherit"
             onClick={openLeavesMenu}
+            startIcon={<EventNoteIcon />}
             endIcon={<KeyboardArrowDownIcon />}
           >
             Leaves
@@ -60,32 +76,51 @@ const NavBar = () => {
               to="/leaves"
               onClick={closeLeavesMenu}
             >
-              PTO Apply
+              <ListItemIcon>
+                <EventAvailableIcon fontSize="small" />
+              </ListItemIcon>
+              <ListItemText>PTO Apply</ListItemText>
             </MenuItem>
+
             <MenuItem
               component={RouterLink}
               to="/leaves/calendar"
               onClick={closeLeavesMenu}
             >
-              Calendar
+              <ListItemIcon>
+                <CalendarMonthIcon fontSize="small" />
+              </ListItemIcon>
+              <ListItemText>Calendar</ListItemText>
             </MenuItem>
+
             <MenuItem
               component={RouterLink}
               to="/leaves/summary"
               onClick={closeLeavesMenu}
             >
-              Summary
+              <ListItemIcon>
+                <SummarizeIcon fontSize="small" />
+              </ListItemIcon>
+              <ListItemText>Summary</ListItemText>
             </MenuItem>
           </Menu>
+
           {user.role === "manager" && (
             <>
-              <Button color="inherit" component={RouterLink} to="/users">
+              <Button
+                color="inherit"
+                component={RouterLink}
+                to="/users"
+                startIcon={<GroupIcon />}
+              >
                 Users
               </Button>
+
               <Button
                 color="inherit"
                 component={RouterLink}
                 to="/leaves/remaining-hours/summary"
+                startIcon={<ScheduleIcon />}
               >
                 Employee PTO Balance
               </Button>
