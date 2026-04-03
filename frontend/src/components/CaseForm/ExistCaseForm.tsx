@@ -18,6 +18,7 @@ import CaseHistoryLog from "../CaseHistoryLog";
 import {
   useUpdateCaseAttachmentsMutation,
   useUpdateCaseMutation,
+  useUpdateCustomerMutation,
 } from "rtk/casesApi";
 
 const ExistCaseForm = () => {
@@ -29,12 +30,16 @@ const ExistCaseForm = () => {
   const [selectedCase, setSelectedCase] = React.useState<any | null>(null);
   const [filesToRemove, setFilesToRemove] = React.useState<string[]>([]);
 
+  const [updateCustomer] = useUpdateCustomerMutation();
   const [updateCase, { isLoading: isUpdatingCase }] = useUpdateCaseMutation();
   const [updateCaseAttachments, { isLoading: isUpdatingCaseAttachments }] =
     useUpdateCaseAttachmentsMutation();
 
   const onFormUpdate = async (data: any) => {
     try {
+      const customerId = selectedCase?.customer?.id;
+
+      await updateCustomer({ id: customerId, body: data }).unwrap();
       await updateCase({
         caseId: selectedCase.id,
         body: data,

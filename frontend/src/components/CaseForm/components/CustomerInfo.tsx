@@ -84,6 +84,10 @@ const CustomerInfo = ({
               size="small"
               margin="normal"
               sx={{ width: "260px" }}
+              onBlur={(e) => {
+                field.onChange(e.target.value.trim());
+                field.onBlur();
+              }}
             />
           )}
         />
@@ -99,6 +103,10 @@ const CustomerInfo = ({
               margin="normal"
               sx={{ width: "100px" }}
               size="small"
+              onBlur={(e) => {
+                field.onChange(e.target.value.trim());
+                field.onBlur();
+              }}
             />
           )}
         />
@@ -118,6 +126,10 @@ const CustomerInfo = ({
               margin="normal"
               size="small"
               sx={{ flex: 1 }}
+              onBlur={(e) => {
+                field.onChange(e.target.value.trim());
+                field.onBlur();
+              }}
             />
           )}
         />

@@ -87,7 +87,6 @@ const NewCaseForm = () => {
       if (!customerId) {
         // Create a new customer if not selected from the list
         const newCustomer = await createCustomer(data).unwrap();
-        console.log({ newCustomer });
         customerId = newCustomer.customer.id;
       } else {
         // Update the existing customer if selected
@@ -95,7 +94,6 @@ const NewCaseForm = () => {
       }
 
       const caseBody = { ...data, customer_id: customerId };
-      console.log({ caseBody });
 
       const newCase = await createCase(caseBody).unwrap();
 
