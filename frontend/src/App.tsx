@@ -19,6 +19,7 @@ import NotFoundPage from "./pages/NotFoundPage/NotFoundPage";
 import LeaveCalendarPage from "./pages/LeaveCalendarPage/LeaveCalendarPage";
 import LeaveSummary from "./pages/LeavePage/LeaveSummary";
 import RemainingHoursSummary from "./pages/LeavePage/RemainingHoursSummary";
+import AuditPage from "./pages/LeavePage/HoursAuditTable";
 
 // Protected Route Component
 const PrivateRoute = ({ children }: { children }) => {
@@ -85,14 +86,6 @@ const App = () => {
             element={
               <PrivateRoute>
                 <RemainingHoursSummary />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/audit"
-            element={
-              <PrivateRoute>
-                <AuditPage />
               </PrivateRoute>
             }
           />

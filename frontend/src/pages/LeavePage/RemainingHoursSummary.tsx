@@ -1,10 +1,10 @@
-import React from "react";
+import { Box, Button, Stack, Typography } from "@mui/material";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
-import { Button, Stack } from "@mui/material";
-import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
+import * as XLSX from "xlsx";
 
 import { useGetAllUsersRemainingHoursQuery } from "rtk/leavesApi";
+import HoursAuditTable from "./HoursAuditTable";
 
 const RemainingHoursSummary = () => {
   const { data: allRemainingHours = [] } = useGetAllUsersRemainingHoursQuery();
@@ -52,35 +52,52 @@ const RemainingHoursSummary = () => {
   };
 
   return (
-    <div style={{ height: 600, width: "100%" }}>
-      <Stack direction="row" spacing={2} mb={2}>
-        <Button
-          variant="contained"
-          onClick={() =>
-            exportToExcel(allRemainingHours, "RemainingHours.xlsx")
-          }
-        >
-          Export to Excel
-        </Button>
-        <Button
-          variant="outlined"
-          onClick={() => exportToExcel(allRemainingHours, "RemainingHours.csv")}
-        >
-          Export to CSV
-        </Button>
-      </Stack>
+    <Box p={4}>
+      <Box>
+        <Typography variant="h4" gutterBottom>
+          Remaining Hours Summary
+        </Typography>
+        <div style={{ width: "100%" }}>
+          <Stack direction="row" spacing={2} mb={2}>
+            <Button
+              variant="contained"
+              onClick={() =>
+                exportToExcel(allRemainingHours, "RemainingHours.xlsx")
+              }
+            >
+              Export to Excel
+            </Button>
+            <Button
+              variant="outlined"
+              onClick={() =>
+                exportToExcel(allRemainingHours, "RemainingHours.csv")
+              }
+            >
+              Export to CSV
+            </Button>
+          </Stack>
 
-      <DataGrid
-        rows={allRemainingHours}
-        columns={columns}
-        initialState={{
-          pagination: {
-            paginationModel: { pageSize: 25, page: 0 },
-          },
-        }}
-        getRowId={(row) => row.user.id}
-      />
-    </div>
+          <DataGrid
+            rows={allRemainingHours}
+            columns={columns}
+            initialState={{
+              pagination: {
+                paginationModel: { pageSize: 10, page: 0 },
+              },
+            }}
+            getRowId={(row) => row.user.id}
+          />
+        </div>
+      </Box>
+      <Box mt={4}>
+        <Typography variant="h4" gutterBottom>
+          Users Hours Audit
+        </Typography>
+        <div>
+          <HoursAuditTable />
+        </div>
+      </Box>
+    </Box>
   );
 };
 
