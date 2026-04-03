@@ -11,7 +11,6 @@ import RegisterPage from "./pages/RegisterPage/RegisterPage";
 
 import "./App.css";
 import { Notifications } from "./components/Notifications";
-import AuditPage from "./pages/AuditPage/AuditPage";
 import LeavePage from "./pages/LeavePage/LeavePage";
 import UserPage from "./pages/UserPage/UserPage";
 import NavBar from "./NavBar";
@@ -19,7 +18,6 @@ import NotFoundPage from "./pages/NotFoundPage/NotFoundPage";
 import LeaveCalendarPage from "./pages/LeaveCalendarPage/LeaveCalendarPage";
 import LeaveSummary from "./pages/LeavePage/LeaveSummary";
 import RemainingHoursSummary from "./pages/LeavePage/RemainingHoursSummary";
-import AuditPage from "./pages/LeavePage/HoursAuditTable";
 
 // Protected Route Component
 const PrivateRoute = ({ children }: { children }) => {
