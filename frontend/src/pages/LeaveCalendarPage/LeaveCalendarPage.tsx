@@ -1,7 +1,7 @@
 import * as React from "react";
 import { Calendar, dateFnsLocalizer, Event } from "react-big-calendar";
 import "react-big-calendar/lib/css/react-big-calendar.css";
-import { Paper, Typography } from "@mui/material";
+import { Box, Typography } from "@mui/material";
 import { format, parse, startOfWeek, getDay } from "date-fns";
 import enUS from "date-fns/locale/en-US";
 
@@ -43,7 +43,7 @@ const LeaveCalendarPage = () => {
           allDay: true,
           status,
         };
-      }
+      },
     );
 
   /**
@@ -68,8 +68,8 @@ const LeaveCalendarPage = () => {
   };
 
   return (
-    <Paper sx={{ padding: 2 }}>
-      <Typography variant="h5" gutterBottom>
+    <Box p={4}>
+      <Typography variant="h4" gutterBottom>
         Employee PTO Calendar
       </Typography>
       <Calendar
@@ -97,7 +97,7 @@ const LeaveCalendarPage = () => {
           setSelectedLeave={setSelectedLeave}
         />
       )}
-    </Paper>
+    </Box>
   );
 };
 

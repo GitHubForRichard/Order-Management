@@ -9,6 +9,7 @@ import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import PersonIcon from "@mui/icons-material/Person";
 import ScheduleIcon from "@mui/icons-material/Schedule";
 import SummarizeIcon from "@mui/icons-material/Summarize";
+import SupervisorAccountIcon from "@mui/icons-material/SupervisorAccount";
 import WorkOutlineIcon from "@mui/icons-material/WorkOutline";
 import {
   AppBar,
@@ -45,15 +46,64 @@ const NavBar = () => {
   const handleLogout = () => setAuth(null, null);
 
   const leavesMenuItems = [
-    { label: "PTO Apply", to: "/leaves" },
-    { label: "Calendar", to: "/leaves/calendar" },
-    { label: "Summary", to: "/leaves/summary" },
+    {
+      component: (
+        <>
+          <ListItemIcon>
+            <EventAvailableIcon fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>PTO Apply</ListItemText>
+        </>
+      ),
+      to: "/leaves",
+    },
+    {
+      component: (
+        <>
+          <ListItemIcon>
+            <CalendarMonthIcon fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>Calendar</ListItemText>
+        </>
+      ),
+      to: "/leaves/calendar",
+    },
+    {
+      component: (
+        <>
+          <ListItemIcon>
+            <SummarizeIcon fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>Summary</ListItemText>
+        </>
+      ),
+      to: "/leaves/summary",
+    },
   ];
 
   const managerMenuItems = [
-    { label: "Users", to: "/users" },
-    { label: "Employee PTO Balance", to: "/leaves/remaining-hours/summary" },
-    { label: "Audit", to: "/audit" },
+    {
+      component: (
+        <>
+          <ListItemIcon>
+            <GroupIcon fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>Users</ListItemText>
+        </>
+      ),
+      to: "/users",
+    },
+    {
+      component: (
+        <>
+          <ListItemIcon>
+            <ScheduleIcon fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>Employee PTO Balance</ListItemText>
+        </>
+      ),
+      to: "/leaves/remaining-hours/summary",
+    },
   ];
 
   return user ? (
@@ -84,56 +134,26 @@ const NavBar = () => {
             open={Boolean(leaveAnchorEl)}
             onClose={closeLeavesMenu}
           >
-            <MenuItem
-              component={RouterLink}
-              to="/leaves"
-              onClick={closeLeavesMenu}
-            >
-              <ListItemIcon>
-                <EventAvailableIcon fontSize="small" />
-              </ListItemIcon>
-              <ListItemText>PTO Apply</ListItemText>
-            </MenuItem>
-
-            <MenuItem
-              component={RouterLink}
-              to="/leaves/calendar"
-              onClick={closeLeavesMenu}
-            >
-              <ListItemIcon>
-                <CalendarMonthIcon fontSize="small" />
-              </ListItemIcon>
-              <ListItemText>Calendar</ListItemText>
-            </MenuItem>
-
-            <MenuItem
-              component={RouterLink}
-              to="/leaves/summary"
-              onClick={closeLeavesMenu}
-            >
-              <ListItemIcon>
-                <SummarizeIcon fontSize="small" />
-              </ListItemIcon>
-              <ListItemText>Summary</ListItemText>
-            </MenuItem>
+            {leavesMenuItems.map((item) => (
+              <MenuItem
+                key={item.to}
+                component={RouterLink}
+                to={item.to}
+                onClick={closeLeavesMenu}
+                selected={location.pathname === item.to}
+              >
+                {item.component}
+              </MenuItem>
+            ))}
           </Menu>
 
           {user.role === "manager" && (
             <>
               <Button
                 color="inherit"
-                component={RouterLink}
-                to="/users"
-                startIcon={<GroupIcon />}
-              >
-                Users
-              </Button>
-
-              <Button
-                color="inherit"
-                component={RouterLink}
-                to="/leaves/remaining-hours/summary"
-                startIcon={<ScheduleIcon />}
+                onClick={openManagerMenu}
+                endIcon={<KeyboardArrowDownIcon />}
+                startIcon={<SupervisorAccountIcon />}
               >
                 Manager
               </Button>
@@ -150,7 +170,7 @@ const NavBar = () => {
                     onClick={closeManagerMenu}
                     selected={location.pathname === item.to}
                   >
-                    {item.label}
+                    {item.component}
                   </MenuItem>
                 ))}
               </Menu>
