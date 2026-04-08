@@ -1,6 +1,9 @@
 import * as React from "react";
+
+import EditIcon from "@mui/icons-material/Edit";
+import { IconButton } from "@mui/material";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
-import { Button } from "@mui/material";
+
 import { User } from "types/customer";
 import EditUserDialog from "./EditUserDialog";
 import { useGetUsersQuery } from "rtk/usersApi";
@@ -48,13 +51,13 @@ const UserList = () => {
       field: "actions",
       headerName: "Actions",
       renderCell: (params) => (
-        <Button
-          variant="contained"
+        <IconButton
+          color="primary"
           size="small"
           onClick={() => handleEditClick(params.row)}
         >
-          Edit
-        </Button>
+          <EditIcon />
+        </IconButton>
       ),
       flex: 0.5,
       sortable: false,
