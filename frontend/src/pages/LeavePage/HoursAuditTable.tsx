@@ -1,13 +1,14 @@
 import { useState } from "react";
+import DownloadIcon from "@mui/icons-material/Download";
 import {
   Box,
-  Button,
   FormControl,
+  IconButton,
   InputLabel,
   MenuItem,
   Select,
   SelectChangeEvent,
-  Typography,
+  Tooltip,
   Table,
   TableHead,
   TableRow,
@@ -72,11 +73,12 @@ const AuditPage = () => {
       </FormControl>
 
       <Box mb={2}>
-        <Button variant="contained" color="primary" onClick={downloadCsv}>
-          Download All
-        </Button>
+        <Tooltip title="Download All Users CSV">
+          <IconButton color="primary" onClick={downloadCsv}>
+            <DownloadIcon />
+          </IconButton>
+        </Tooltip>
       </Box>
-
       <Table>
         <TableHead>
           <TableRow>

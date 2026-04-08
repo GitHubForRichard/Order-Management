@@ -1,4 +1,13 @@
-import { Box, Button, Stack, Typography } from "@mui/material";
+import DownloadIcon from "@mui/icons-material/Download";
+import TableChartIcon from "@mui/icons-material/TableChart";
+import {
+  Box,
+  Button,
+  IconButton,
+  Stack,
+  Tooltip,
+  Typography,
+} from "@mui/material";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import { saveAs } from "file-saver";
 import * as XLSX from "xlsx";
@@ -58,23 +67,28 @@ const RemainingHoursSummary = () => {
           Remaining Hours Summary
         </Typography>
         <div style={{ width: "100%" }}>
-          <Stack direction="row" spacing={2} mb={2}>
-            <Button
-              variant="contained"
-              onClick={() =>
-                exportToExcel(allRemainingHours, "RemainingHours.xlsx")
-              }
-            >
-              Export to Excel
-            </Button>
-            <Button
-              variant="outlined"
-              onClick={() =>
-                exportToExcel(allRemainingHours, "RemainingHours.csv")
-              }
-            >
-              Export to CSV
-            </Button>
+          <Stack direction="row" spacing={1} mb={2}>
+            <Tooltip title="Export to Excel">
+              <IconButton
+                color="primary"
+                onClick={() =>
+                  exportToExcel(allRemainingHours, "RemainingHours.xlsx")
+                }
+              >
+                <TableChartIcon />
+              </IconButton>
+            </Tooltip>
+
+            <Tooltip title="Export to CSV">
+              <IconButton
+                color="primary"
+                onClick={() =>
+                  exportToExcel(allRemainingHours, "RemainingHours.csv")
+                }
+              >
+                <DownloadIcon />
+              </IconButton>
+            </Tooltip>
           </Stack>
 
           <DataGrid
