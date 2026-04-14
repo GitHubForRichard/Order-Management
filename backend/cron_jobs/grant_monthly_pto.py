@@ -233,20 +233,30 @@ def grant_monthly_pto(app):
                 print(f"Skipping PTO for {user_name} (not monthly anniversary)")
                 continue
 
-            # Add monthly accrual
-            user_leave_hours.remaining_hours = round(
-                user_leave_hours.remaining_hours + accrual_hours,
-                2
-            )
+
 
             # After adding monthly accrual to the current balance,
             # deduct from advanced_remaining_hours if available because
             # advanced PTO is granted in the first place to cover future accruals.
-            if user_leave_hours.advanced_remaining_hours > 0:
+            if user_leave_hours.advanced_remaining_hours >= accrual_hours:
                 user_leave_hours.advanced_remaining_hours = round(
                     user_leave_hours.advanced_remaining_hours - accrual_hours,
                     2
                 )
+
+                # Add monthly accrual
+                user_leave_hours.remaining_hours = round(
+                    user_leave_hours.remaining_hours + accrual_hours,
+                    2
+                )
+            # The advanced_remaining_hours is not enough to cover the monthly accrual
+            else:
+                user_leave_hours.remaining_hours = round(
+                    user_leave_hours.remaining_hours + user_leave_hours.advanced_remaining_hours,
+                    2
+                )
+                user_leave_hours.advanced_remaining_hours = 0
+
 
 
             print(
