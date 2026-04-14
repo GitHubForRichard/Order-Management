@@ -92,8 +92,11 @@ const AuditPage = () => {
         </TableHead>
         <TableBody>
           {auditData?.map((change: any) => {
-            const delta = Number(change.new_value) - Number(change.old_value);
-            if (isNaN(delta) || delta === 0) return null;
+            const deltaRaw =
+              Number(change.new_value) - Number(change.old_value);
+            if (isNaN(deltaRaw) || deltaRaw === 0) return null;
+
+            const delta = Number(deltaRaw.toFixed(2));
 
             return (
               <TableRow key={change.created_at + change.field}>
