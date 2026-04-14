@@ -1,4 +1,7 @@
-import { Box, Button, Chip } from "@mui/material";
+import { useState } from "react";
+
+import MoreVertIcon from "@mui/icons-material/MoreVert";
+import { IconButton, Menu, MenuItem, Box, Button, Chip } from "@mui/material";
 import { DataGrid, GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
 
 import { useAuth } from "hooks/useAuth";
@@ -8,8 +11,23 @@ import { useProcessLeaveMutation } from "rtk/leavesApi";
 const LeaveList = ({ leaves, isManager }) => {
   const { user } = useAuth();
 
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [selectedLeave, setSelectedLeave] = useState<any>(null);
+
   const [processLeave, { isLoading: isProcessingLeave }] =
     useProcessLeaveMutation();
+
+  const isActionMenuOpen = Boolean(anchorEl);
+
+  const handleMenuOpen = (event: React.MouseEvent<HTMLElement>, leave: any) => {
+    setAnchorEl(event.currentTarget);
+    setSelectedLeave(leave);
+  };
+
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+    setSelectedLeave(null);
+  };
 
   const columns: GridColDef[] = [
     {
@@ -110,60 +128,63 @@ const LeaveList = ({ leaves, isManager }) => {
   columns.push({
     field: "actions",
     headerName: "Action",
-    flex: 1,
+    flex: 0.5,
     renderCell: (params: GridRenderCellParams) => {
       const leave = params.row;
 
-      if (leave.status !== "Pending") {
-        return null;
-      }
+      if (leave.status !== "Pending") return null;
 
       const isOwner = leave.created_by.id === user?.id;
 
       return (
-        <Box display="flex" gap={1}>
-          {isOwner && (
-            <Button
-              variant="contained"
-              color="warning"
-              size="small"
-              disabled={isProcessingLeave}
-              onClick={() =>
-                processLeave({ leaveId: leave.id, action: "cancel" })
-              }
-            >
-              Cancel
-            </Button>
-          )}
+        <>
+          <IconButton
+            onClick={(e) => handleMenuOpen(e, leave)}
+            disabled={isProcessingLeave}
+            color="primary"
+          >
+            <MoreVertIcon />
+          </IconButton>
 
-          {isManager && (
-            <Button
-              variant="contained"
-              color="success"
-              size="small"
-              disabled={isProcessingLeave}
-              onClick={() =>
-                processLeave({ leaveId: leave.id, action: "approve" })
-              }
-            >
-              Approve
-            </Button>
-          )}
+          <Menu
+            anchorEl={anchorEl}
+            open={isActionMenuOpen && selectedLeave?.id === leave.id}
+            onClose={handleMenuClose}
+          >
+            {isOwner && (
+              <MenuItem
+                onClick={() => {
+                  processLeave({ leaveId: leave.id, action: "cancel" });
+                  handleMenuClose();
+                }}
+              >
+                Cancel
+              </MenuItem>
+            )}
 
-          {!isOwner && isManager && (
-            <Button
-              variant="contained"
-              color="error"
-              size="small"
-              disabled={isProcessingLeave}
-              onClick={() =>
-                processLeave({ leaveId: leave.id, action: "reject" })
-              }
-            >
-              Reject
-            </Button>
-          )}
-        </Box>
+            {isManager && (
+              <MenuItem
+                onClick={() => {
+                  processLeave({ leaveId: leave.id, action: "approve" });
+                  handleMenuClose();
+                }}
+              >
+                Approve
+              </MenuItem>
+            )}
+
+            {isManager && !isOwner && (
+              <MenuItem
+                onClick={() => {
+                  processLeave({ leaveId: leave.id, action: "reject" });
+                  handleMenuClose();
+                }}
+              >
+                Reject
+              </MenuItem>
+            )}
+          </Menu>
+        </>
       );
     },
   });

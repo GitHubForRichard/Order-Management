@@ -37,7 +37,16 @@ const HoursHistory = () => {
   ];
 
   return (
-    <DataGrid rows={history} columns={columns} getRowId={(row) => row.id} />
+    <DataGrid
+      rows={history}
+      columns={columns}
+      getRowId={(row) => row.id}
+      initialState={{
+        pagination: {
+          paginationModel: { pageSize: 25, page: 0 },
+        },
+      }}
+    />
   );
 };
 
