@@ -940,8 +940,7 @@ def get_user_remaining_hours(user_id):
 
     # Only apply user filter if user_id is provided, otherwise return history for all users
     if user_id and user_leave_hours.id:
-        query = query.filter(
-            AuditLog.entity_id.in_([user_id, user_leave_hours.id]))
+        query = query.filter(AuditLog.entity_id == user_leave_hours.id)
 
     audit_logs = query.order_by(desc(AuditLog.created_at)).all()
     return jsonify([audit_log.to_dict() for audit_log in audit_logs]), 200
