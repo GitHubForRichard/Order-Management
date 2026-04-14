@@ -132,6 +132,43 @@ export const leavesApi = baseApi.injectEndpoints({
         responseHandler: async (response) => response.blob(),
       }),
     }),
+
+    updateUserLeaveHours: builder.mutation<
+      any,
+      {
+        userId: string;
+        remaining_hours?: number;
+        advanced_remaining_hours?: number;
+      }
+    >({
+      query: ({ userId, ...body }) => ({
+        url: `/leaves/hours/${userId}`,
+        method: "PATCH",
+        body,
+      }),
+      invalidatesTags: ["Leaves"],
+      async onQueryStarted(_, { queryFulfilled, dispatch }) {
+        try {
+          await queryFulfilled;
+
+          dispatch({
+            type: "notifications/notify",
+            payload: {
+              message: `User leave hours updated successfully`,
+              severity: "success",
+            },
+          });
+        } catch {
+          dispatch({
+            type: "notifications/notify",
+            payload: {
+              message: "Failed to update user leave hours",
+              severity: "error",
+            },
+          });
+        }
+      },
+    }),
   }),
   overrideExisting: false,
 });
@@ -145,4 +182,5 @@ export const {
   useProcessLeaveMutation,
   useGetUserHoursHistoryQuery,
   useDownloadUserHoursCsvMutation,
+  useUpdateUserLeaveHoursMutation,
 } = leavesApi;

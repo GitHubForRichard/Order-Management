@@ -632,7 +632,7 @@ def create_leave():
             audit_log = AuditLog(
                 action="UPDATED",
                 entity=UserLeaveHours.__tablename__,
-                entity_id=user_id,
+                entity_id=user_leave_hours.id,
                 field="remaining_hours",
                 old_value=str(old_remaining),
                 new_value=str(user_leave_hours.remaining_hours),
@@ -644,7 +644,7 @@ def create_leave():
             audit_log = AuditLog(
                 action="UPDATED",
                 entity=UserLeaveHours.__tablename__,
-                entity_id=user_id,
+                entity_id=user_leave_hours.id,
                 field="advanced_remaining_hours",
                 old_value=str(old_advanced),
                 new_value=str(user_leave_hours.advanced_remaining_hours),
@@ -699,7 +699,7 @@ def leave_action(leave_id):
     manager_emails = [m.email for m in managers if m.email]
 
     email_recipients = manager_emails + [leave_user.email]
-    
+
     # Add Sacramento supervisor if the user work location is in Sacramento
     if request.user.work_location and request.user.work_location.lower() == "sacramento":
         if SACRAMENTO_SUPERVISOR_EMAIL not in email_recipients:
@@ -739,7 +739,7 @@ def leave_action(leave_id):
                 db.session.add(AuditLog(
                     action="UPDATED",
                     entity=UserLeaveHours.__tablename__,
-                    entity_id=leave_user_id,
+                    entity_id=user_leave_hours.id,
                     field="remaining_hours",
                     old_value=str(old_remaining),
                     new_value=str(user_leave_hours.remaining_hours),
@@ -750,7 +750,7 @@ def leave_action(leave_id):
                 db.session.add(AuditLog(
                     action="UPDATED",
                     entity=UserLeaveHours.__tablename__,
-                    entity_id=leave_user_id,
+                    entity_id=user_leave_hours.id,
                     field="advanced_remaining_hours",
                     old_value=str(old_advanced),
                     new_value=str(user_leave_hours.advanced_remaining_hours),
@@ -876,14 +876,72 @@ def get_leave_summary():
 
     return jsonify(result), 200
 
+
+@app.route('/api/leaves/hours/<user_id>', methods=['PATCH'])
+@jwt_required
+def update_user_leave_hours(user_id):
+    if request.user.role != "manager":
+        return jsonify({"error": "Unauthorized: Only managers can update leave hours"}), 403
+
+    data = request.get_json()
+
+    remaining_hours = data.get("remaining_hours")
+    advanced_hours = data.get("advanced_remaining_hours")
+
+    user_hours = UserLeaveHours.query.filter_by(user_id=user_id).first()
+    if not user_hours:
+        return jsonify({"error": "User PTO record not found"}), 404
+
+    old_remaining = user_hours.remaining_hours
+    old_advanced = user_hours.advanced_remaining_hours
+
+    # Update values (only if provided)
+    if remaining_hours is not None:
+        user_hours.remaining_hours = float(remaining_hours)
+
+    if advanced_hours is not None:
+        user_hours.advanced_remaining_hours = float(advanced_hours)
+
+    # Audit logs
+    if old_remaining != user_hours.remaining_hours:
+        db.session.add(AuditLog(
+            action="UPDATED",
+            entity=UserLeaveHours.__tablename__,
+            entity_id=user_hours.id,
+            field="remaining_hours",
+            old_value=str(old_remaining),
+            new_value=str(user_hours.remaining_hours),
+            created_by=request.user.id
+        ))
+
+    if old_advanced != user_hours.advanced_remaining_hours:
+        db.session.add(AuditLog(
+            action="UPDATED",
+            entity=UserLeaveHours.__tablename__,
+            entity_id=user_hours.id,
+            field="advanced_remaining_hours",
+            old_value=str(old_advanced),
+            new_value=str(user_hours.advanced_remaining_hours),
+            created_by=request.user.id
+        ))
+
+    try:
+        db.session.commit()
+        return jsonify({"success": True}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 500
+
 @app.route('/api/leaves/history/remaining_hours/<user_id>', methods=['GET'])
 @jwt_required
 def get_user_remaining_hours(user_id):
     query = AuditLog.query.filter_by(entity=UserLeaveHours.__tablename__)
+    user_leave_hours = UserLeaveHours.query.filter_by(user_id=user_id).first()
 
     # Only apply user filter if user_id is provided, otherwise return history for all users
-    if user_id:
-        query = query.filter_by(entity_id=user_id)
+    if user_id and user_leave_hours.id:
+        query = query.filter(
+            AuditLog.entity_id.in_([user_id, user_leave_hours.id]))
 
     audit_logs = query.order_by(desc(AuditLog.created_at)).all()
     return jsonify([audit_log.to_dict() for audit_log in audit_logs]), 200

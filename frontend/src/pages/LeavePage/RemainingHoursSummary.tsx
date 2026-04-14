@@ -1,22 +1,27 @@
+import { useState } from "react";
+
 import DownloadIcon from "@mui/icons-material/Download";
+import EditIcon from "@mui/icons-material/Edit";
 import TableChartIcon from "@mui/icons-material/TableChart";
-import {
-  Box,
-  Button,
-  IconButton,
-  Stack,
-  Tooltip,
-  Typography,
-} from "@mui/material";
+import { Box, IconButton, Stack, Tooltip, Typography } from "@mui/material";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import { saveAs } from "file-saver";
 import * as XLSX from "xlsx";
 
 import { useGetAllUsersRemainingHoursQuery } from "rtk/leavesApi";
 import HoursAuditTable from "./HoursAuditTable";
+import EditHoursDialog from "./EditHoursDialog";
 
 const RemainingHoursSummary = () => {
+  const [isEditHoursDialogOpen, setIsEditHoursDialogOpen] = useState(false);
+  const [selectedRow, setSelectedRow] = useState<any>(null);
+
   const { data: allRemainingHours = [] } = useGetAllUsersRemainingHoursQuery();
+
+  const handleEditButtonClicked = (row: any) => {
+    setSelectedRow(row);
+    setIsEditHoursDialogOpen(true);
+  };
 
   const columns: GridColDef[] = [
     {
@@ -34,6 +39,22 @@ const RemainingHoursSummary = () => {
       field: "advanced_remaining_hours",
       headerName: "Advanced Hours",
       flex: 1,
+    },
+    {
+      field: "actions",
+      headerName: "Edit",
+      sortable: false,
+      filterable: false,
+      renderCell: (params) => (
+        <Tooltip title="Edit Hours">
+          <IconButton
+            onClick={() => handleEditButtonClicked(params.row)}
+            size="small"
+          >
+            <EditIcon />
+          </IconButton>
+        </Tooltip>
+      ),
     },
   ];
 
@@ -111,6 +132,14 @@ const RemainingHoursSummary = () => {
           <HoursAuditTable />
         </div>
       </Box>
+
+      {isEditHoursDialogOpen && (
+        <EditHoursDialog
+          open={isEditHoursDialogOpen}
+          onClose={() => setIsEditHoursDialogOpen(false)}
+          selectedRow={selectedRow}
+        />
+      )}
     </Box>
   );
 };
