@@ -695,7 +695,11 @@ def leave_action(leave_id):
     leave_user_id = leave.created_by
     leave_user = User.query.get(leave_user_id)
 
-    email_recipients = [leave_user.email]
+    managers = User.query.filter_by(role="manager").all()
+    manager_emails = [m.email for m in managers if m.email]
+
+    email_recipients = manager_emails + [leave_user.email]
+    
     # Add Sacramento supervisor if the user work location is in Sacramento
     if request.user.work_location and request.user.work_location.lower() == "sacramento":
         if SACRAMENTO_SUPERVISOR_EMAIL not in email_recipients:
