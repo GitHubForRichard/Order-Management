@@ -124,6 +124,14 @@ export const leavesApi = baseApi.injectEndpoints({
       query: ({ userId }) => `leaves/history/remaining_hours/${userId}`,
       providesTags: ["Leaves"],
     }),
+
+    downloadUserHoursCsv: builder.mutation<Blob, void>({
+      query: () => ({
+        url: `/leaves/history/csv`,
+        method: "POST",
+        responseHandler: async (response) => response.blob(),
+      }),
+    }),
   }),
   overrideExisting: false,
 });
@@ -136,4 +144,5 @@ export const {
   useGetLeaveSummaryQuery,
   useProcessLeaveMutation,
   useGetUserHoursHistoryQuery,
+  useDownloadUserHoursCsvMutation,
 } = leavesApi;

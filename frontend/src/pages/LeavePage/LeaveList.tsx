@@ -1,5 +1,6 @@
+import { Box, Button, Chip } from "@mui/material";
 import { DataGrid, GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
-import { Box, Button } from "@mui/material";
+
 import { useAuth } from "hooks/useAuth";
 import { formatUTCToPST } from "utils";
 import { useProcessLeaveMutation } from "rtk/leavesApi";
@@ -37,7 +38,7 @@ const LeaveList = ({ leaves, isManager }) => {
     {
       field: "start_date",
       headerName: "Start Date",
-      flex: 1,
+      flex: 0.5,
       type: "date",
       valueGetter: (_, row) => {
         const [year, month, day] = row.start_date.split("-").map(Number);
@@ -49,7 +50,7 @@ const LeaveList = ({ leaves, isManager }) => {
     {
       field: "end_date",
       headerName: "End Date",
-      flex: 1,
+      flex: 0.5,
       type: "date",
       valueGetter: (_, row) => {
         const [year, month, day] = row.end_date.split("-").map(Number);
@@ -69,7 +70,32 @@ const LeaveList = ({ leaves, isManager }) => {
       headerName: "Advanced Hours Used",
       flex: 0.5,
     },
-    { field: "status", headerName: "Status", flex: 0.5 },
+    {
+      field: "status",
+      headerName: "Status",
+      flex: 1,
+      renderCell: (params: GridRenderCellParams) => {
+        const status = params.value;
+
+        let color: "default" | "success" | "error" | "warning" = "default";
+        switch (status) {
+          case "Pending":
+            color = "warning";
+            break;
+          case "Approved":
+            color = "success";
+            break;
+          case "Rejected":
+            color = "error";
+            break;
+          case "Cancelled":
+            color = "default";
+            break;
+        }
+
+        return <Chip label={status} color={color} size="medium" />;
+      },
+    },
   ];
 
   if (isManager) {

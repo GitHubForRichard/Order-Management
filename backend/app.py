@@ -1,9 +1,11 @@
+import io
+
 import requests
 import pandas as pd
 import uuid
 
 from datetime import datetime, timezone
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, Response
 from flask_apscheduler import APScheduler
 from flask_cors import CORS
 from flask_migrate import Migrate
@@ -590,6 +592,9 @@ def create_leave():
     remaining_used = 0.0
     advanced_used = 0.0
 
+    old_remaining = user_leave_hours.remaining_hours
+    old_advanced = user_leave_hours.advanced_remaining_hours
+
     if type == "Paid" and user_leave_hours:
         total_remaining_hours = user_leave_hours.remaining_hours + user_leave_hours.advanced_remaining_hours
 
@@ -620,6 +625,32 @@ def create_leave():
         advanced_hours_used=advanced_used,
         status="Pending"
     )
+
+    # Create audit logs for remaining hours and/or advanced remaining hours
+    if type == "Paid" and user_leave_hours:
+        if old_remaining != user_leave_hours.remaining_hours:
+            audit_log = AuditLog(
+                action="UPDATED",
+                entity=UserLeaveHours.__tablename__,
+                entity_id=user_id,
+                field="remaining_hours",
+                old_value=str(old_remaining),
+                new_value=str(user_leave_hours.remaining_hours),
+                created_by=user_id
+            )
+            db.session.add(audit_log)
+
+        if old_advanced != user_leave_hours.advanced_remaining_hours:
+            audit_log = AuditLog(
+                action="UPDATED",
+                entity=UserLeaveHours.__tablename__,
+                entity_id=user_id,
+                field="advanced_remaining_hours",
+                old_value=str(old_advanced),
+                new_value=str(user_leave_hours.advanced_remaining_hours),
+                created_by=user_id
+            )
+            db.session.add(audit_log)
 
     try:
         db.session.add(new_leave)
@@ -687,6 +718,10 @@ def leave_action(leave_id):
             if not user_leave_hours:
                 return jsonify({"error": f"User PTO record not found for User ID {leave_user_id}"}), 404
             
+            # Store old values
+            old_remaining = user_leave_hours.remaining_hours
+            old_advanced = user_leave_hours.advanced_remaining_hours
+            
             # Restore hours to the correct buckets
             user_leave_hours.remaining_hours += leave.remaining_hours_used
             user_leave_hours.advanced_remaining_hours += leave.advanced_hours_used
@@ -695,11 +730,36 @@ def leave_action(leave_id):
             leave.remaining_hours_used = 0
             leave.advanced_hours_used = 0
 
+            # Create audit logs if changed
+            if old_remaining != user_leave_hours.remaining_hours:
+                db.session.add(AuditLog(
+                    action="UPDATED",
+                    entity=UserLeaveHours.__tablename__,
+                    entity_id=leave_user_id,
+                    field="remaining_hours",
+                    old_value=str(old_remaining),
+                    new_value=str(user_leave_hours.remaining_hours),
+                    created_by=request.user.id
+                ))
+
+            if old_advanced != user_leave_hours.advanced_remaining_hours:
+                db.session.add(AuditLog(
+                    action="UPDATED",
+                    entity=UserLeaveHours.__tablename__,
+                    entity_id=leave_user_id,
+                    field="advanced_remaining_hours",
+                    old_value=str(old_advanced),
+                    new_value=str(user_leave_hours.advanced_remaining_hours),
+                    created_by=request.user.id
+                ))
+
     elif action == "approve":
         leave.status = "Approved"
         subject = "Leave Request Approved"
         body = f"Your leave request from {leave.start_date} to {leave.end_date} has been approved."
         send_email(subject=subject, recipients=email_recipients, body=body, sender=app.config['MAIL_USERNAME'])
+
+
 
     db.session.commit()
     return jsonify({"success": True, "leave": leave.to_dict()}), 200
@@ -815,9 +875,57 @@ def get_leave_summary():
 @app.route('/api/leaves/history/remaining_hours/<user_id>', methods=['GET'])
 @jwt_required
 def get_user_remaining_hours(user_id):
-    audit_logs = AuditLog.query.filter_by(entity_id=user_id, entity=UserLeaveHours.__tablename__).order_by(desc(AuditLog.created_at)).all()
+    query = AuditLog.query.filter_by(entity=UserLeaveHours.__tablename__)
+
+    # Only apply user filter if user_id is provided, otherwise return history for all users
+    if user_id:
+        query = query.filter_by(entity_id=user_id)
+
+    audit_logs = query.order_by(desc(AuditLog.created_at)).all()
     return jsonify([audit_log.to_dict() for audit_log in audit_logs]), 200
 
+@app.route('/api/leaves/history/csv', methods=['POST'])
+@jwt_required
+def get_all_users_remaining_hours_csv():
+    audit_logs = AuditLog.query.filter_by(entity=UserLeaveHours.__tablename__).order_by(desc(AuditLog.created_at)).all()
+    if not audit_logs:
+        return jsonify({"error": "No audit logs found"}), 404
+
+    # Convert audit logs to dicts and include user info
+    csv_data = []
+    for log in audit_logs:
+        log_dict = log.to_dict()
+        user = User.query.get(log.created_by)
+        log_dict["user_email"] = user.email if user else ""
+        log_dict["user_name"] = f"{user.first_name} {user.last_name}" if user else ""
+
+        # Add delta value for hour changes
+        try: 
+            old_val = float(log.old_value)
+            new_val = float(log.new_value)
+            log_dict["delta"] = new_val - old_val
+        except (TypeError, ValueError):
+            log_dict["delta"] = ""
+
+        csv_data.append(log_dict)
+
+    df = pd.DataFrame(csv_data)
+
+    columns = ["user_name", "user_email", "field", "old_value", "new_value", "delta", "created_at"]
+    df = df[columns]
+
+    df = df.sort_values(by=["user_name", "created_at"], ascending=[True, False])
+
+    # Convert to CSV in-memory
+    output = io.StringIO()
+    df.to_csv(output, index=False)
+    output.seek(0)
+
+    return Response(
+        output,
+        mimetype='text/csv',
+        headers={"Content-Disposition": "attachment;filename=user_leave_hours_audit.csv"}
+    )
 
 @app.route('/api/users', methods=['GET'])
 @jwt_required

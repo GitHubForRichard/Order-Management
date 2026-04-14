@@ -9,6 +9,7 @@ import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import PersonIcon from "@mui/icons-material/Person";
 import ScheduleIcon from "@mui/icons-material/Schedule";
 import SummarizeIcon from "@mui/icons-material/Summarize";
+import SupervisorAccountIcon from "@mui/icons-material/SupervisorAccount";
 import WorkOutlineIcon from "@mui/icons-material/WorkOutline";
 import {
   AppBar,
@@ -21,28 +22,89 @@ import {
   Toolbar,
   Typography,
 } from "@mui/material";
-import { Link as RouterLink } from "react-router-dom";
+import { Link as RouterLink, useLocation } from "react-router-dom";
 
 import { useAuth } from "./hooks/useAuth";
 
 const NavBar = () => {
   const { user, setAuth } = useAuth();
+  const location = useLocation();
 
   const [leaveAnchorEl, setLeaveAnchorEl] = React.useState<null | HTMLElement>(
     null,
   );
+  const [managerAnchorEl, setManagerAnchorEl] =
+    React.useState<null | HTMLElement>(null);
 
-  const openLeavesMenu = (event: React.MouseEvent<HTMLElement>) => {
+  const openLeavesMenu = (event: React.MouseEvent<HTMLElement>) =>
     setLeaveAnchorEl(event.currentTarget);
-  };
+  const openManagerMenu = (event: React.MouseEvent<HTMLElement>) =>
+    setManagerAnchorEl(event.currentTarget);
+  const closeLeavesMenu = () => setLeaveAnchorEl(null);
+  const closeManagerMenu = () => setManagerAnchorEl(null);
 
-  const closeLeavesMenu = () => {
-    setLeaveAnchorEl(null);
-  };
+  const handleLogout = () => setAuth(null, null);
 
-  const handleLogout = () => {
-    setAuth(null, null);
-  };
+  const leavesMenuItems = [
+    {
+      component: (
+        <>
+          <ListItemIcon>
+            <EventAvailableIcon fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>PTO Apply</ListItemText>
+        </>
+      ),
+      to: "/leaves",
+    },
+    {
+      component: (
+        <>
+          <ListItemIcon>
+            <CalendarMonthIcon fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>Calendar</ListItemText>
+        </>
+      ),
+      to: "/leaves/calendar",
+    },
+    {
+      component: (
+        <>
+          <ListItemIcon>
+            <SummarizeIcon fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>Summary</ListItemText>
+        </>
+      ),
+      to: "/leaves/summary",
+    },
+  ];
+
+  const managerMenuItems = [
+    {
+      component: (
+        <>
+          <ListItemIcon>
+            <GroupIcon fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>Users</ListItemText>
+        </>
+      ),
+      to: "/users",
+    },
+    {
+      component: (
+        <>
+          <ListItemIcon>
+            <ScheduleIcon fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>Employee PTO Balance</ListItemText>
+        </>
+      ),
+      to: "/leaves/remaining-hours/summary",
+    },
+  ];
 
   return user ? (
     <AppBar position="static">
@@ -58,6 +120,7 @@ const NavBar = () => {
           >
             Home
           </Button>
+
           <Button
             color="inherit"
             onClick={openLeavesMenu}
@@ -71,59 +134,46 @@ const NavBar = () => {
             open={Boolean(leaveAnchorEl)}
             onClose={closeLeavesMenu}
           >
-            <MenuItem
-              component={RouterLink}
-              to="/leaves"
-              onClick={closeLeavesMenu}
-            >
-              <ListItemIcon>
-                <EventAvailableIcon fontSize="small" />
-              </ListItemIcon>
-              <ListItemText>PTO Apply</ListItemText>
-            </MenuItem>
-
-            <MenuItem
-              component={RouterLink}
-              to="/leaves/calendar"
-              onClick={closeLeavesMenu}
-            >
-              <ListItemIcon>
-                <CalendarMonthIcon fontSize="small" />
-              </ListItemIcon>
-              <ListItemText>Calendar</ListItemText>
-            </MenuItem>
-
-            <MenuItem
-              component={RouterLink}
-              to="/leaves/summary"
-              onClick={closeLeavesMenu}
-            >
-              <ListItemIcon>
-                <SummarizeIcon fontSize="small" />
-              </ListItemIcon>
-              <ListItemText>Summary</ListItemText>
-            </MenuItem>
+            {leavesMenuItems.map((item) => (
+              <MenuItem
+                key={item.to}
+                component={RouterLink}
+                to={item.to}
+                onClick={closeLeavesMenu}
+                selected={location.pathname === item.to}
+              >
+                {item.component}
+              </MenuItem>
+            ))}
           </Menu>
 
           {user.role === "manager" && (
             <>
               <Button
                 color="inherit"
-                component={RouterLink}
-                to="/users"
-                startIcon={<GroupIcon />}
+                onClick={openManagerMenu}
+                endIcon={<KeyboardArrowDownIcon />}
+                startIcon={<SupervisorAccountIcon />}
               >
-                Users
+                Manager
               </Button>
-
-              <Button
-                color="inherit"
-                component={RouterLink}
-                to="/leaves/remaining-hours/summary"
-                startIcon={<ScheduleIcon />}
+              <Menu
+                anchorEl={managerAnchorEl}
+                open={Boolean(managerAnchorEl)}
+                onClose={closeManagerMenu}
               >
-                Employee PTO Balance
-              </Button>
+                {managerMenuItems.map((item) => (
+                  <MenuItem
+                    key={item.to}
+                    component={RouterLink}
+                    to={item.to}
+                    onClick={closeManagerMenu}
+                    selected={location.pathname === item.to}
+                  >
+                    {item.component}
+                  </MenuItem>
+                ))}
+              </Menu>
             </>
           )}
         </Box>
@@ -146,7 +196,6 @@ const NavBar = () => {
               {user?.first_name} {user?.last_name}
             </Typography>
           </Box>
-
           <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
             <WorkOutlineIcon sx={{ fontSize: 14, color: "white" }} />
             <Typography variant="caption" sx={{ color: "white" }}>
@@ -154,6 +203,7 @@ const NavBar = () => {
             </Typography>
           </Box>
         </Box>
+
         <Button color="error" onClick={handleLogout} variant="contained">
           Logout
         </Button>
