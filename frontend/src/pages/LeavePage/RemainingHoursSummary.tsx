@@ -50,6 +50,7 @@ const RemainingHoursSummary = () => {
           <IconButton
             onClick={() => handleEditButtonClicked(params.row)}
             size="small"
+            color="primary"
           >
             <EditIcon />
           </IconButton>
