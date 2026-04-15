@@ -711,8 +711,12 @@ def leave_action(leave_id):
         # Send email notification when the leave is rejected
         elif action == "reject":
             leave.status = "Rejected"
-            subject = "Leave Request Rejected"
-            body = f"Your leave request from {leave.start_date} to {leave.end_date} has been rejected."
+            subject = f" {request.user.first_name} {request.user.last_name}'s Leave Request Rejected"
+            body = f"""
+            Hi {leave_user.first_name} {leave_user.last_name},
+
+            Your leave request from {leave.start_date} to {leave.end_date} has been rejected.
+            """
             send_email(subject=subject, recipients=email_recipients, body=body, sender=app.config['MAIL_USERNAME'])
 
         
@@ -759,8 +763,12 @@ def leave_action(leave_id):
 
     elif action == "approve":
         leave.status = "Approved"
-        subject = "Leave Request Approved"
-        body = f"Your leave request from {leave.start_date} to {leave.end_date} has been approved."
+        subject = f" {request.user.first_name} {request.user.last_name}'s Leave Request Approved"
+        body = f"""
+        Hi {leave_user.first_name} {leave_user.last_name},
+
+        Your leave request from {leave.start_date} to {leave.end_date} has been approved.
+        """
         send_email(subject=subject, recipients=email_recipients, body=body, sender=app.config['MAIL_USERNAME'])
 
 
