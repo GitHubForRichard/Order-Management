@@ -77,16 +77,26 @@ const LeaveList = ({ leaves, isManager }) => {
       renderCell: (params) =>
         params.value ? params.value.toLocaleDateString() : "",
     },
-    { field: "hours", headerName: "Hours", flex: 0.5 },
+    {
+      field: "hours",
+      headerName: "Hours",
+      flex: 0.5,
+      valueFormatter: (value) =>
+        value != null ? Number(value).toFixed(2) : "",
+    },
     {
       field: "remaining_hours_used",
       headerName: "Balance Hours Used",
       flex: 0.5,
+      valueFormatter: (value) =>
+        value != null ? Number(value).toFixed(2) : "",
     },
     {
       field: "advanced_hours_used",
       headerName: "Advanced Hours Used",
       flex: 0.5,
+      valueFormatter: (value) =>
+        value != null ? Number(value).toFixed(2) : "",
     },
     {
       field: "status",

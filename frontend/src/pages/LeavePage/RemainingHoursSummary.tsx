@@ -34,11 +34,15 @@ const RemainingHoursSummary = () => {
       field: "remaining_hours",
       headerName: "Current Balance Hours",
       flex: 1,
+      valueFormatter: (value) =>
+        value != null ? Number(value).toFixed(2) : "",
     },
     {
       field: "advanced_remaining_hours",
       headerName: "Advanced Hours",
       flex: 1,
+      valueFormatter: (value) =>
+        value != null ? Number(value).toFixed(2) : "",
     },
     {
       field: "actions",
