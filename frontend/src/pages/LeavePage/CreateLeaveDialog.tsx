@@ -115,11 +115,12 @@ const CreateLeaveDialog = ({
       </DialogTitle>
       <DialogContent
         sx={{
-          pt: 3,
+          pt: "20px !important",
           display: "flex",
           flexDirection: "column",
           gap: 2,
           minWidth: 320,
+          overflow: "visible",
         }}
       >
         <TextField

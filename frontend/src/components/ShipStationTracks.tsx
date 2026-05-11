@@ -10,7 +10,7 @@ import {
 import { useGetShipStationTrackingQuery } from "rtk/casesApi";
 
 const ShipStationTracks = ({ trackingNumber }) => {
-  const { data: shipStationTracks = [] } = useGetShipStationTrackingQuery(
+  const { data: shipStationTracks = { shipments: [] }} = useGetShipStationTrackingQuery(
     {
       trackingNumber,
     },
@@ -34,7 +34,7 @@ const ShipStationTracks = ({ trackingNumber }) => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {shipStationTracks.map((row) => (
+            {shipStationTracks.shipments?.map((row) => (
               <TableRow
                 key={row.carrierCode}
                 sx={{ "&:last-child td, &:last-child th": { border: 0 } }}

@@ -3,7 +3,8 @@ import { User } from "types/customer";
 
 export type GetCasesResponse = Case[];
 export type GetAssigneesResponse = Assignee[];
-export type GetShipStationTrackingResponse = {
+
+type ShipStationTrackingInfo = {
   carrierCode: string;
   serviceCode: string;
   shipTo: {
@@ -11,7 +12,13 @@ export type GetShipStationTrackingResponse = {
   };
   shipDate: string;
   trackingNumber: string;
-}[];
+}
+export type GetShipStationTrackingResponse = {
+  page: number,
+  pages: number,
+  shipments: ShipStationTrackingInfo[],
+  total: number;
+};
 
 export type GetCaseHistoryResponse = {
   action: string;
