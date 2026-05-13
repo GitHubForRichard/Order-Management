@@ -1,4 +1,3 @@
-import uuid
 from datetime import date, datetime, timezone
 from calendar import monthrange
 from dateutil.relativedelta import relativedelta
@@ -122,9 +121,8 @@ def calculate_carry_over(user: User, user_leave_hours: UserLeaveHours):
     
     # Audit log for carryover
     audit_log = AuditLog(
-        id=str(uuid.uuid4()),
         entity=UserLeaveHours.__tablename__,
-        entity_id=str(user.id),
+        entity_id=user_leave_hours.id,
         action=AuditLogActions.UPDATED,
         field="remaining_hours",
         old_value=str(pre_carryover_hours),
@@ -212,9 +210,8 @@ def grant_monthly_pto(app):
 
                 # Audit log for advanced remaining hours
                 audit_log = AuditLog(
-                    id=str(uuid.uuid4()),
                     entity=UserLeaveHours.__tablename__,
-                    entity_id=str(user.id),
+                    entity_id=user_leave_hours.id,
                     action=AuditLogActions.UPDATED,
                     field="advanced_remaining_hours",
                     old_value=str(prev_advanced_remaining_hours),
@@ -267,9 +264,8 @@ def grant_monthly_pto(app):
 
             # Audit log
             audit_log = AuditLog(
-                id=str(uuid.uuid4()),
                 entity=UserLeaveHours.__tablename__,
-                entity_id=str(user.id),
+                entity_id=user_leave_hours.id,
                 action=AuditLogActions.UPDATED,
                 field="remaining_hours",
                 old_value=str(prev_remaining_hours),
