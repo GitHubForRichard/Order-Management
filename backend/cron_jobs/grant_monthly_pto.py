@@ -2,10 +2,14 @@ from datetime import date, datetime, timezone
 from calendar import monthrange
 from dateutil.relativedelta import relativedelta
 
-from constants import AuditLogActions
+from config import MAIL_USERNAME
+from constants import AuditLogActions, PTO_ACCRUAL_ALERT_EMAIL
+from emailer import send_email
 from models import AuditLog, ScriptRunLog, UserLeaveHours, db, User
 
 HOURS_PER_DAY = 8
+
+SCRIPT_NAME = "grant_monthly_pto"
 
 # Monthly PTO accrual in HOURS by years worked
 PTO_ACCRUAL_BY_YEARS = {
@@ -145,6 +149,27 @@ def is_monthly_anniversary(start_date: date, today: date) -> bool:
     return today.day == min(day, last_day_of_month)
 
 
+    """Email an alert describing what the script missed while it was not running."""
+    body = "\n".join([
+        "The monthly PTO accrual script did not run on every day it should have.",
+        "",
+        f"Last successful run: {last_run_date}",
+        f"Today: {today}",
+        "",
+        "their monthly hours. Correct them from the Leave page using the Edit Hours",
+        "dialog.",
+    ])
+
+    try:
+        send_email(
+            subject=f"PTO accrual script missed runs on {today}",
+            body=body,
+            sender=MAIL_USERNAME,
+        )
+    except Exception as e:
+        print(f"Failed to send missed run email alert: {e}")
+
+
 def grant_monthly_pto(app):
     """Grant PTO for employees based on effective start date after probation"""
     with app.app_context():
@@ -153,11 +178,17 @@ def grant_monthly_pto(app):
 
         # Prevent multiple script runs
         log = ScriptRunLog.query.filter_by(script_name="grant_monthly_pto").first()
+        log = ScriptRunLog.query.filter_by(script_name=SCRIPT_NAME).first()
+
+        # Reports the missed run if the script has not run for more than 1 day
+        if log and log.last_run_date and (today - log.last_run_date).days > 1:
+            report_missed_runs(today, log.last_run_date)
+
         if log and log.last_run_date == today:
             print("PTO script has already run today, exiting.")
             return
         elif not log:
-            log = ScriptRunLog(script_name="grant_monthly_pto", last_run_date=None)
+            log = ScriptRunLog(script_name=SCRIPT_NAME, last_run_date=None)
             db.session.add(log)
             db.session.flush()
 
