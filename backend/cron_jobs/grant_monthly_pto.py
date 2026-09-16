@@ -3,7 +3,7 @@ from calendar import monthrange
 from dateutil.relativedelta import relativedelta
 
 from config import MAIL_USERNAME
-from constants import AuditLogActions, PTO_ACCRUAL_ALERT_EMAIL
+from constants import AuditLogActions, PTO_ACCRUAL_ALERT_EMAIL, UserStatus
 from emailer import send_email
 from models import AuditLog, ScriptRunLog, UserLeaveHours, db, User
 
