@@ -16,7 +16,13 @@ export const usersApi = baseApi.injectEndpoints({
 
     updateUser: builder.mutation<
       User,
-      { id: string; join_date?: string; role?: string; work_location?: string }
+      {
+        id: string;
+        join_date?: string;
+        role?: string;
+        work_location?: string;
+        status?: string;
+      }
     >({
       query: ({ id, ...body }) => ({
         url: `users/${id}`,

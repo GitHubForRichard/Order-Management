@@ -6,6 +6,7 @@ export interface User {
   created_at: string;
   role: "employee" | "manager";
   join_date: string;
+  status: "ACTIVE" | "INACTIVE";
 }
 
 export interface Customer {
