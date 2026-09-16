@@ -12,6 +12,8 @@ from sqlalchemy import (
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import declarative_base
 
+from constants import UserStatus
+
 
 db = SQLAlchemy()  # initialize globally
 
@@ -152,6 +154,7 @@ class User(db.Model):
     join_date = Column(db.Date, default=lambda: datetime.now(timezone.utc), nullable=True)
     role = Column(String(50), nullable=False, default="employee")
     work_location = Column(String(100), nullable=True)
+    status = Column(String(50), nullable=False, default=UserStatus.ACTIVE.value)
 
     def __repr__(self):
         return f'<User {self.id}>'
@@ -166,7 +169,8 @@ class User(db.Model):
             'created_at': self.created_at.isoformat() if self.created_at else None,
             'join_date': self.join_date.isoformat() if self.join_date else None,
             'role': self.role,
-            'work_location': self.work_location
+            'work_location': self.work_location,
+            'status': self.status
         }
 
 class AuditLog(db.Model):

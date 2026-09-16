@@ -198,7 +198,7 @@ def grant_monthly_pto(app):
         log.last_run_date = today
 
 
-        users = User.query.all()
+        users = User.query.filter_by(status=UserStatus.ACTIVE).all()
 
         for user in users:
             print(f"------------- Processing user {user.first_name} {user.last_name} -------------")
