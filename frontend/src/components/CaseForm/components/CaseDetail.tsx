@@ -54,23 +54,37 @@ const CaseDetail = () => {
             name="model_number"
             control={control}
             rules={{ required: "Model Number is required" }}
-            render={({ field }) => (
-              <Autocomplete
-                disablePortal
-                options={modelNumberOptions}
-                value={field.value || null}
-                onChange={(_, newValue) => field.onChange(newValue?.value)}
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    label="Model Numbers"
-                    error={!!errors.model_number}
-                    helperText={errors.model_number?.message?.toString() ?? ""}
-                    required
-                  />
-                )}
-              />
-            )}
+            render={({ field }) => {
+              const selectedValues = field.value
+                ? field.value.split(",").map((v: string) => v.trim()).filter(Boolean)
+                : [];
+              const selectedOptions = modelNumberOptions.filter((option) =>
+                selectedValues.includes(option.value)
+              );
+
+              return (
+                <Autocomplete
+                  multiple
+                  disablePortal
+                  options={modelNumberOptions}
+                  value={selectedOptions}
+                  onChange={(_, newValue) =>
+                    field.onChange(newValue.map((v) => v.value).join(", "))
+                  }
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      label="Model Numbers"
+                      error={!!errors.model_number}
+                      helperText={
+                        errors.model_number?.message?.toString() ?? ""
+                      }
+                      required={selectedValues.length === 0}
+                    />
+                  )}
+                />
+              );
+            }}
           />
         </FormControl>
 

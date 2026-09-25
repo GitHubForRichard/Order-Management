@@ -50,11 +50,19 @@ const ProductDetail = ({ modelNumber }) => {
     },
   ];
 
+  const modelNumbers = modelNumber
+    ? modelNumber
+        .split(",")
+        .map((m: string) => m.trim().toLowerCase())
+        .filter(Boolean)
+    : [];
+
   const filteredProducts = products.filter((product) => {
-    if (modelNumber) {
-      return product.part.toLowerCase().includes(modelNumber.toLowerCase());
+    if (modelNumbers.length === 0) {
+      return true;
     }
-    return true;
+    const part = product.part.toLowerCase();
+    return modelNumbers.some((m) => part.includes(m));
   });
 
   return (
