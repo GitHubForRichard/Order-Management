@@ -1,27 +1,8 @@
 import { useFormContext, Controller } from "react-hook-form";
-import {
-  Autocomplete,
-  FormControl,
-  Stack,
-  TextField,
-  Typography,
-} from "@mui/material";
-
-import { useGetModelNumbersQuery } from "rtk/casesApi";
+import { Stack, TextField, Typography } from "@mui/material";
 
 const CaseDetail = () => {
-  const {
-    control,
-    formState: { errors },
-  } = useFormContext();
-
-  const { data: modelNumbersData } = useGetModelNumbersQuery();
-  const modelNumbers = modelNumbersData?.model_numbers || [];
-
-  const modelNumberOptions = modelNumbers.map((modelNumber) => ({
-    label: modelNumber,
-    value: modelNumber,
-  }));
+  const { control } = useFormContext();
 
   return (
     <div>
@@ -43,51 +24,6 @@ const CaseDetail = () => {
       </Typography>
 
       <Stack spacing={2}>
-        <FormControl
-          fullWidth
-          margin="normal"
-          variant="outlined"
-          size="small"
-          required
-        >
-          <Controller
-            name="model_number"
-            control={control}
-            rules={{ required: "Model Number is required" }}
-            render={({ field }) => {
-              const selectedValues = field.value
-                ? field.value.split(",").map((v: string) => v.trim()).filter(Boolean)
-                : [];
-              const selectedOptions = modelNumberOptions.filter((option) =>
-                selectedValues.includes(option.value)
-              );
-
-              return (
-                <Autocomplete
-                  multiple
-                  disablePortal
-                  options={modelNumberOptions}
-                  value={selectedOptions}
-                  onChange={(_, newValue) =>
-                    field.onChange(newValue.map((v) => v.value).join(", "))
-                  }
-                  renderInput={(params) => (
-                    <TextField
-                      {...params}
-                      label="Model Numbers"
-                      error={!!errors.model_number}
-                      helperText={
-                        errors.model_number?.message?.toString() ?? ""
-                      }
-                      required={selectedValues.length === 0}
-                    />
-                  )}
-                />
-              );
-            }}
-          />
-        </FormControl>
-
         <Controller
           name="serial"
           control={control}
