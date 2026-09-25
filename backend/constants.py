@@ -13,6 +13,11 @@ class AuditLogActions(str, Enum):
     CREATED = "CREATED"
     UPDATED = "UPDATED"
 
+
+class UserStatus(str, Enum):
+    ACTIVE = "ACTIVE"
+    INACTIVE = "INACTIVE"
+
 SACRAMENTO_SUPERVISOR_EMAIL = 'Brian@tlmsupply.com'
 
 PTO_ACCRUAL_ALERT_EMAIL = 'helen@tlmsupply.com'

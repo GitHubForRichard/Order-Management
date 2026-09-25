@@ -4,6 +4,7 @@ from flask import request, jsonify
 from functools import wraps
 
 from config import JWT_SECRET_KEY
+from constants import UserStatus
 from models import User
 
 
@@ -43,5 +44,8 @@ def jwt_required(f):
             return jsonify({"error": "Invalid or expired token"}), 401
 
         request.user = User.query.get(user_id)
+        if not request.user or request.user.status != UserStatus.ACTIVE:
+            return jsonify({"error": "Account is inactive"}), 401
+
         return f(*args, **kwargs)
     return decorated_function

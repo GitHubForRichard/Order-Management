@@ -14,7 +14,7 @@ from sqlalchemy import desc
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from auth import generate_jwt, jwt_required
-from constants import SACRAMENTO_SUPERVISOR_EMAIL, AuditLogActions, DB_HOST, DB_NAME, DB_PASSWORD, DB_PORT, DB_USER
+from constants import SACRAMENTO_SUPERVISOR_EMAIL, AuditLogActions, DB_HOST, DB_NAME, DB_PASSWORD, DB_PORT, DB_USER, UserStatus
 from config import (
     MAIL_PASSWORD,
     MAIL_PORT,
@@ -430,12 +430,14 @@ def login():
         return jsonify({"error": "email and password required"}), 400
 
     user = User.query.filter_by(email=data["email"]).first()
-    user = user.to_dict()
-    if not user or not check_password_hash(user['password_hash'], data["password"]):
+    if not user or not check_password_hash(user.password_hash, data["password"]):
         return jsonify({"error": "Invalid email or password"}), 401
 
-    token = generate_jwt(str(user['id']))
-    return jsonify({"token": token, "user": user})
+    if user.status != UserStatus.ACTIVE:
+        return jsonify({"error": "This account has been deactivated"}), 403
+
+    token = generate_jwt(str(user.id))
+    return jsonify({"token": token, "user": user.to_dict()})
 
 
 @app.route('/api/model-numbers', methods=['GET'])

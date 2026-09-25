@@ -20,6 +20,7 @@ const EditUserDialog = ({
   const [newJoinDate, setNewJoinDate] = React.useState("");
   const [role, setRole] = React.useState("employee");
   const [workLocation, setWorkLocation] = React.useState("");
+  const [status, setStatus] = React.useState("ACTIVE");
 
   const [updateUser, { isLoading: isUpdatingUser }] = useUpdateUserMutation();
 
@@ -28,6 +29,7 @@ const EditUserDialog = ({
       setNewJoinDate(editingUser.join_date?.slice(0, 10) || "");
       setRole(editingUser.role || "employee");
       setWorkLocation(editingUser.work_location || "");
+      setStatus(editingUser.status || "ACTIVE");
     }
   }, [editingUser]);
 
@@ -38,6 +40,7 @@ const EditUserDialog = ({
       work_location?: string;
       join_date?: string;
       role?: string;
+      status?: string;
     } = {};
 
     if (newJoinDate) {
@@ -50,6 +53,10 @@ const EditUserDialog = ({
 
     if (workLocation) {
       payload.work_location = workLocation;
+    }
+
+    if (status) {
+      payload.status = status;
     }
 
     if (Object.keys(payload).length > 0) {
@@ -100,6 +107,16 @@ const EditUserDialog = ({
         >
           <MenuItem value="Burlingame">Burlingame</MenuItem>
           <MenuItem value="Sacramento">Sacramento</MenuItem>
+        </TextField>
+        <TextField
+          label="Status"
+          select
+          value={status}
+          onChange={(e) => setStatus(e.target.value)}
+          fullWidth
+        >
+          <MenuItem value="ACTIVE">Active</MenuItem>
+          <MenuItem value="INACTIVE">Inactive</MenuItem>
         </TextField>
       </DialogContent>
 

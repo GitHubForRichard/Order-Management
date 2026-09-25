@@ -48,6 +48,11 @@ const UserList = () => {
       flex: 1,
     },
     {
+      field: "status",
+      headerName: "Status",
+      flex: 1,
+    },
+    {
       field: "actions",
       headerName: "Actions",
       renderCell: (params) => (
