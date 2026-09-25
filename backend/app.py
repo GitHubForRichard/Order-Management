@@ -117,6 +117,7 @@ def create_case():
             tracking=data.get('tracking'),
             return_status=data.get('return_status'),
             return_for_service=data.get('return_for_service', False),
+            warranty_replacement=data.get('warranty_replacement', False),
             created_by=user.id,
             created_at=datetime.now(timezone.utc)
         )

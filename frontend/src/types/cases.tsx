@@ -15,6 +15,7 @@ export type Case = {
   tracking: string;
   return_status: string;
   return_for_service: boolean;
+  warranty_replacement: boolean;
   created_by: string;
   created_at: string;
   updated_at: string;

@@ -64,23 +64,43 @@ const ExtraInfo = ({ disabled = false }) => {
         />
       </Stack>
 
-      <Controller
-        name="return_for_service"
-        control={control}
-        render={({ field }) => (
-          <FormControlLabel
-            control={
-              <Checkbox
-                {...field}
-                checked={!!field.value}
-                disabled={disabled}
-                onChange={(e) => field.onChange(e.target.checked)}
-              />
-            }
-            label="Return for Service"
-          />
-        )}
-      />
+      <Stack direction="column">
+        <Controller
+          name="return_for_service"
+          control={control}
+          render={({ field }) => (
+            <FormControlLabel
+              control={
+                <Checkbox
+                  {...field}
+                  checked={!!field.value}
+                  disabled={disabled}
+                  onChange={(e) => field.onChange(e.target.checked)}
+                />
+              }
+              label="Return for Service"
+            />
+          )}
+        />
+
+        <Controller
+          name="warranty_replacement"
+          control={control}
+          render={({ field }) => (
+            <FormControlLabel
+              control={
+                <Checkbox
+                  {...field}
+                  checked={!!field.value}
+                  disabled={disabled}
+                  onChange={(e) => field.onChange(e.target.checked)}
+                />
+              }
+              label="Warranty Replacement"
+            />
+          )}
+        />
+      </Stack>
     </Box>
   );
 };
