@@ -138,6 +138,7 @@ const ExtraInfo = ({ disabled = false }) => {
               return (
                 <Autocomplete
                   multiple
+                  disableCloseOnSelect
                   disablePortal
                   options={modelNumberOptions}
                   value={selectedOptions}
