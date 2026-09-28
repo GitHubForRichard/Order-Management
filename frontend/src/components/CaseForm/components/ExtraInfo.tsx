@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useFormContext, Controller } from "react-hook-form";
 import {
   Autocomplete,
@@ -12,11 +13,10 @@ import {
 
 import { useGetModelNumbersQuery } from "rtk/casesApi";
 
+type ModelNumberOption = { label: string; value: string };
+
 const ExtraInfo = ({ disabled = false }) => {
-  const {
-    control,
-    formState: { errors },
-  } = useFormContext();
+  const { control } = useFormContext();
 
   const { data: modelNumbersData } = useGetModelNumbersQuery();
   const modelNumbers = modelNumbersData?.model_numbers || [];
@@ -25,6 +25,11 @@ const ExtraInfo = ({ disabled = false }) => {
     label: modelNumber,
     value: modelNumber,
   }));
+
+  // Not wired to the form yet, so selections are not saved
+  const [selectedModelNumbers, setSelectedModelNumbers] = useState<
+    ModelNumberOption[]
+  >([]);
 
   return (
     <Box>
@@ -116,50 +121,21 @@ const ExtraInfo = ({ disabled = false }) => {
           )}
         />
 
-        <FormControl
-          fullWidth
-          margin="normal"
-          variant="outlined"
-          size="small"
-          required
-        >
-          <Controller
-            name="model_number"
-            control={control}
-            rules={{ required: "Model Number is required" }}
-            render={({ field }) => {
-              const selectedValues = field.value
-                ? field.value.split(",").map((v: string) => v.trim()).filter(Boolean)
-                : [];
-              const selectedOptions = modelNumberOptions.filter((option) =>
-                selectedValues.includes(option.value)
-              );
-
-              return (
-                <Autocomplete
-                  multiple
-                  disableCloseOnSelect
-                  disablePortal
-                  options={modelNumberOptions}
-                  value={selectedOptions}
-                  disabled={disabled}
-                  onChange={(_, newValue) =>
-                    field.onChange(newValue.map((v) => v.value).join(", "))
-                  }
-                  renderInput={(params) => (
-                    <TextField
-                      {...params}
-                      label="Model Numbers"
-                      error={!!errors.model_number}
-                      helperText={
-                        errors.model_number?.message?.toString() ?? ""
-                      }
-                      required={selectedValues.length === 0}
-                    />
-                  )}
-                />
-              );
-            }}
+        <FormControl fullWidth margin="normal" variant="outlined" size="small">
+          <Autocomplete
+            multiple
+            disableCloseOnSelect
+            disablePortal
+            options={modelNumberOptions}
+            value={selectedModelNumbers}
+            disabled={disabled}
+            isOptionEqualToValue={(option, value) =>
+              option.value === value.value
+            }
+            onChange={(_, newValue) => setSelectedModelNumbers(newValue)}
+            renderInput={(params) => (
+              <TextField {...params} label="Parts" />
+            )}
           />
         </FormControl>
       </Stack>

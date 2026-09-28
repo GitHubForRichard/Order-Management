@@ -1,8 +1,27 @@
 import { useFormContext, Controller } from "react-hook-form";
-import { Stack, TextField, Typography } from "@mui/material";
+import {
+  Autocomplete,
+  FormControl,
+  Stack,
+  TextField,
+  Typography,
+} from "@mui/material";
+
+import { useGetModelNumbersQuery } from "rtk/casesApi";
 
 const CaseDetail = () => {
-  const { control } = useFormContext();
+  const {
+    control,
+    formState: { errors },
+  } = useFormContext();
+
+  const { data: modelNumbersData } = useGetModelNumbersQuery();
+  const modelNumbers = modelNumbersData?.model_numbers || [];
+
+  const modelNumberOptions = modelNumbers.map((modelNumber) => ({
+    label: modelNumber,
+    value: modelNumber,
+  }));
 
   return (
     <div>
@@ -24,6 +43,41 @@ const CaseDetail = () => {
       </Typography>
 
       <Stack spacing={2}>
+        <FormControl
+          fullWidth
+          margin="normal"
+          variant="outlined"
+          size="small"
+          required
+        >
+          <Controller
+            name="model_number"
+            control={control}
+            rules={{ required: "Model Number is required" }}
+            render={({ field }) => (
+              <Autocomplete
+                disablePortal
+                options={modelNumberOptions}
+                value={
+                  modelNumberOptions.find(
+                    (option) => option.value === field.value
+                  ) ?? null
+                }
+                onChange={(_, newValue) => field.onChange(newValue?.value ?? "")}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label="Model Number"
+                    error={!!errors.model_number}
+                    helperText={errors.model_number?.message?.toString() ?? ""}
+                    required
+                  />
+                )}
+              />
+            )}
+          />
+        </FormControl>
+
         <Controller
           name="serial"
           control={control}
