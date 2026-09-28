@@ -83,6 +83,7 @@ class Case(db.Model):
     return_status = Column(String(50), nullable=True)
     return_for_service = Column(Boolean, nullable=False, default=False)
     warranty_replacement = Column(Boolean, nullable=False, default=False)
+    replacement_parts = Column(Text, nullable=True)
     created_by = Column(UUID(as_uuid=True), ForeignKey(
         'users.id'), nullable=False)
     created_at = Column(DateTime, nullable=False,
@@ -111,6 +112,7 @@ class Case(db.Model):
             'return_status': self.return_status,
             'return_for_service': self.return_for_service,
             'warranty_replacement': self.warranty_replacement,
+            'replacement_parts': self.replacement_parts,
             'created_by': str(self.created_by) if self.created_by else None,
             'created_at': self.created_at.isoformat() if self.created_at else None,
             'updated_at': self.updated_at.isoformat() if self.updated_at else None

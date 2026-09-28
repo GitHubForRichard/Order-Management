@@ -51,6 +51,7 @@ export const defaultValues = {
   return_status: "",
   return_for_service: false,
   warranty_replacement: false,
+  replacement_parts: "",
   attachments: [],
 };
 

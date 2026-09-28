@@ -118,6 +118,7 @@ def create_case():
             return_status=data.get('return_status'),
             return_for_service=data.get('return_for_service', False),
             warranty_replacement=data.get('warranty_replacement', False),
+            replacement_parts=data.get('replacement_parts'),
             created_by=user.id,
             created_at=datetime.now(timezone.utc)
         )
