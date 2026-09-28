@@ -134,7 +134,7 @@ const ExtraInfo = ({ disabled = false }) => {
             }
             onChange={(_, newValue) => setSelectedModelNumbers(newValue)}
             renderInput={(params) => (
-              <TextField {...params} label="Parts" />
+              <TextField {...params} label="Replacement Parts" />
             )}
           />
         </FormControl>
