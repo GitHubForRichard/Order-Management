@@ -1,8 +1,9 @@
 import * as React from "react";
 import { useSearchParams } from "react-router-dom";
 
-import { Typography } from "@mui/material";
-import { DataGrid, GridFilterModel } from "@mui/x-data-grid";
+import DownloadIcon from "@mui/icons-material/Download";
+import { Box, Button, Typography } from "@mui/material";
+import { DataGrid, GridFilterModel, useGridApiRef } from "@mui/x-data-grid";
 
 import { formatUTCToPST } from "utils";
 import { useGetCasesQuery } from "rtk/casesApi";
@@ -13,6 +14,14 @@ const CaseList = ({ onRowDoubleClicked }) => {
   const existingAssignFilter = searchParams.get("assign");
 
   const { data: cases = [] } = useGetCasesQuery();
+
+  const apiRef = useGridApiRef();
+
+  const exportCsv = () => {
+    apiRef.current.exportDataAsCsv({
+      fileName: `cases_${new Date().getTime()}`,
+    });
+  };
 
   const [filterModel, setFilterModel] = React.useState<GridFilterModel>(() => {
     const items = [];
@@ -113,10 +122,20 @@ const CaseList = ({ onRowDoubleClicked }) => {
   };
   return (
     <>
-      <Typography variant="h4" gutterBottom>
-        Cases
-      </Typography>
+      <Box display="flex" alignItems="center" justifyContent="space-between">
+        <Typography variant="h4" gutterBottom>
+          Cases
+        </Typography>
+        <Button
+          variant="contained"
+          startIcon={<DownloadIcon />}
+          onClick={exportCsv}
+        >
+          Download as CSV
+        </Button>
+      </Box>
       <DataGrid
+        apiRef={apiRef}
         rows={cases}
         columns={columns}
         filterModel={filterModel}
