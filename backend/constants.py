@@ -21,3 +21,5 @@ class UserStatus(str, Enum):
 SACRAMENTO_SUPERVISOR_EMAIL = 'Brian@tlmsupply.com'
 
 PTO_ACCRUAL_ALERT_EMAIL = 'helen@tlmsupply.com'
+
+WEEKLY_CASE_REPORT_EMAIL = 'helen@tlmsupply.com'

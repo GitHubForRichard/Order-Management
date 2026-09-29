@@ -27,6 +27,7 @@ from config import (
     SHIP_STATION_API_SECRET
 )
 from cron_jobs.grant_monthly_pto import HOURS_PER_DAY, grant_monthly_pto
+from cron_jobs.weekly_case_report import send_weekly_case_report
 from emailer import init_mail, send_email
 from utils import count_weekdays, get_case_assignees, update_fields, to_snake_case
 from models import AuditLog, Customer, Leave, UserLeaveHours, db, Case, File, User
@@ -66,6 +67,16 @@ scheduler.add_job(
     func=lambda: grant_monthly_pto(app),
     trigger="cron",
     hour=2,
+    minute=0,
+    timezone="US/Pacific",
+)
+
+scheduler.add_job(
+    id="weekly_case_report",
+    func=lambda: send_weekly_case_report(app),
+    trigger="cron",
+    day_of_week="mon",
+    hour=7,
     minute=0,
     timezone="US/Pacific",
 )
