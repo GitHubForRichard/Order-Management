@@ -147,7 +147,7 @@ const NavBar = () => {
             ))}
           </Menu>
 
-          {user.role === "manager" && (
+          {(user.role === "manager" || user.role === "admin") && (
             <>
               <Button
                 color="inherit"

@@ -8,11 +8,13 @@ import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import { saveAs } from "file-saver";
 import * as XLSX from "xlsx";
 
+import { useAuth } from "hooks/useAuth";
 import { useGetAllUsersRemainingHoursQuery } from "rtk/leavesApi";
-import HoursAuditTable from "./HoursAuditTable";
 import EditHoursDialog from "./EditHoursDialog";
+import HoursAuditTable from "./HoursAuditTable";
 
 const RemainingHoursSummary = () => {
+  const { user } = useAuth();
   const [isEditHoursDialogOpen, setIsEditHoursDialogOpen] = useState(false);
   const [selectedRow, setSelectedRow] = useState<any>(null);
 
@@ -44,7 +46,10 @@ const RemainingHoursSummary = () => {
       valueFormatter: (value) =>
         value != null ? Number(value).toFixed(2) : "",
     },
-    {
+  ];
+
+  if (user?.role === "admin") {
+    columns.push({
       field: "actions",
       headerName: "Edit",
       sortable: false,
@@ -60,8 +65,8 @@ const RemainingHoursSummary = () => {
           </IconButton>
         </Tooltip>
       ),
-    },
-  ];
+    });
+  }
 
   // Export function
   const exportToExcel = (data: any[], fileName: string) => {

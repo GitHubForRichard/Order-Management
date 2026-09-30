@@ -13,7 +13,7 @@ interface User {
   email: string;
   first_name: string;
   last_name: string;
-  role: "employee" | "manager";
+  role: "employee" | "manager" | "admin";
   join_date: string;
 }
 

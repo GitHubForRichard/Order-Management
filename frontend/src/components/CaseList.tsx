@@ -5,8 +5,8 @@ import DownloadIcon from "@mui/icons-material/Download";
 import { Box, Button, Typography } from "@mui/material";
 import { DataGrid, GridFilterModel, useGridApiRef } from "@mui/x-data-grid";
 
-import { formatUTCToPST } from "utils";
 import { useGetCasesQuery } from "rtk/casesApi";
+import { formatUTCToPST } from "utils";
 
 const CaseList = ({ onRowDoubleClicked }) => {
   const [searchParams, setSearchParams] = useSearchParams();

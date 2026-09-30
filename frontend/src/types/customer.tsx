@@ -4,7 +4,7 @@ export interface User {
   last_name: string;
   email: string;
   created_at: string;
-  role: "employee" | "manager";
+  role: "employee" | "manager" | "admin";
   join_date: string;
   status: "ACTIVE" | "INACTIVE";
 }

@@ -97,6 +97,7 @@ const EditUserDialog = ({
         >
           <MenuItem value="employee">Employee</MenuItem>
           <MenuItem value="manager">Manager</MenuItem>
+          <MenuItem value="admin">Admin</MenuItem>
         </TextField>
         <TextField
           label="Work Location"

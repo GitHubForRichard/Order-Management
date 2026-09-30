@@ -4,11 +4,13 @@ import EditIcon from "@mui/icons-material/Edit";
 import { IconButton } from "@mui/material";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
 
+import { useAuth } from "hooks/useAuth";
+import { useGetUsersQuery } from "rtk/usersApi";
 import { User } from "types/customer";
 import EditUserDialog from "./EditUserDialog";
-import { useGetUsersQuery } from "rtk/usersApi";
 
 const UserList = () => {
+  const { user } = useAuth();
   const { data: users = [], isLoading } = useGetUsersQuery();
 
   const [isEditUserDialogShown, setIsEditUserDialogShown] =
@@ -52,7 +54,10 @@ const UserList = () => {
       headerName: "Status",
       flex: 1,
     },
-    {
+  ];
+
+  if (user?.role === "admin") {
+    columns.push({
       field: "actions",
       headerName: "Actions",
       renderCell: (params) => (
@@ -67,8 +72,8 @@ const UserList = () => {
       flex: 0.5,
       sortable: false,
       filterable: false,
-    },
-  ];
+    });
+  }
 
   return (
     <>

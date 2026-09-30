@@ -903,8 +903,8 @@ def get_leave_summary():
 @app.route('/api/leaves/hours/<user_id>', methods=['PATCH'])
 @jwt_required
 def update_user_leave_hours(user_id):
-    if request.user.role != "manager":
-        return jsonify({"error": "Unauthorized: Only managers can update leave hours"}), 403
+    if request.user.role != "admin":
+        return jsonify({"error": "Unauthorized: Only admins can update leave hours"}), 403
 
     data = request.get_json()
 
@@ -1030,6 +1030,9 @@ def get_user(user_id):
 @jwt_required
 def update_user(user_id):
     """Update an existing user"""
+    if request.user.role != "admin":
+        return jsonify({"error": "Unauthorized: Only admins can update users"}), 403
+
     user = User.query.get(user_id)
     if not user:
         return jsonify({'error': 'User not found'}), 404
