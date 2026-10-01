@@ -21,6 +21,7 @@ import {
   useDownloadUserHoursCsvMutation,
 } from "rtk/leavesApi";
 import { useGetUsersQuery } from "rtk/usersApi";
+import { formatUTCToPST } from "utils";
 
 const AuditPage = () => {
   const [selectedUser, setSelectedUser] = useState<string>("");
@@ -101,7 +102,7 @@ const AuditPage = () => {
             return (
               <TableRow key={change.created_at + change.field}>
                 <TableCell>
-                  {new Date(change.created_at).toLocaleString()}
+                  {formatUTCToPST(new Date(`${change.created_at}Z`))}
                 </TableCell>
                 <TableCell>{change.action}</TableCell>
                 <TableCell>{change.field}</TableCell>

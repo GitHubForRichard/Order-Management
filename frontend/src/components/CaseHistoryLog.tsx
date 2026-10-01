@@ -9,6 +9,7 @@ import {
 } from "@mui/material";
 
 import { useGetCaseHistoryQuery } from "rtk/casesApi";
+import { formatUTCToPST } from "utils";
 const CaseHistoryLog = ({ caseId }) => {
   const { data: CaseHistoryLog = [] } = useGetCaseHistoryQuery(
     { caseId },
@@ -39,9 +40,7 @@ const CaseHistoryLog = ({ caseId }) => {
                 sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
               >
                 <TableCell>
-                  {`${new Date(row.created_at).toLocaleDateString()} ${new Date(
-                    row.created_at
-                  ).toLocaleTimeString()}`}
+                  {formatUTCToPST(new Date(`${row.created_at}Z`))}
                 </TableCell>
                 <TableCell>{row.action}</TableCell>
                 <TableCell>{`${row.created_by.first_name} ${row.created_by.last_name}`}</TableCell>

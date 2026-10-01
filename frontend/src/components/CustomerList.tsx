@@ -7,6 +7,8 @@ import {
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { DataGrid } from "@mui/x-data-grid";
 
+import { formatUTCToPST } from "utils";
+
 const CustomerList = ({ customers, onRowDoubleClicked }) => {
   const columns = [
     {
@@ -47,20 +49,16 @@ const CustomerList = ({ customers, onRowDoubleClicked }) => {
       headerName: "Created Date",
       width: 180,
       valueGetter: (_, row) =>
-        row.created_at &&
-        `${new Date(row.created_at).toLocaleDateString()} ${new Date(
-          row.created_at
-        ).toLocaleTimeString()}`,
+        row.created_at ? new Date(`${row.created_at}Z`) : null,
+      valueFormatter: (value) => formatUTCToPST(value),
     },
     {
       field: "updated_at",
       headerName: "Last Updated",
       width: 180,
       valueGetter: (_, row) =>
-        row.updated_at &&
-        `${new Date(row.updated_at).toLocaleDateString()} ${new Date(
-          row.updated_at
-        ).toLocaleTimeString()}`,
+        row.updated_at ? new Date(`${row.updated_at}Z`) : null,
+      valueFormatter: (value) => formatUTCToPST(value),
     },
   ];
 
