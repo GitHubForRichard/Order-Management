@@ -29,7 +29,7 @@ from config import (
 from cron_jobs.grant_monthly_pto import HOURS_PER_DAY, grant_monthly_pto
 from cron_jobs.weekly_case_report import send_weekly_case_report
 from emailer import init_mail, send_email
-from utils import count_weekdays, get_case_assignees, update_fields, to_snake_case
+from utils import build_cases_csv, count_weekdays, get_case_assignees, update_fields, to_snake_case
 from models import AuditLog, Customer, Leave, UserLeaveHours, db, Case, File, User
 from google_drive_client import upload_file_to_google_drive, get_web_view_link
 
@@ -99,6 +99,18 @@ def get_cases():
         case_dict['created_by'] = user.to_dict()
         result.append(case_dict)
     return jsonify(result)
+
+
+@app.route('/api/cases/csv', methods=['GET'])
+@jwt_required
+def get_cases_csv():
+    """Download all cases with every field as a CSV"""
+    csv_text, _ = build_cases_csv()
+    return Response(
+        csv_text,
+        mimetype='text/csv',
+        headers={"Content-Disposition": "attachment;filename=cases.csv"}
+    )
 
 
 @app.route('/api/cases', methods=['POST'])

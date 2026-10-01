@@ -28,6 +28,14 @@ export const casesApi = baseApi.injectEndpoints({
       providesTags: ["Cases"],
     }),
 
+    downloadCasesCsv: builder.mutation<Blob, void>({
+      query: () => ({
+        url: "cases/csv",
+        method: "GET",
+        responseHandler: async (response) => response.blob(),
+      }),
+    }),
+
     createCase: builder.mutation<CreateCaseResponse, Case>({
       query: (body) => ({
         url: "cases",
@@ -264,6 +272,7 @@ export const casesApi = baseApi.injectEndpoints({
 
 export const {
   useGetCasesQuery,
+  useDownloadCasesCsvMutation,
   useCreateCaseMutation,
   useUpdateCaseMutation,
   useGetAssigneesQuery,

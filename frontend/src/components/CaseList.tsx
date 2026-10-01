@@ -3,9 +3,9 @@ import { useSearchParams } from "react-router-dom";
 
 import DownloadIcon from "@mui/icons-material/Download";
 import { Box, Button, Typography } from "@mui/material";
-import { DataGrid, GridFilterModel, useGridApiRef } from "@mui/x-data-grid";
+import { DataGrid, GridFilterModel } from "@mui/x-data-grid";
 
-import { useGetCasesQuery } from "rtk/casesApi";
+import { useDownloadCasesCsvMutation, useGetCasesQuery } from "rtk/casesApi";
 import { formatUTCToPST } from "utils";
 
 const CaseList = ({ onRowDoubleClicked }) => {
@@ -14,13 +14,24 @@ const CaseList = ({ onRowDoubleClicked }) => {
   const existingAssignFilter = searchParams.get("assign");
 
   const { data: cases = [] } = useGetCasesQuery();
+  const [downloadCasesCsv, { isLoading: isDownloadingCsv }] =
+    useDownloadCasesCsvMutation();
 
-  const apiRef = useGridApiRef();
-
-  const exportCsv = () => {
-    apiRef.current.exportDataAsCsv({
-      fileName: `cases_${new Date().getTime()}`,
-    });
+  const exportCsv = async () => {
+    try {
+      const blob = await downloadCasesCsv().unwrap();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `cases_${new Date().getTime()}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error(err);
+      alert("Failed to download CSV");
+    }
   };
 
   const [filterModel, setFilterModel] = React.useState<GridFilterModel>(() => {
@@ -130,12 +141,12 @@ const CaseList = ({ onRowDoubleClicked }) => {
           variant="contained"
           startIcon={<DownloadIcon />}
           onClick={exportCsv}
+          disabled={isDownloadingCsv}
         >
           Download as CSV
         </Button>
       </Box>
       <DataGrid
-        apiRef={apiRef}
         rows={cases}
         columns={columns}
         filterModel={filterModel}

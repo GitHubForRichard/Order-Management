@@ -1,68 +1,12 @@
-import csv
-import io
-from datetime import date, timezone
-from zoneinfo import ZoneInfo
+from datetime import date
 
 from config import MAIL_USERNAME
 from constants import WEEKLY_CASE_REPORT_EMAIL
 from emailer import send_email
-from models import Case, Customer, ScriptRunLog, User, db
+from models import ScriptRunLog, db
+from utils import build_cases_csv
 
 SCRIPT_NAME = "weekly_case_report"
-
-PACIFIC = ZoneInfo("America/Los_Angeles")
-
-CSV_HEADERS = [
-    "Full name",
-    "Case Number",
-    "Model Number",
-    "Issues",
-    "Status",
-    "Assign to",
-    "Recorded By",
-    "Created Date",
-    "Last Updated",
-]
-
-
-def format_utc_to_pst(value):
-    """Format a naive UTC to human-readable time"""
-    if not value:
-        return ""
-    return value.replace(tzinfo=timezone.utc).astimezone(PACIFIC).strftime("%m/%d/%Y, %I:%M:%S %p")
-
-
-def format_full_name(person):
-    return f"{person.first_name or ''} {person.last_name or ''}".strip()
-
-
-def build_cases_csv():
-    """Build a CSV of all cases"""
-    cases = (
-        db.session.query(Case, Customer, User)
-        .join(Customer, Case.customer_id == Customer.id)
-        .join(User, Case.created_by == User.id)
-        .order_by(Case.created_at.desc())
-        .all()
-    )
-
-    output = io.StringIO()
-    writer = csv.writer(output)
-    writer.writerow(CSV_HEADERS)
-    for case, customer, user in cases:
-        writer.writerow([
-            format_full_name(customer),
-            case.case_number or "",
-            case.model_number or "",
-            case.issues or "",
-            case.status or "",
-            case.assign or "",
-            format_full_name(user),
-            format_utc_to_pst(case.created_at),
-            format_utc_to_pst(case.updated_at),
-        ])
-
-    return output.getvalue(), len(cases)
 
 
 def send_weekly_case_report(app):

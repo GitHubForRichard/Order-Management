@@ -1,11 +1,16 @@
+import csv
+import io
 import pandas as pd
 import re
 import uuid
 
 from datetime import date, datetime, timedelta, timezone
+from zoneinfo import ZoneInfo
 
 from config import EMPLOYEE_CSV_FILE_PATH
-from models import db, AuditLog
+from models import AuditLog, Case, Customer, User, db
+
+PACIFIC = ZoneInfo("America/Los_Angeles")
 
 
 def to_snake_case(text: str) -> str:
@@ -88,3 +93,64 @@ def count_weekdays(start: date, end: date) -> int:
             days += 1
         current += timedelta(days=1)
     return days
+
+
+def format_utc_to_pst(value):
+    """Format a naive UTC to human-readable time"""
+    if not value:
+        return ""
+    return value.replace(tzinfo=timezone.utc).astimezone(PACIFIC).strftime("%m/%d/%Y, %I:%M:%S %p")
+
+
+def format_full_name(person):
+    return f"{person.first_name or ''} {person.last_name or ''}".strip()
+
+
+def format_csv_header(column_name):
+    """e.g. zip_code -> Zip Code"""
+    return column_name.replace("_", " ").title()
+
+
+def format_csv_value(value):
+    if value is None:
+        return ""
+    if isinstance(value, bool):
+        return "Yes" if value else "No"
+    if isinstance(value, datetime):
+        return format_utc_to_pst(value)
+    return value
+
+
+# Columns excluded to display on the CSV
+CASE_CSV_EXCLUDED_COLUMNS = {"id", "customer_id"}
+CUSTOMER_CSV_EXCLUDED_COLUMNS = {"id", "created_by", "created_at", "updated_at"}
+
+
+def build_cases_csv():
+    """Build a CSV of all cases with every Case and Customer column. Returns (csv_text, case_count)."""
+    cases = (
+        db.session.query(Case, Customer, User)
+        .join(Customer, Case.customer_id == Customer.id)
+        .join(User, Case.created_by == User.id)
+        .order_by(Case.created_at.desc())
+        .all()
+    )
+
+    case_columns = [c.key for c in Case.__table__.columns if c.key not in CASE_CSV_EXCLUDED_COLUMNS]
+    customer_columns = [c.key for c in Customer.__table__.columns if c.key not in CUSTOMER_CSV_EXCLUDED_COLUMNS]
+
+    output = io.StringIO()
+    writer = csv.writer(output)
+    writer.writerow(
+        [format_csv_header(key) for key in case_columns]
+        + [f"Customer {format_csv_header(key)}" for key in customer_columns]
+    )
+    for case, customer, user in cases:
+        writer.writerow(
+            # created_by is a user ID, so show the user's name instead
+            [format_full_name(user) if key == "created_by" else format_csv_value(getattr(case, key))
+             for key in case_columns]
+            + [format_csv_value(getattr(customer, key)) for key in customer_columns]
+        )
+
+    return output.getvalue(), len(cases)
