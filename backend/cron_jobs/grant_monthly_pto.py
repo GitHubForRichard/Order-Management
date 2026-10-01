@@ -149,22 +149,21 @@ def is_monthly_anniversary(start_date: date, today: date) -> bool:
     return today.day == min(day, last_day_of_month)
 
 
-def report_missed_runs(today: date, last_run_date: date):
+def report_missed_runs(last_run_date: date):
     """Email an alert describing what the script missed while it was not running."""
     body = "\n".join([
         "The monthly PTO accrual script did not run on every day it should have.",
         "",
         f"Last successful run: {last_run_date}",
-        f"Today: {today}",
         "",
-        "Any employee whose accrual day fell between those two dates did not receive",
+        "Any employee whose accrual day fell between that date and today did not receive",
         "their monthly hours. Correct them from the Leave page using the Edit Hours",
         "dialog.",
     ])
 
     try:
         send_email(
-            subject=f"PTO accrual script missed runs on {today}",
+            subject="PTO accrual script missed runs",
             recipients=[PTO_ACCRUAL_ALERT_EMAIL],
             body=body,
             sender=MAIL_USERNAME,
@@ -184,7 +183,7 @@ def grant_monthly_pto(app):
 
         # Reports the missed run if the script has not run for more than 1 day
         if log and log.last_run_date and (today - log.last_run_date).days > 1:
-            report_missed_runs(today, log.last_run_date)
+            report_missed_runs(log.last_run_date)
 
         if log and log.last_run_date == today:
             print("PTO script has already run today, exiting.")
