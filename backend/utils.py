@@ -118,6 +118,8 @@ def format_csv_value(value):
         return "Yes" if value else "No"
     if isinstance(value, datetime):
         return format_utc_to_pst(value)
+    if isinstance(value, str) and value.isdigit():
+        return f'="{value}"'
     return value
 
 
