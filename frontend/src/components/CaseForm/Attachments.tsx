@@ -25,7 +25,12 @@ const Attachments: React.FC<AttachmentsProps> = ({
     }
   );
 
-  const acceptedFileTypes = ["image/png", "image/jpeg", "application/pdf"];
+  const acceptedFileTypes = [
+    "image/png",
+    "image/jpeg",
+    "application/pdf",
+    "video/*",
+  ];
 
   return (
     <div className="form-section-card">
