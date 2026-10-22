@@ -12,6 +12,8 @@ from google.oauth2 import service_account
 SCOPES = ["https://www.googleapis.com/auth/drive.file"]
 SERVICE_ACCOUNT_FILE = os.getenv("GOOGLE_DRIVE_CRED_FILE_PATH")
 FOLDER_ID = os.getenv("GOOGLE_DRIVE_FOLDER_ID")
+CHUNK_SIZE = 5 * 1024 * 1024
+NUM_RETRIES = 3
 
 creds = service_account.Credentials.from_service_account_file(
     SERVICE_ACCOUNT_FILE, scopes=SCOPES
@@ -32,7 +34,7 @@ def get_web_view_link(file_id):
         fileId=file_id,
         fields="webViewLink",
         supportsAllDrives=True
-    ).execute()
+    ).execute(num_retries=NUM_RETRIES)
     return file["webViewLink"]
 
 
@@ -40,7 +42,12 @@ def upload_file_to_google_drive(file_obj):
     file_name = f"{datetime.now().strftime('%Y%m%d%H%M%S')}_{file_obj.filename}"
     file_name = secure_filename(file_name)
 
-    media = MediaIoBaseUpload(file_obj, mimetype=file_obj.mimetype)
+    media = MediaIoBaseUpload(
+        file_obj,
+        mimetype=file_obj.mimetype or "application/octet-stream",
+        chunksize=CHUNK_SIZE,
+        resumable=True,
+    )
 
     # File metadata: put inside a Drive folder if needed
     file_metadata = {
@@ -52,7 +59,7 @@ def upload_file_to_google_drive(file_obj):
     uploaded_file = (
         get_drive_service().files()
         .create(body=file_metadata, media_body=media, fields="id, webViewLink", supportsAllDrives=True)
-        .execute()
+        .execute(num_retries=NUM_RETRIES)
     )
 
     return {
