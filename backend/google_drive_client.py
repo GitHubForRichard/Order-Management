@@ -1,5 +1,6 @@
 import os
 import io
+import threading
 
 from datetime import datetime
 from werkzeug.utils import secure_filename
@@ -12,15 +13,22 @@ SCOPES = ["https://www.googleapis.com/auth/drive.file"]
 SERVICE_ACCOUNT_FILE = os.getenv("GOOGLE_DRIVE_CRED_FILE_PATH")
 FOLDER_ID = os.getenv("GOOGLE_DRIVE_FOLDER_ID")
 
-# Build Drive client once
 creds = service_account.Credentials.from_service_account_file(
     SERVICE_ACCOUNT_FILE, scopes=SCOPES
 )
-drive_service = build("drive", "v3", credentials=creds)
+
+
+_thread_local = threading.local()
+
+
+def get_drive_service():
+    if not hasattr(_thread_local, "service"):
+        _thread_local.service = build("drive", "v3", credentials=creds)
+    return _thread_local.service
 
 
 def get_web_view_link(file_id):
-    file = drive_service.files().get(
+    file = get_drive_service().files().get(
         fileId=file_id,
         fields="webViewLink",
         supportsAllDrives=True
@@ -44,7 +52,7 @@ def upload_file_to_google_drive(file_obj):
 
         # Upload to Drive
         uploaded_file = (
-            drive_service.files()
+            get_drive_service().files()
             .create(body=file_metadata, media_body=media, fields="id, webViewLink", supportsAllDrives=True)
             .execute()
         )
