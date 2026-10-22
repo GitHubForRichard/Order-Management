@@ -389,20 +389,25 @@ def update_images(case_id):
 
     # Add new files
     added_ids = []
-    for file in new_files:
-        upload_response = upload_file_to_google_drive(file)
+    try:
+        for file in new_files:
+            upload_response = upload_file_to_google_drive(file)
 
-        # Save metadata in DB
-        new_file = File(
-            case_id=case_id,
-            name=upload_response.get("file_name", None),
-            drive_file_id=upload_response.get("file_id", None),
-            created_at=datetime.now(timezone.utc),
-        )
+            # Save metadata in DB
+            new_file = File(
+                case_id=case_id,
+                name=upload_response.get("file_name", None),
+                drive_file_id=upload_response.get("file_id", None),
+                created_at=datetime.now(timezone.utc),
+            )
 
-        db.session.add(new_file)
-        db.session.flush()
-        added_ids.append(new_file.id)
+            db.session.add(new_file)
+            db.session.flush()
+            added_ids.append(new_file.id)
+    except Exception as e:
+        db.session.rollback()
+        app.logger.exception("File upload failed")
+        return jsonify({"error": str(e)}), 500
 
     db.session.commit()
 
