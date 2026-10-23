@@ -2,8 +2,15 @@ import { useState } from "react";
 
 import DownloadIcon from "@mui/icons-material/Download";
 import EditIcon from "@mui/icons-material/Edit";
+import EmailIcon from "@mui/icons-material/Email";
 import TableChartIcon from "@mui/icons-material/TableChart";
-import { Box, IconButton, Stack, Tooltip, Typography } from "@mui/material";
+import {
+  Box,
+  IconButton,
+  Stack,
+  Tooltip,
+  Typography,
+} from "@mui/material";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import { saveAs } from "file-saver";
 import * as XLSX from "xlsx";
@@ -12,11 +19,14 @@ import { useAuth } from "hooks/useAuth";
 import { useGetAllUsersRemainingHoursQuery } from "rtk/leavesApi";
 import EditHoursDialog from "./EditHoursDialog";
 import HoursAuditTable from "./HoursAuditTable";
+import NotifyCarryOverDialog from "./NotifyCarryOverDialog";
 
 const RemainingHoursSummary = () => {
   const { user } = useAuth();
   const [isEditHoursDialogOpen, setIsEditHoursDialogOpen] = useState(false);
   const [selectedRow, setSelectedRow] = useState<any>(null);
+  const [isNotifyCarryOverDialogOpen, setIsNotifyCarryOverDialogOpen] =
+    useState(false);
 
   const { data: allRemainingHours = [] } = useGetAllUsersRemainingHoursQuery();
 
@@ -120,6 +130,17 @@ const RemainingHoursSummary = () => {
                 <DownloadIcon />
               </IconButton>
             </Tooltip>
+
+            {user?.role === "admin" && (
+              <Tooltip title="Email Carryover PTO Balances">
+                <IconButton
+                  color="primary"
+                  onClick={() => setIsNotifyCarryOverDialogOpen(true)}
+                >
+                  <EmailIcon />
+                </IconButton>
+              </Tooltip>
+            )}
           </Stack>
 
           <DataGrid
@@ -142,6 +163,11 @@ const RemainingHoursSummary = () => {
           <HoursAuditTable />
         </div>
       </Box>
+
+      <NotifyCarryOverDialog
+        open={isNotifyCarryOverDialogOpen}
+        onClose={() => setIsNotifyCarryOverDialogOpen(false)}
+      />
 
       {isEditHoursDialogOpen && (
         <EditHoursDialog

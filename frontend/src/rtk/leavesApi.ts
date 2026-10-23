@@ -133,6 +133,39 @@ export const leavesApi = baseApi.injectEndpoints({
       }),
     }),
 
+    notifyCarryOver: builder.mutation<
+      { sent: string[]; failed: string[] },
+      void
+    >({
+      query: () => ({
+        url: "leaves/carryover/notify",
+        method: "POST",
+      }),
+      async onQueryStarted(_, { queryFulfilled, dispatch }) {
+        try {
+          const { data } = await queryFulfilled;
+
+          dispatch({
+            type: "notifications/notify",
+            payload: {
+              message: data.failed.length
+                ? `Sent ${data.sent.length} reminders, ${data.failed.length} failed`
+                : `Sent ${data.sent.length} reminders`,
+              severity: data.failed.length ? "warning" : "success",
+            },
+          });
+        } catch {
+          dispatch({
+            type: "notifications/notify",
+            payload: {
+              message: "Failed to send PTO reminders",
+              severity: "error",
+            },
+          });
+        }
+      },
+    }),
+
     updateUserLeaveHours: builder.mutation<
       any,
       {
@@ -182,5 +215,6 @@ export const {
   useProcessLeaveMutation,
   useGetUserHoursHistoryQuery,
   useDownloadUserHoursCsvMutation,
+  useNotifyCarryOverMutation,
   useUpdateUserLeaveHoursMutation,
 } = leavesApi;

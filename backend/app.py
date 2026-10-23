@@ -26,7 +26,7 @@ from config import (
     SHIP_STATION_API_KEY,
     SHIP_STATION_API_SECRET
 )
-from cron_jobs.grant_monthly_pto import HOURS_PER_DAY, grant_monthly_pto
+from cron_jobs.grant_monthly_pto import CARRYOVER_CAP_DAYS, HOURS_PER_DAY, grant_monthly_pto
 from cron_jobs.weekly_case_report import send_weekly_case_report
 from emailer import init_mail, send_email
 from utils import build_cases_csv, count_weekdays, get_case_assignees, update_fields, to_snake_case
@@ -1082,6 +1082,54 @@ def run_pto():
     # Implement your PTO processing logic here
     grant_monthly_pto(app)
     return jsonify({'success': True, 'message': 'PTO processed successfully'}), 200
+
+
+@app.route("/api/leaves/carryover/notify", methods=["POST"])
+@jwt_required
+def notify_carry_over():
+    """Email active employees whose PTO balance exceeds the year-end carryover cap"""
+    if request.user.role != "admin":
+        return jsonify({"error": "Unauthorized: Only admins can send PTO reminders"}), 403
+
+    threshold_hours = CARRYOVER_CAP_DAYS * HOURS_PER_DAY
+    user_leave_hours_users = (
+        db.session.query(UserLeaveHours, User)
+        .join(User, User.id == UserLeaveHours.user_id)
+        .filter(User.status == UserStatus.ACTIVE, UserLeaveHours.remaining_hours > threshold_hours)
+        .all()
+    )
+
+    sent = []
+    failed = []
+    for user_leave_hours, user in user_leave_hours_users:
+        name = f"{user.first_name} {user.last_name}"
+        remaining_hours = user_leave_hours.remaining_hours
+        body = "\n".join([
+            f"Hi {user.first_name},",
+            "",
+            f"You currently have {remaining_hours:.2f} hours of PTO, "
+            f"which is more than the {CARRYOVER_CAP_DAYS}-day ({threshold_hours} hour) carryover limit.",
+            "Hours above the limit will be lost at year end, so please plan your time off.",
+            "",
+            f"{user.first_name}，您好，",
+            "",
+            f"您目前有 {remaining_hours:.2f} 小时的带薪休假，"
+            f"超过了 {CARRYOVER_CAP_DAYS} 天（{threshold_hours} 小时）的年底结转上限。",
+            "超出上限的小时数将在年底作废，请合理安排休假。",
+        ])
+        try:
+            send_email(
+                subject="PTO Balance Carryover Reminder",
+                recipients=[user.email],
+                body=body,
+                sender=app.config['MAIL_USERNAME'],
+            )
+            sent.append(name)
+        except Exception:
+            app.logger.exception("Failed to send PTO reminder to %s", name)
+            failed.append(name)
+
+    return jsonify({"sent": sent, "failed": failed}), 200
 
 if __name__ == '__main__':
     app.run(debug=True, port=5001)
