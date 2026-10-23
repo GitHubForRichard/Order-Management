@@ -1,5 +1,7 @@
 import os
 import io
+import logging
+import ssl
 import threading
 
 from datetime import datetime
@@ -12,8 +14,11 @@ from google.oauth2 import service_account
 SCOPES = ["https://www.googleapis.com/auth/drive.file"]
 SERVICE_ACCOUNT_FILE = os.getenv("GOOGLE_DRIVE_CRED_FILE_PATH")
 FOLDER_ID = os.getenv("GOOGLE_DRIVE_FOLDER_ID")
-CHUNK_SIZE = 5 * 1024 * 1024
+CHUNK_SIZE = 1024 * 1024
 NUM_RETRIES = 3
+MAX_CONNECTION_FAILURES = 10
+
+logger = logging.getLogger(__name__)
 
 creds = service_account.Credentials.from_service_account_file(
     SERVICE_ACCOUNT_FILE, scopes=SCOPES
@@ -27,6 +32,10 @@ def get_drive_service():
     if not hasattr(_thread_local, "service"):
         _thread_local.service = build("drive", "v3", credentials=creds)
     return _thread_local.service
+
+
+def reset_drive_service():
+    _thread_local.__dict__.pop("service", None)
 
 
 def get_web_view_link(file_id):
@@ -55,12 +64,25 @@ def upload_file_to_google_drive(file_obj):
         "parents": [FOLDER_ID] if FOLDER_ID else []
     }
 
-    # Upload to Drive
-    uploaded_file = (
-        get_drive_service().files()
-        .create(body=file_metadata, media_body=media, fields="id, webViewLink", supportsAllDrives=True)
-        .execute(num_retries=NUM_RETRIES)
+    request = get_drive_service().files().create(
+        body=file_metadata,
+        media_body=media,
+        fields="id, webViewLink",
+        supportsAllDrives=True,
     )
+
+    uploaded_file = None
+    failures = 0
+    while uploaded_file is None:
+        try:
+            _, uploaded_file = request.next_chunk(num_retries=NUM_RETRIES)
+        except (ssl.SSLError, ConnectionError) as e:
+            failures += 1
+            logger.warning("Drive upload connection error (%d/%d): %s", failures, MAX_CONNECTION_FAILURES, e)
+            if failures >= MAX_CONNECTION_FAILURES:
+                raise
+            reset_drive_service()
+            request.http = get_drive_service()._http
 
     return {
         "message": "File uploaded",
