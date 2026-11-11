@@ -105,7 +105,7 @@ const LeavePage: React.FC = () => {
             <Typography variant="h6">Leaves</Typography>
             <LeaveList
               leaves={leaves}
-              isManager={currentUser?.role === "manager"}
+              isManager={currentUser?.role === "manager" || currentUser?.role === "admin"}
             />
           </Grid>
 
