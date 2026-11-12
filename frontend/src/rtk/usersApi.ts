@@ -49,9 +49,42 @@ export const usersApi = baseApi.injectEndpoints({
         }
       },
     }),
+
+    setUserPassword: builder.mutation<
+      { message: string },
+      { id: string; password: string }
+    >({
+      query: ({ id, password }) => ({
+        url: `users/${id}/password`,
+        method: "PUT",
+        body: { password },
+      }),
+      async onQueryStarted(_arg, { queryFulfilled, dispatch }) {
+        try {
+          await queryFulfilled;
+          dispatch(
+            notify({
+              message: "Password updated",
+              severity: "success",
+            })
+          );
+        } catch ({ error }: any) {
+          dispatch(
+            notify({
+              message: error?.data?.error || "Failed to update password",
+              severity: "error",
+            })
+          );
+        }
+      },
+    }),
   }),
   overrideExisting: false,
 });
 
-export const { useGetUsersQuery, useGetUserQuery, useUpdateUserMutation } =
-  usersApi;
+export const {
+  useGetUsersQuery,
+  useGetUserQuery,
+  useUpdateUserMutation,
+  useSetUserPasswordMutation,
+} = usersApi;

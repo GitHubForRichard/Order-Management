@@ -1107,6 +1107,33 @@ def update_user(user_id):
         db.session.rollback()
         return jsonify({'error': str(e)}), 500
 
+
+@app.route('/api/users/<user_id>/password', methods=['PUT'])
+@jwt_required
+def set_user_password(user_id):
+    """Set a new password for a user (admin only)"""
+    if request.user.role != "admin":
+        return jsonify({"error": "Unauthorized: Only admins can reset passwords"}), 403
+
+    user = User.query.get(user_id)
+    if not user:
+        return jsonify({'error': 'User not found'}), 404
+
+    password = (request.get_json() or {}).get("password", "")
+    if not password:
+        return jsonify({"error": "Password is required"}), 400
+
+    user.password_hash = generate_password_hash(password)
+    db.session.add(AuditLog(
+        action=AuditLogActions.UPDATED,
+        entity=User.__tablename__,
+        entity_id=user.id,
+        field="password",
+        created_by=request.user.id,
+    ))
+    db.session.commit()
+    return jsonify({"message": "Password updated"})
+
 @app.route('/api/health', methods=['GET'])
 def health_check():
     """Health check endpoint"""
