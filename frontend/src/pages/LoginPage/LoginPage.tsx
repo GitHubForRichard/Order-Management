@@ -133,6 +133,17 @@ const LoginPage = () => {
                 ),
               }}
             />
+            <Box sx={{ textAlign: "right", mt: 0.5 }}>
+              <Link
+                component="button"
+                type="button"
+                variant="body2"
+                sx={{ color: "#0c3f81" }}
+                onClick={() => navigate("/reset-password")}
+              >
+                Forgot password?
+              </Link>
+            </Box>
             <Button
               type="submit"
               variant="contained"

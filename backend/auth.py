@@ -1,4 +1,5 @@
 import jwt
+import uuid
 from datetime import datetime, timedelta, timezone
 from flask import request, jsonify
 from functools import wraps
@@ -6,6 +7,8 @@ from functools import wraps
 from config import JWT_SECRET_KEY
 from constants import UserStatus
 from models import User
+
+RESET_TOKEN_TTL_MINUTES = 30
 
 
 def generate_jwt(user_id: str, expires_in: int = 3600 * 24):
@@ -49,3 +52,30 @@ def jwt_required(f):
 
         return f(*args, **kwargs)
     return decorated_function
+
+
+def _reset_signing_key(user: User) -> str:
+    return JWT_SECRET_KEY + user.password_hash
+
+
+def generate_reset_token(user: User) -> str:
+    """Generate a password reset token that stops working once the password changes"""
+    now = datetime.now(timezone.utc)
+    payload = {
+        "sub": str(user.id),
+        "exp": now + timedelta(minutes=RESET_TOKEN_TTL_MINUTES),
+        "iat": now
+    }
+    return jwt.encode(payload, _reset_signing_key(user), algorithm="HS256")
+
+
+def user_from_reset_token(token: str):
+    """Return the user a valid reset token belongs to, or None"""
+    try:
+        unverified = jwt.decode(token, options={"verify_signature": False})
+        user = User.query.get(uuid.UUID(str(unverified.get("sub"))))
+        if user:
+            jwt.decode(token, _reset_signing_key(user), algorithms=["HS256"])
+        return user
+    except (jwt.InvalidTokenError, ValueError):
+        return None

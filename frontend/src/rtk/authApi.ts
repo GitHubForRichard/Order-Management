@@ -1,7 +1,16 @@
 import { baseApi, setAuthToken } from "rtkApi";
 import { notify } from "../redux/notificationsSlice";
-import { LoginRequest, RegisterRequest } from "./requests/authApiRequest";
-import { LoginResponse, RegisterResponse } from "./responses/authApiResponses";
+import {
+  ForgotPasswordRequest,
+  LoginRequest,
+  RegisterRequest,
+  ResetPasswordRequest,
+} from "./requests/authApiRequest";
+import {
+  LoginResponse,
+  MessageResponse,
+  RegisterResponse,
+} from "./responses/authApiResponses";
 
 export const authApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
@@ -44,8 +53,59 @@ export const authApi = baseApi.injectEndpoints({
         }
       },
     }),
+
+    forgotPassword: builder.mutation<MessageResponse, ForgotPasswordRequest>({
+      query: (payload) => ({
+        url: "/forgot-password",
+        method: "POST",
+        body: payload,
+      }),
+      async onQueryStarted(_, { dispatch, queryFulfilled }) {
+        try {
+          await queryFulfilled;
+        } catch ({ error }: any) {
+          dispatch(
+            notify({
+              message: error?.data?.error || "Failed to send reset link",
+              severity: "error",
+            })
+          );
+        }
+      },
+    }),
+
+    resetPassword: builder.mutation<MessageResponse, ResetPasswordRequest>({
+      query: (payload) => ({
+        url: "/reset-password",
+        method: "POST",
+        body: payload,
+      }),
+      async onQueryStarted(_, { dispatch, queryFulfilled }) {
+        try {
+          await queryFulfilled;
+          dispatch(
+            notify({
+              message: "Password updated. Please sign in.",
+              severity: "success",
+            })
+          );
+        } catch ({ error }: any) {
+          dispatch(
+            notify({
+              message: error?.data?.error || "Failed to reset password",
+              severity: "error",
+            })
+          );
+        }
+      },
+    }),
   }),
   overrideExisting: false,
 });
 
-export const { useLoginMutation, useRegisterMutation } = authApi;
+export const {
+  useLoginMutation,
+  useRegisterMutation,
+  useForgotPasswordMutation,
+  useResetPasswordMutation,
+} = authApi;

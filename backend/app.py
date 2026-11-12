@@ -13,9 +13,10 @@ from requests.auth import HTTPBasicAuth
 from sqlalchemy import desc
 from werkzeug.security import generate_password_hash, check_password_hash
 
-from auth import generate_jwt, jwt_required
+from auth import RESET_TOKEN_TTL_MINUTES, generate_jwt, generate_reset_token, jwt_required, user_from_reset_token
 from constants import SACRAMENTO_SUPERVISOR_EMAIL, AuditLogActions, DB_HOST, DB_NAME, DB_PASSWORD, DB_PORT, DB_USER, UserStatus
 from config import (
+    FRONTEND_URL,
     MAIL_PASSWORD,
     MAIL_PORT,
     MAIL_SERVER,
@@ -467,6 +468,42 @@ def login():
 
     token = generate_jwt(str(user.id))
     return jsonify({"token": token, "user": user.to_dict()})
+
+
+@app.route("/api/forgot-password", methods=["POST"])
+def forgot_password():
+    email = (request.json or {}).get("email", "").strip()
+    user = User.query.filter_by(email=email).first()
+    if user and user.status == UserStatus.ACTIVE:
+        reset_link = f"{FRONTEND_URL}/reset-password?token={generate_reset_token(user)}"
+        send_email(
+            subject="Reset your password",
+            recipients=[user.email],
+            body=(
+                f"Hi {user.first_name},\n\n"
+                f"Use this link to reset your password. It expires in {RESET_TOKEN_TTL_MINUTES} minutes.\n"
+                f"{reset_link}\n\n"
+                "If you didn't ask for a password reset, you can ignore this email."
+            ),
+            sender=app.config['MAIL_USERNAME']
+        )
+    return jsonify({"message": "If that email has an account, a reset link is on its way."})
+
+
+@app.route("/api/reset-password", methods=["POST"])
+def reset_password():
+    data = request.json or {}
+    password = data.get("password", "")
+    if not password:
+        return jsonify({"error": "Password is required"}), 400
+
+    user = user_from_reset_token(data.get("token", ""))
+    if not user or user.status != UserStatus.ACTIVE:
+        return jsonify({"error": "This reset link is invalid or has expired"}), 400
+
+    user.password_hash = generate_password_hash(password)
+    db.session.commit()
+    return jsonify({"message": "Password updated"})
 
 
 @app.route('/api/model-numbers', methods=['GET'])

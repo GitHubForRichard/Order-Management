@@ -8,6 +8,7 @@ import { AuthProvider, useAuth } from "./hooks/useAuth";
 import HomePage from "pages/HomePage/HomePage";
 import LoginPage from "./pages/LoginPage/LoginPage";
 import RegisterPage from "./pages/RegisterPage/RegisterPage";
+import ResetPasswordPage from "./pages/ResetPasswordPage/ResetPasswordPage";
 
 import "./App.css";
 import { Notifications } from "./components/Notifications";
@@ -39,6 +40,7 @@ const App = () => {
         <Routes>
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
+          <Route path="/reset-password" element={<ResetPasswordPage />} />
           <Route
             path="/"
             element={

@@ -9,3 +9,7 @@ export interface RegisterResponse {
   token: string;
   user: User;
 }
+
+export type MessageResponse = {
+  message: string;
+};
